@@ -36,10 +36,10 @@ jid1=$(sbatch --account="$ACCOUNT" 00_prep_star_index.slurm | awk '{print $4}')
 echo "prep_star_index jobid = $jid1"
 
 # 2) STAR alignment array
-# CPU cap = 20 total CPUs:
-#   cpus-per-task = 4  (defined inside 01_star_align_array.slurm)
-#   concurrency   = 5  (the %5 below)
-# => 4 * 5 = 20 CPUs total
+ CPU cap = 20 total CPUs:
+   cpus-per-task = 4  (defined inside 01_star_align_array.slurm)
+   concurrency   = 5  (the %5 below)
+ => 4 * 5 = 20 CPUs total
 jid2=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid1 --array=0-999%5 \
   01_star_align_array.slurm "$FASTQ_DIR" | awk '{print $4}')
 echo "star_align array jobid = $jid2"
