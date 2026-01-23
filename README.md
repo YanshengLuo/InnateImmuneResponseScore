@@ -44,6 +44,12 @@ jid2=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid1 --array=0-999%5 \
   01_star_align_array.slurm "$FASTQ_DIR" | awk '{print $4}')
 echo "star_align array jobid = $jid2"
 
+------------------------------------------------
+or just copy:
+sbatch --array=0-9%5 01_star_align_array.slurm /orange/qsong1/Yansheng/01_raw/fastq/GSE264344
+
+------------------------------------------------
+
 # 3) featureCounts merge (runs after ALL array tasks succeed)
 jid3=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid2 \
   02_featurecounts_merge.slurm "$FASTQ_DIR" | awk '{print $4}')
