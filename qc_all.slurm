@@ -9,6 +9,7 @@
 #SBATCH --mail-type=BEGIN,END,FAIL
 
 set -euo pipefail
+trap 'echo "ERROR at line $LINENO. Exit code $?"; exit 1' ERR
 
 # =========================
 # Argument check
@@ -19,7 +20,6 @@ if [[ $# -ne 1 ]]; then
 fi
 
 DATA_DIR=$(realpath "$1")
-
 if [[ ! -d "${DATA_DIR}" ]]; then
   echo "ERROR: FASTQ directory not found: ${DATA_DIR}" >&2
   exit 1
@@ -40,12 +40,7 @@ LOG_DIR="/orange/qsong1/Yansheng/logs"
 # Ensure all directories exist
 # =========================
 for DIR in "${QC_ROOT}" "${FASTQC_OUT}" "${MULTIQC_OUT}" "${SUMMARY_DIR}" "${LOG_DIR}"; do
-  if [[ ! -d "${DIR}" ]]; then
-    mkdir -p "${DIR}" || {
-      echo "ERROR: Failed to create directory ${DIR}" >&2
-      exit 1
-    }
-  fi
+  mkdir -p "${DIR}" || { echo "ERROR: Failed to create ${DIR}" >&2; exit 1; }
 done
 
 echo "=== QC job started ==="
@@ -76,7 +71,6 @@ fi
 
 echo "FASTQ file count: ${N}"
 
-# Paired-end naming heuristic
 N_R1=$(find "${DATA_DIR}" -maxdepth 1 -type f \( -name "*_1.fastq.gz" -o -name "*_R1*.fastq.gz" \) | wc -l || true)
 N_R2=$(find "${DATA_DIR}" -maxdepth 1 -type f \( -name "*_2.fastq.gz" -o -name "*_R2*.fastq.gz" \) | wc -l || true)
 
@@ -86,47 +80,63 @@ else
   echo "No paired-end naming detected → likely single-end"
 fi
 
-# Gzip integrity check (sampled)
 CHECK_K=$(( N < 5 ? N : 5 ))
 echo "Checking gzip integrity (${CHECK_K}/${N})..."
 for i in $(seq 0 $((CHECK_K-1))); do
   gzip -t "${FQS[$i]}"
 done
 echo "Gzip integrity check passed"
+echo
 
-# Read length inference
-READLEN=$(zcat "${FQS[0]}" | awk 'NR==2{print length($0); exit}')
-HEADER=$(zcat "${FQS[0]}" | awk 'NR==1{print $0; exit}')
+# Write FASTQ list early (always useful)
+printf "%s\n" "${FQS[@]}" > "${SUMMARY_DIR}/fastq_list.txt"
 
-echo "Example FASTQ header:"
-echo "${HEADER}"
-echo "Inferred read length: ${READLEN}"
+# =========================
+# Read length inference (SAFE: no SIGPIPE)
+# =========================
+echo "Inferring read length from first file..."
+FIRST="${FQS[0]}"
 
-echo -e "file\tread_length\n${FQS[0]}\t${READLEN}" \
-  > "${SUMMARY_DIR}/read_length_first_file.tsv"
+python3 - <<PY
+import gzip
+f = "${FIRST}"
+out = "${SUMMARY_DIR}/read_length_first_file.tsv"
+try:
+    with gzip.open(f, "rt") as fh:
+        header = fh.readline().rstrip("\n")
+        seq = fh.readline().rstrip("\n")
+    readlen = len(seq) if seq else "NA"
+    with open(out, "w") as w:
+        w.write("file\tread_length\n")
+        w.write(f"{f}\t{readlen}\n")
+    print("Example FASTQ header:")
+    print(header)
+    print(f"Inferred read length: {readlen}")
+except Exception as e:
+    with open(out, "w") as w:
+        w.write("file\tread_length\n")
+        w.write(f"{f}\tNA\n")
+    print("WARNING: Could not infer read length:", e)
+PY
 
 # =========================
 # FastQC
 # =========================
 echo
-echo "=== Running FastQC ==="
-
+echo "=== Running FastQC on all files ==="
 PARALLEL=$(( SLURM_CPUS_PER_TASK > 1 ? SLURM_CPUS_PER_TASK : 1 ))
-
-printf "%s\n" "${FQS[@]}" > "${SUMMARY_DIR}/fastq_list.txt"
 
 cat "${SUMMARY_DIR}/fastq_list.txt" | \
   xargs -I {} -P "${PARALLEL}" \
   fastqc --quiet -t 1 -o "${FASTQC_OUT}" {}
 
 echo "FastQC finished"
+echo
 
 # =========================
 # MultiQC
 # =========================
-echo
 echo "=== Running MultiQC ==="
-
 multiqc "${FASTQC_OUT}" -o "${MULTIQC_OUT}"
 
 if [[ ! -f "${MULTIQC_OUT}/multiqc_report.html" ]]; then
@@ -136,14 +146,7 @@ fi
 
 echo "MultiQC report:"
 echo "${MULTIQC_OUT}/multiqc_report.html"
-
-# =========================
-# Final summary
-# =========================
 echo
+
 echo "=== QC completed successfully ==="
-echo "Dataset      : ${DATASET}"
-echo "FASTQ files  : ${N}"
-echo "Read length  : ${READLEN}"
-echo "QC directory : ${QC_ROOT}"
 date
