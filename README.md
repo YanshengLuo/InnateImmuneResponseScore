@@ -23,6 +23,7 @@ Expected scripts (already created earlier):
 COPY/PASTE COMMANDS
 ------------------------------------------------
 
+# Before start, you may need to run : dos2unix *.slurm
 # 0) Set variables (EDIT THESE THREE)
 ACCOUNT="qsong1"
 PROJECT_ROOT="/orange/qsong1/PROJECT_NAME"      # <-- change PROJECT_NAME to your folder
