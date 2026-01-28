@@ -1,4 +1,4 @@
-# InnateImmuneResponseScore
+# Innate Immune Response Score
 This is a project contains python and shell script for processing bulk-RNA data and R codes for data analysis and modeling.
 
 # Step 1: Download cDNA files using srr_download script
@@ -7,8 +7,7 @@ sbatch srr_download_dabaseinput.slurm <database>[start end]
 ```
 # Step 2: Run sequence alignment and featurecounts to generate gene expression table
 
-HOW TO RUN: STAR (array) + featureCounts (merge)
-================================================
+### HOW TO RUN: STAR (array) + featureCounts (merge)
 
 Goal:
 - Build STAR index once (mm39/GRCm39 + GENCODE M38)
