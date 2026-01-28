@@ -28,13 +28,13 @@ COPY/PASTE COMMANDS
 dos2unix *.slurm
 ```
 # 0) Set variables (EDIT THESE THREE)
+```bash
 ACCOUNT="qsong1"
 PROJECT_ROOT="/orange/qsong1/PROJECT_NAME"      # <-- change PROJECT_NAME to your folder
 SCRIPTS_DIR="$PROJECT_ROOT/Hypergator_scripts"
 FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344" # <-- change dataset folder as needed
-
 cd "$SCRIPTS_DIR"
-
+```
 # 1) Build STAR index (run once)
 ```bash
 sbatch --account="$ACCOUNT" 00_prep_star_index.slurm 
