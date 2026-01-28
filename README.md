@@ -33,8 +33,9 @@ FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344" # <-- change dataset folder as 
 cd "$SCRIPTS_DIR"
 
 # 1) Build STAR index (run once)
-jid1=$(sbatch --account="$ACCOUNT" 00_prep_star_index.slurm | awk '{print $4}')
-echo "prep_star_index jobid = $jid1"
+```bash
+sbatch --account="$ACCOUNT" 00_prep_star_index.slurm 
+```
 
 # 2) STAR alignment array
  CPU cap = 20 total CPUs:
@@ -47,26 +48,28 @@ echo "star_align array jobid = $jid2"
 
 ------------------------------------------------
 or just copy:
+```bash
 sbatch --array=0-9%5 01_star_align_array.slurm /orange/qsong1/Yansheng/01_raw/fastq/GSE264344
-
+```
 ------------------------------------------------
 
 # 3) featureCounts merge (runs after ALL array tasks succeed)
+```bash
 jid3=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid2 \
   02_featurecounts_merge.slurm "$FASTQ_DIR" | awk '{print $4}')
 echo "featureCounts jobid = $jid3"
-
+```
 ------------------------------------------------
 MONITORING
 ------------------------------------------------
-
+```bash
 squeue -u "$USER"
 ls -lh "$PROJECT_ROOT/logs" | tail -n 20
 
 DATASET=$(basename "$FASTQ_DIR")
 echo "Outputs:"
 echo "$PROJECT_ROOT/03_counts/$DATASET/"
-
+```
 ------------------------------------------------
 EXPECTED OUTPUTS (per dataset)
 ------------------------------------------------
