@@ -3,7 +3,7 @@ This is a project contains python and shell script for processing bulk-RNA data 
 
 # Step 1: Download cDNA files using srr_download script
 ```bash
-sbatch srr_download_dabaseinput.slurm <database>[start end]
+sbatch SRR_download_database_as_input.slurm <database>[start end]
 ```
 # Step 2: Run sequence alignment and featurecounts to generate gene expression table
 
