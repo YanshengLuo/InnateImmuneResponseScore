@@ -86,10 +86,28 @@ ALN_QC="${OUT_ROOT}/qc_alignment"
 FC_ROOT="${OUT_ROOT}/featurecounts"
 LOG_DIR="${PROJECT_ROOT}/logs"
 
-REF_ROOT="${PROJECT_ROOT}/00_metadata/reference/mm39_gencodeM38"
+# -------------------------
+# Reference selection (mouse default, HUMAN override)
+# -------------------------
+
+DATASET_LOWER=$(echo "${DATASET}" | tr '[:upper:]' '[:lower:]')
+
+REF_MOUSE="${PROJECT_ROOT}/00_metadata/reference/mm39_gencodeM38"
+REF_HUMAN="${PROJECT_ROOT}/00_metadata/reference/GRCh38_gencode49"
+
+if [[ "${DATASET_LOWER}" == *_human ]]; then
+    REF_ROOT="${REF_HUMAN}"
+    SPECIES="human (GRCh38 + GENCODE v49)"
+else
+    REF_ROOT="${REF_MOUSE}"
+    SPECIES="mouse (mm39 + GENCODE M38)"
+fi
+
 GTF_GZ="${REF_ROOT}/genes.gtf.gz"
 GTF_TMP="${REF_ROOT}/genes.gtf"
 
+echo "Detected species: ${SPECIES}"
+echo "Using reference: ${REF_ROOT}"
 mkdir -p "${LOG_DIR}" "${ALN_QC}" "${FC_ROOT}"
 
 module load samtools
