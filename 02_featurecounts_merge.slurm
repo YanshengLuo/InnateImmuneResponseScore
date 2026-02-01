@@ -10,10 +10,12 @@
 #   3) Run featureCounts ONCE to produce a gene-level count matrix
 #
 # INPUT
-#   sbatch 02_featurecounts_merge.slurm <FASTQ_DIR>
-#   FASTQ_DIR is used ONLY to infer the dataset name (basename) and locate outputs:
-#     - manifest: 03_counts/<DATASET>/manifest/fastq_manifest.tsv
-#     - STAR outputs: 03_counts/<DATASET>/star/<SAMPLE>/
+#   sbatch 02_featurecounts_merge.slurm <FASTQ_DIR> [auto|paired|single]
+#
+#   Optional layout override:
+#     auto   (default) : detect from BAM flags and enforce not-mixed
+#     paired           : force paired-end counting and verify BAMs are paired
+#     single           : force single-end counting and verify BAMs are single
 #
 # OUTPUTS (per dataset)
 #   03_counts/<DATASET>/featurecounts/gene_counts.tsv
@@ -27,11 +29,14 @@
 #
 # NOTES
 #   - Species detection:
-#       default mouse for GSExxxx
+#       mouse default for GSExxxx
 #       human for GSExxxx_HUMAN (case-insensitive)
 #   - Library layout detection:
-#       auto-detect paired-end vs single-end from BAM flags
+#       uses BAM flags (samtools view -c -f 1) to detect paired-end
 #       hard-stop if mixed PE + SE within one dataset
+#   - Paired-end counting:
+#       uses -p + --countReadPairs (count fragments, not individual reads)
+#       plus -B -C (recommended for standard paired RNA-seq)
 # ============================================================
 
 #SBATCH --job-name=featurecounts
@@ -46,13 +51,29 @@
 
 set -euo pipefail
 
-if [[ $# -ne 1 ]]; then
-  echo "USAGE: sbatch 02_featurecounts_merge.slurm <FASTQ_DIR>" >&2
+# -------------------------
+# Args
+# -------------------------
+if [[ $# -lt 1 || $# -gt 2 ]]; then
+  echo "USAGE: sbatch 02_featurecounts_merge.slurm <FASTQ_DIR> [auto|paired|single]" >&2
+  echo "  Optional layout override:" >&2
+  echo "    auto   (default) : detect from BAM flags and enforce not-mixed" >&2
+  echo "    paired           : force paired-end counting (fragments) and verify BAMs are paired" >&2
+  echo "    single           : force single-end counting and verify BAMs are single" >&2
   exit 1
 fi
 
 DATA_DIR=$(realpath "$1")
 DATASET=$(basename "${DATA_DIR}")
+
+FORCE_LAYOUT="${2:-auto}"
+case "${FORCE_LAYOUT}" in
+  auto|paired|single) ;;
+  *)
+    echo "ERROR: invalid layout override: ${FORCE_LAYOUT} (use auto|paired|single)" >&2
+    exit 1
+    ;;
+esac
 
 PROJECT_ROOT="/orange/qsong1/Yansheng"
 OUT_ROOT="${PROJECT_ROOT}/03_counts/${DATASET}"
@@ -80,31 +101,33 @@ else
 fi
 
 GTF_GZ="${REF_ROOT}/genes.gtf.gz"
-GTF_TMP="${REF_ROOT}/genes.gtf"
 
 mkdir -p "${LOG_DIR}" "${ALN_QC}" "${FC_ROOT}" "${META_DIR}"
 
 module load samtools
 module load subread
 
-echo "Dataset         : ${DATASET}"
-echo "FASTQ dir (tag) : ${DATA_DIR}"
-echo "Detected species: ${SPECIES}"
-echo "Using reference : ${REF_ROOT}"
+echo "Dataset             : ${DATASET}"
+echo "FASTQ dir (tag)     : ${DATA_DIR}"
+echo "Detected species    : ${SPECIES}"
+echo "Using reference     : ${REF_ROOT}"
+echo "Layout override     : ${FORCE_LAYOUT}"
 echo
 
 [[ -s "${MANIFEST}" ]] || { echo "ERROR: missing manifest: ${MANIFEST}" >&2; exit 1; }
 [[ -s "${GTF_GZ}" ]] || { echo "ERROR: missing GTF: ${GTF_GZ}" >&2; exit 1; }
 
 NSAMPLES=$(( $(wc -l < "${MANIFEST}") - 1 ))
-echo "Expected samples: ${NSAMPLES}"
+echo "Expected samples    : ${NSAMPLES}"
 echo
 
+# -------------------------
 # Collect BAMs and alignment rows
+# -------------------------
 BAMS=()
+
 echo -e "sample\tinput_fastq\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads" > "${ALN_QC}/alignment_stats.tsv"
 
-# Collect Log.final.out metrics independently (second source of truth)
 LOGFINAL_TSV="${ALN_QC}/log_final_metrics.tsv"
 echo -e "sample\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads" > "${LOGFINAL_TSV}"
 
@@ -115,7 +138,6 @@ while IFS=$'\t' read -r sample fq1 fq2; do
   ROW="${STAR_ROOT}/${sample}/alignment_row.tsv"
   LOGFINAL="${STAR_ROOT}/${sample}/Log.final.out"
 
-  # --- Sanity checks: required outputs from STAR ---
   [[ -s "${BAM}" ]] || { echo "ERROR: missing BAM for ${sample}: ${BAM}" >&2; exit 1; }
   samtools quickcheck -v "${BAM}" || { echo "ERROR: BAM fails quickcheck: ${BAM}" >&2; exit 1; }
 
@@ -125,10 +147,8 @@ while IFS=$'\t' read -r sample fq1 fq2; do
   grep -q "Uniquely mapped reads %" "${LOGFINAL}" \
     || { echo "ERROR: Log.final.out incomplete/corrupt for ${sample}: ${LOGFINAL}" >&2; exit 1; }
 
-  # Append the STAR-derived row (created during alignment)
   cat "${ROW}" >> "${ALN_QC}/alignment_stats.tsv"
 
-  # Parse key metrics from Log.final.out (robust completion confirmation)
   UM=$(awk -F'\\|' '/Uniquely mapped reads %/ {gsub(/[%[:space:]]/,"",$2); print $2}' "${LOGFINAL}")
   MM=$(awk -F'\\|' '/% of reads mapped to multiple loci/ {gsub(/[%[:space:]]/,"",$2); print $2}' "${LOGFINAL}")
   TS=$(awk -F'\\|' '/% of reads unmapped: too short/ {gsub(/[%[:space:]]/,"",$2); print $2}' "${LOGFINAL}")
@@ -142,12 +162,11 @@ while IFS=$'\t' read -r sample fq1 fq2; do
   BAMS+=("${BAM}")
 done < "${MANIFEST}"
 
-echo "BAMs found      : ${#BAMS[@]}"
+echo "BAMs found          : ${#BAMS[@]}"
 echo
 
 # -------------------------
-# Detect library layout (paired-end vs single-end) from BAM flags
-# Hard stop if mixed
+# Detect library layout from BAM flags (robust)
 # -------------------------
 echo "[CHECK] Detecting library layout from BAM flags..."
 pe=0
@@ -156,9 +175,12 @@ pe_samples=()
 se_samples=()
 
 for bam in "${BAMS[@]}"; do
-  s=$(basename "$(dirname "${bam}")")  # STAR_ROOT/<sample>/Aligned...
-  # If any of the first 10k records has flag bit 0x1 set, it's paired
-  if samtools view -@ 1 "${bam}" 2>/dev/null | head -n 10000 | awk '{ if (and($2,1)) {found=1; exit} } END{ exit(found?0:1) }'; then
+  s=$(basename "$(dirname "${bam}")")
+
+  # Count records with paired flag (0x1). If >0, paired-end reads exist in this BAM.
+  npaired=$(samtools view -c -f 1 -@ 1 "${bam}" 2>/dev/null || echo 0)
+
+  if (( npaired > 0 )); then
     pe=$((pe+1))
     pe_samples+=("${s}")
   else
@@ -167,27 +189,82 @@ for bam in "${BAMS[@]}"; do
   fi
 done
 
-echo "[CHECK] paired-end BAMs : ${pe}"
-echo "[CHECK] single-end BAMs : ${se}"
+echo "[CHECK] paired-end BAMs     : ${pe}"
+echo "[CHECK] single-end BAMs     : ${se}"
 
+AUTO_LAYOUT="SINGLE_END"
 if (( pe > 0 && se > 0 )); then
-  echo "ERROR: Mixed paired-end and single-end BAMs detected in this dataset." >&2
-  echo "       You must split the dataset or fix the upstream manifest/STAR step." >&2
-  echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
-  echo "       Example single sample: ${se_samples[0]:-NA}" >&2
+  AUTO_LAYOUT="MIXED"
+elif (( pe > 0 )); then
+  AUTO_LAYOUT="PAIRED_END"
+else
+  AUTO_LAYOUT="SINGLE_END"
+fi
+
+LIB_LAYOUT="${AUTO_LAYOUT}"
+FC_MODE_FLAGS=()
+
+if [[ "${FORCE_LAYOUT}" == "auto" ]]; then
+  if [[ "${AUTO_LAYOUT}" == "MIXED" ]]; then
+    echo "ERROR: Mixed paired-end and single-end BAMs detected in this dataset." >&2
+    echo "       Fix upstream manifest/STAR step or split the dataset." >&2
+    echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
+    echo "       Example single sample: ${se_samples[0]:-NA}" >&2
+    exit 1
+  fi
+
+  if [[ "${AUTO_LAYOUT}" == "PAIRED_END" ]]; then
+    echo "[CHECK] Auto-detected paired-end: using -p --countReadPairs -B -C"
+    FC_MODE_FLAGS=(-p --countReadPairs -B -C)
+  else
+    echo "[CHECK] Auto-detected single-end: using single-end counting"
+  fi
+
+elif [[ "${FORCE_LAYOUT}" == "paired" ]]; then
+  LIB_LAYOUT="PAIRED_END"
+  echo "[CHECK] Forced paired-end counting: using -p --countReadPairs -B -C"
+  FC_MODE_FLAGS=(-p --countReadPairs -B -C)
+
+  if (( pe == 0 )); then
+    echo "ERROR: Forced 'paired' but no BAM shows paired-end flag (0x1)." >&2
+    echo "       Example single sample: ${se_samples[0]:-NA}" >&2
+    exit 1
+  fi
+  if (( se > 0 )); then
+    echo "ERROR: Forced 'paired' but some BAMs look single-end (mixed dataset)." >&2
+    echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
+    echo "       Example single sample: ${se_samples[0]:-NA}" >&2
+    exit 1
+  fi
+
+elif [[ "${FORCE_LAYOUT}" == "single" ]]; then
+  LIB_LAYOUT="SINGLE_END"
+  echo "[CHECK] Forced single-end counting"
+
+  if (( se == 0 )); then
+    echo "ERROR: Forced 'single' but all BAMs show paired-end flag (0x1)." >&2
+    echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
+    exit 1
+  fi
+  if (( pe > 0 )); then
+    echo "ERROR: Forced 'single' but some BAMs look paired-end (mixed dataset)." >&2
+    echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
+    echo "       Example single sample: ${se_samples[0]:-NA}" >&2
+    exit 1
+  fi
+fi
+
+echo "[CHECK] Auto-detected layout : ${AUTO_LAYOUT}"
+echo "[CHECK] Requested override   : ${FORCE_LAYOUT}"
+echo "[CHECK] Effective layout     : ${LIB_LAYOUT}"
+echo
+
+# Extra guard: prevent accidental single-end counting on paired data
+if (( pe > 0 )) && [[ "${LIB_LAYOUT}" != "PAIRED_END" ]]; then
+  echo "ERROR: BAMs contain paired-end reads, but effective LIB_LAYOUT is not PAIRED_END." >&2
+  echo "       This would count paired reads in single-end mode (WRONG)." >&2
   exit 1
 fi
-
-FC_MODE_FLAGS=()
-LIB_LAYOUT="SINGLE_END"
-if (( pe > 0 )); then
-  echo "[CHECK] Using paired-end counting mode: -p -B -C"
-  FC_MODE_FLAGS=(-p -B -C)
-  LIB_LAYOUT="PAIRED_END"
-else
-  echo "[CHECK] Using single-end counting mode"
-fi
-echo
 
 # -------------------------
 # Log library layout metadata
@@ -195,114 +272,13 @@ echo
 LIB_LAYOUT_FILE="${META_DIR}/library_layout.txt"
 
 {
-  echo "Dataset           : ${DATASET}"
-  echo "Species           : ${SPECIES}"
-  echo "Library layout    : ${LIB_LAYOUT}"
-  echo "Total samples     : ${NSAMPLES}"
-  echo "Paired-end count  : ${pe}"
-  echo "Single-end count  : ${se}"
-  echo "Reference used    : ${REF_ROOT}"
-  echo "Generated on      : $(date)"
-  echo
-  echo "Example paired samples:"
-  printf "%s\n" "${pe_samples[@]:0:5}"
-  echo
-  echo "Example single samples:"
-  printf "%s\n" "${se_samples[@]:0:5}"
-} > "${LIB_LAYOUT_FILE}"
-
-echo "[INFO] Library layout metadata written to:"
-echo "       ${LIB_LAYOUT_FILE}"
-echo
-
-# -------------------------
-# Post-run sanity checks (alignment outliers)
-# -------------------------
-UNIQ_MIN=50
-TOO_SHORT_MAX=20
-MULTI_MAX=20
-READS_MIN=1000000
-
-OUTLIERS="${ALN_QC}/alignment_outliers.tsv"
-SUMMARY="${ALN_QC}/alignment_summary.txt"
-CATA="${ALN_QC}/alignment_catastrophic.tsv"
-
-echo -e "sample\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads\treasons" > "${OUTLIERS}"
-
-awk -v umin="${UNIQ_MIN}" -v tmax="${TOO_SHORT_MAX}" -v mmax="${MULTI_MAX}" -v rmin="${READS_MIN}" -F'\t' '
-NR==1 {next}
-{
-  s=$1; um=$3+0; mm=$4+0; ts=$5+0; rd=$6+0;
-  r="";
-  if (um < umin) r=r "low_unique;";
-  if (ts > tmax) r=r "high_too_short;";
-  if (mm > mmax) r=r "high_multimap;";
-  if (rd < rmin) r=r "low_reads;";
-  if (r != "") print s "\t" um "\t" mm "\t" ts "\t" rd "\t" r;
-}' "${ALN_QC}/alignment_stats.tsv" >> "${OUTLIERS}"
-
-awk -F'\t' '
-function sort(a,n, i,j,t){for(i=1;i<=n;i++)for(j=i+1;j<=n;j++)if(a[i]>a[j]){t=a[i];a[i]=a[j];a[j]=t}}
-NR==1{next}
-{um[++n]=$3+0; mm[n]=$4+0; ts[n]=$5+0; rd[n]=$6+0}
-END{
-  sort(um,n); sort(mm,n); sort(ts,n); sort(rd,n);
-  mid=int((n+1)/2);
-  printf("Samples: %d\n", n);
-  printf("UniqMap%%  min/med/max: %.2f / %.2f / %.2f\n", um[1], um[mid], um[n]);
-  printf("MultiMap%% min/med/max: %.2f / %.2f / %.2f\n", mm[1], mm[mid], mm[n]);
-  printf("TooShort%% min/med/max: %.2f / %.2f / %.2f\n", ts[1], ts[mid], ts[n]);
-  printf("Reads     min/med/max: %.0f / %.0f / %.0f\n", rd[1], rd[mid], rd[n]);
-}' "${ALN_QC}/alignment_stats.tsv" | tee "${SUMMARY}"
-
-echo -e "sample\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads\treasons" > "${CATA}"
-awk -F'\t' '
-NR==1{next}
-{
-  s=$1; um=$3+0; mm=$4+0; ts=$5+0; rd=$6+0; r="";
-  if (um < 30) r=r "uniq<30;";
-  if (ts > 40) r=r "too_short>40;";
-  if (rd < 200000) r=r "reads<200k;";
-  if (r!="") print s "\t" um "\t" mm "\t" ts "\t" rd "\t" r;
-}' "${ALN_QC}/alignment_stats.tsv" >> "${CATA}"
-
-CATA_COUNT=$(( $(wc -l < "${CATA}") - 1 ))
-echo "Catastrophic flagged: ${CATA_COUNT} / ${NSAMPLES}"
-echo
-
-# -------------------------
-# featureCounts
-# -------------------------
-echo "Running featureCounts..."
-
-# Ensure temporary uncompressed GTF is unique per job/dataset (avoid race conditions)
-GTF_TMP="${FC_ROOT}/genes.${SLURM_JOB_ID}.gtf"
-trap 'rm -f "${GTF_TMP}"' EXIT
-
-zcat "${GTF_GZ}" > "${GTF_TMP}"
-[[ -s "${GTF_TMP}" ]] || { echo "ERROR: GTF tmp is empty: ${GTF_TMP}" >&2; exit 1; }
-
-# Sanity: must contain exon features for -t exon
-if ! awk '$3=="exon"{found=1; exit} END{exit(found?0:1)}' "${GTF_TMP}"; then
-  echo "ERROR: Annotation has no exon features (or wrong format): ${GTF_TMP}" >&2
-  echo "First 5 non-comment lines:" >&2
-  grep -v '^#' "${GTF_TMP}" | head -n 5 >&2
-  exit 1
-fi
-
-featureCounts -T "${SLURM_CPUS_PER_TASK}" \
-  -a "${GTF_TMP}" \
-  -o "${FC_ROOT}/gene_counts.tsv" \
-  -g gene_id \
-  -t exon \
-  "${FC_MODE_FLAGS[@]}" \
-  "${BAMS[@]}"
-
-echo
-echo "DONE"
-echo "Counts     : ${FC_ROOT}/gene_counts.tsv"
-echo "STAR row QC : ${ALN_QC}/alignment_stats.tsv"
-echo "Log.final QC: ${LOGFINAL_TSV}"
-echo "Outliers   : ${OUTLIERS}"
-echo "Summary    : ${SUMMARY}"
-date
+  echo "Dataset                    : ${DATASET}"
+  echo "Species                    : ${SPECIES}"
+  echo "Library layout (effective) : ${LIB_LAYOUT}"
+  echo "Library layout (auto)      : ${AUTO_LAYOUT}"
+  echo "Library layout (override)  : ${FORCE_LAYOUT}"
+  echo "Total samples              : ${NSAMPLES}"
+  echo "Paired-end count           : ${pe}"
+  echo "Single-end count           : ${se}"
+  echo "Reference used             : ${REF_ROOT}"
+  echo "Gene
