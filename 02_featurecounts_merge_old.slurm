@@ -18,20 +18,44 @@
 # OUTPUTS (per dataset)
 #   03_counts/<DATASET>/featurecounts/gene_counts.tsv
 #   03_counts/<DATASET>/featurecounts/gene_counts.tsv.summary
-#   03_counts/<DATASET>/qc_alignment/alignment_stats.tsv
-#   03_counts/<DATASET>/qc_alignment/log_final_metrics.tsv
+#   03_counts/<DATASET>/qc_alignment/alignment_stats.tsv            (from STAR alignment_row.tsv)
+#   03_counts/<DATASET>/qc_alignment/log_final_metrics.tsv          (parsed from Log.final.out)
 #   03_counts/<DATASET>/qc_alignment/alignment_outliers.tsv
 #   03_counts/<DATASET>/qc_alignment/alignment_catastrophic.tsv
 #   03_counts/<DATASET>/qc_alignment/alignment_summary.txt
-#   03_counts/<DATASET>/metadata/library_layout.txt
 #
-# NOTES
-#   - Species detection:
-#       default mouse for GSExxxx
-#       human for GSExxxx_HUMAN (case-insensitive)
-#   - Library layout detection:
-#       auto-detect paired-end vs single-end from BAM flags
-#       hard-stop if mixed PE + SE within one dataset
+# SLURM PARAMETERS (WHAT EACH ONE DOES)
+#   --job-name        : name shown in squeue/sacct
+#   --account         : which group account gets charged (important for fairshare/quota)
+#   --output/--error  : log file paths; %j is the Slurm job ID
+#   --time            : max walltime; kill job if exceeded
+#   --cpus-per-task   : CPU threads available to featureCounts and parsing steps
+#   --mem             : total RAM for this job (featureCounts + file parsing)
+#   --mail-user       : email address for notifications (REMOVE if you do not want email)
+#   --mail-type       : events that trigger notifications
+#
+# FEATURECOUNTS PARAMETERS (WHAT EACH ONE DOES)
+#   -T <threads>      : threads used by featureCounts (use SLURM_CPUS_PER_TASK)
+#   -a <gtf>          : gene annotation in GTF format
+#   -o <outfile>      : output count matrix path
+#   -g gene_id        : attribute used as gene identifier (gene_id is standard for GENCODE)
+#   -t exon           : count reads overlapping exons (then summarize to gene level)
+#
+# QC THRESHOLDS (USED FOR FLAGS; DO NOT AUTO-DROP SAMPLES HERE)
+#   UNIQ_MIN=50       : unique mapping % below this is flagged as an outlier
+#   TOO_SHORT_MAX=20  : unmapped-too-short % above this is flagged
+#   MULTI_MAX=20      : multi-mapped % above this is flagged
+#   READS_MIN=1e6     : input reads below this is flagged
+#   Catastrophic flags use stricter rules: uniq<30 OR too_short>40 OR reads<200k
+#
+# DEPENDENCIES
+#   module load samtools
+#   module load subread    (featureCounts)
+#
+# NOTE ON EMAIL
+#   If you want to remove personal info, delete these lines:
+#     #SBATCH --mail-user=...
+#     #SBATCH --mail-type=...
 # ============================================================
 
 #SBATCH --job-name=featurecounts
@@ -61,42 +85,38 @@ STAR_ROOT="${OUT_ROOT}/star"
 ALN_QC="${OUT_ROOT}/qc_alignment"
 FC_ROOT="${OUT_ROOT}/featurecounts"
 LOG_DIR="${PROJECT_ROOT}/logs"
-META_DIR="${OUT_ROOT}/metadata"
 
 # -------------------------
 # Reference selection (mouse default, HUMAN override)
 # -------------------------
+
 DATASET_LOWER=$(echo "${DATASET}" | tr '[:upper:]' '[:lower:]')
 
 REF_MOUSE="${PROJECT_ROOT}/00_metadata/reference/mm39_gencodeM38"
 REF_HUMAN="${PROJECT_ROOT}/00_metadata/reference/GRCh38_gencode49"
 
 if [[ "${DATASET_LOWER}" == *_human ]]; then
-  REF_ROOT="${REF_HUMAN}"
-  SPECIES="human (GRCh38 + GENCODE v49)"
+    REF_ROOT="${REF_HUMAN}"
+    SPECIES="human (GRCh38 + GENCODE v49)"
 else
-  REF_ROOT="${REF_MOUSE}"
-  SPECIES="mouse (mm39 + GENCODE M38)"
+    REF_ROOT="${REF_MOUSE}"
+    SPECIES="mouse (mm39 + GENCODE M38)"
 fi
 
 GTF_GZ="${REF_ROOT}/genes.gtf.gz"
 GTF_TMP="${REF_ROOT}/genes.gtf"
 
-mkdir -p "${LOG_DIR}" "${ALN_QC}" "${FC_ROOT}" "${META_DIR}"
+echo "Detected species: ${SPECIES}"
+echo "Using reference: ${REF_ROOT}"
+mkdir -p "${LOG_DIR}" "${ALN_QC}" "${FC_ROOT}"
 
 module load samtools
 module load subread
 
-echo "Dataset         : ${DATASET}"
-echo "FASTQ dir (tag) : ${DATA_DIR}"
-echo "Detected species: ${SPECIES}"
-echo "Using reference : ${REF_ROOT}"
-echo
-
 [[ -s "${MANIFEST}" ]] || { echo "ERROR: missing manifest: ${MANIFEST}" >&2; exit 1; }
-[[ -s "${GTF_GZ}" ]] || { echo "ERROR: missing GTF: ${GTF_GZ}" >&2; exit 1; }
 
 NSAMPLES=$(( $(wc -l < "${MANIFEST}") - 1 ))
+echo "Dataset: ${DATASET}"
 echo "Expected samples: ${NSAMPLES}"
 echo
 
@@ -142,77 +162,7 @@ while IFS=$'\t' read -r sample fq1 fq2; do
   BAMS+=("${BAM}")
 done < "${MANIFEST}"
 
-echo "BAMs found      : ${#BAMS[@]}"
-echo
-
-# -------------------------
-# Detect library layout (paired-end vs single-end) from BAM flags
-# Hard stop if mixed
-# -------------------------
-echo "[CHECK] Detecting library layout from BAM flags..."
-pe=0
-se=0
-pe_samples=()
-se_samples=()
-
-for bam in "${BAMS[@]}"; do
-  s=$(basename "$(dirname "${bam}")")  # STAR_ROOT/<sample>/Aligned...
-  # If any of the first 10k records has flag bit 0x1 set, it's paired
-  if samtools view -@ 1 "${bam}" 2>/dev/null | head -n 10000 | awk '{ if (and($2,1)) {found=1; exit} } END{ exit(found?0:1) }'; then
-    pe=$((pe+1))
-    pe_samples+=("${s}")
-  else
-    se=$((se+1))
-    se_samples+=("${s}")
-  fi
-done
-
-echo "[CHECK] paired-end BAMs : ${pe}"
-echo "[CHECK] single-end BAMs : ${se}"
-
-if (( pe > 0 && se > 0 )); then
-  echo "ERROR: Mixed paired-end and single-end BAMs detected in this dataset." >&2
-  echo "       You must split the dataset or fix the upstream manifest/STAR step." >&2
-  echo "       Example paired sample: ${pe_samples[0]:-NA}" >&2
-  echo "       Example single sample: ${se_samples[0]:-NA}" >&2
-  exit 1
-fi
-
-FC_MODE_FLAGS=()
-LIB_LAYOUT="SINGLE_END"
-if (( pe > 0 )); then
-  echo "[CHECK] Using paired-end counting mode: -p -B -C"
-  FC_MODE_FLAGS=(-p -B -C)
-  LIB_LAYOUT="PAIRED_END"
-else
-  echo "[CHECK] Using single-end counting mode"
-fi
-echo
-
-# -------------------------
-# Log library layout metadata
-# -------------------------
-LIB_LAYOUT_FILE="${META_DIR}/library_layout.txt"
-
-{
-  echo "Dataset           : ${DATASET}"
-  echo "Species           : ${SPECIES}"
-  echo "Library layout    : ${LIB_LAYOUT}"
-  echo "Total samples     : ${NSAMPLES}"
-  echo "Paired-end count  : ${pe}"
-  echo "Single-end count  : ${se}"
-  echo "Reference used    : ${REF_ROOT}"
-  echo "Generated on      : $(date)"
-  echo
-  echo "Example paired samples:"
-  printf "%s\n" "${pe_samples[@]:0:5}"
-  echo
-  echo "Example single samples:"
-  printf "%s\n" "${se_samples[@]:0:5}"
-} > "${LIB_LAYOUT_FILE}"
-
-echo "[INFO] Library layout metadata written to:"
-echo "       ${LIB_LAYOUT_FILE}"
+echo "BAMs found: ${#BAMS[@]}"
 echo
 
 # -------------------------
@@ -275,27 +225,16 @@ echo
 # -------------------------
 echo "Running featureCounts..."
 
-# Ensure temporary uncompressed GTF is unique per job/dataset (avoid race conditions)
-GTF_TMP="${FC_ROOT}/genes.${SLURM_JOB_ID}.gtf"
+# Ensure temporary uncompressed GTF is removed even if job fails
 trap 'rm -f "${GTF_TMP}"' EXIT
 
 zcat "${GTF_GZ}" > "${GTF_TMP}"
-[[ -s "${GTF_TMP}" ]] || { echo "ERROR: GTF tmp is empty: ${GTF_TMP}" >&2; exit 1; }
-
-# Sanity: must contain exon features for -t exon
-if ! awk '$3=="exon"{found=1; exit} END{exit(found?0:1)}' "${GTF_TMP}"; then
-  echo "ERROR: Annotation has no exon features (or wrong format): ${GTF_TMP}" >&2
-  echo "First 5 non-comment lines:" >&2
-  grep -v '^#' "${GTF_TMP}" | head -n 5 >&2
-  exit 1
-fi
 
 featureCounts -T "${SLURM_CPUS_PER_TASK}" \
   -a "${GTF_TMP}" \
   -o "${FC_ROOT}/gene_counts.tsv" \
   -g gene_id \
   -t exon \
-  "${FC_MODE_FLAGS[@]}" \
   "${BAMS[@]}"
 
 echo
