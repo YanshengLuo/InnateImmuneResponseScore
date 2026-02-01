@@ -63,8 +63,8 @@
 #SBATCH --output=/orange/qsong1/Yansheng/logs/featurecounts_%j.out
 #SBATCH --error=/orange/qsong1/Yansheng/logs/featurecounts_%j.err
 #SBATCH --time=03:00:00
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=2
+#SBATCH --mem=8G
 #SBATCH --mail-user=yanshengluo@ufl.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 
