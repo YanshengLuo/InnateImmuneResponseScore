@@ -44,7 +44,7 @@
 #SBATCH --output=/orange/qsong1/Yansheng/logs/featurecounts_%j.out
 #SBATCH --error=/orange/qsong1/Yansheng/logs/featurecounts_%j.err
 #SBATCH --time=03:00:00
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=4
 #SBATCH --mem=8G
 #SBATCH --mail-user=yanshengluo@ufl.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
@@ -281,4 +281,112 @@ LIB_LAYOUT_FILE="${META_DIR}/library_layout.txt"
   echo "Paired-end count           : ${pe}"
   echo "Single-end count           : ${se}"
   echo "Reference used             : ${REF_ROOT}"
-  echo "Gene
+  echo "Generated on               : $(date)"
+  echo
+  echo "Example paired samples:"
+  printf "%s\n" "${pe_samples[@]:0:5}"
+  echo
+  echo "Example single samples:"
+  printf "%s\n" "${se_samples[@]:0:5}"
+} > "${LIB_LAYOUT_FILE}"
+
+echo "[INFO] Library layout metadata written to:"
+echo "       ${LIB_LAYOUT_FILE}"
+echo
+
+# -------------------------
+# Post-run sanity checks (alignment outliers)
+# -------------------------
+UNIQ_MIN=50
+TOO_SHORT_MAX=20
+MULTI_MAX=20
+READS_MIN=1000000
+
+OUTLIERS="${ALN_QC}/alignment_outliers.tsv"
+SUMMARY="${ALN_QC}/alignment_summary.txt"
+CATA="${ALN_QC}/alignment_catastrophic.tsv"
+
+echo -e "sample\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads\treasons" > "${OUTLIERS}"
+
+awk -v umin="${UNIQ_MIN}" -v tmax="${TOO_SHORT_MAX}" -v mmax="${MULTI_MAX}" -v rmin="${READS_MIN}" -F'\t' '
+NR==1 {next}
+{
+  s=$1; um=$3+0; mm=$4+0; ts=$5+0; rd=$6+0;
+  r="";
+  if (um < umin) r=r "low_unique;";
+  if (ts > tmax) r=r "high_too_short;";
+  if (mm > mmax) r=r "high_multimap;";
+  if (rd < rmin) r=r "low_reads;";
+  if (r != "") print s "\t" um "\t" mm "\t" ts "\t" rd "\t" r;
+}' "${ALN_QC}/alignment_stats.tsv" >> "${OUTLIERS}"
+
+awk -F'\t' '
+function sort(a,n, i,j,t){for(i=1;i<=n;i++)for(j=i+1;j<=n;j++)if(a[i]>a[j]){t=a[i];a[i]=a[j];a[j]=t}}
+NR==1{next}
+{um[++n]=$3+0; mm[n]=$4+0; ts[n]=$5+0; rd[n]=$6+0}
+END{
+  sort(um,n); sort(mm,n); sort(ts,n); sort(rd,n);
+  mid=int((n+1)/2);
+  printf("Samples: %d\n", n);
+  printf("UniqMap%%  min/med/max: %.2f / %.2f / %.2f\n", um[1], um[mid], um[n]);
+  printf("MultiMap%% min/med/max: %.2f / %.2f / %.2f\n", mm[1], mm[mid], mm[n]);
+  printf("TooShort%% min/med/max: %.2f / %.2f / %.2f\n", ts[1], ts[mid], ts[n]);
+  printf("Reads     min/med/max: %.0f / %.0f / %.0f\n", rd[1], rd[mid], rd[n]);
+}' "${ALN_QC}/alignment_stats.tsv" | tee "${SUMMARY}"
+
+echo -e "sample\tuniq_map_pct\tmulti_map_pct\ttoo_short_pct\tn_reads\treasons" > "${CATA}"
+awk -F'\t' '
+NR==1{next}
+{
+  s=$1; um=$3+0; mm=$4+0; ts=$5+0; rd=$6+0; r="";
+  if (um < 30) r=r "uniq<30;";
+  if (ts > 40) r=r "too_short>40;";
+  if (rd < 200000) r=r "reads<200k;";
+  if (r!="") print s "\t" um "\t" mm "\t" ts "\t" rd "\t" r;
+}' "${ALN_QC}/alignment_stats.tsv" >> "${CATA}"
+
+CATA_COUNT=$(( $(wc -l < "${CATA}") - 1 ))
+echo "Catastrophic flagged: ${CATA_COUNT} / ${NSAMPLES}"
+echo
+
+# -------------------------
+# featureCounts
+# -------------------------
+echo "Running featureCounts..."
+if [[ "${LIB_LAYOUT}" == "PAIRED_END" ]]; then
+  echo "[INFO] featureCounts paired-end fragment counting enabled (-p --countReadPairs -B -C)"
+else
+  echo "[INFO] featureCounts single-end counting enabled"
+fi
+
+# Ensure temporary uncompressed GTF is unique per job/dataset (avoid race conditions)
+GTF_TMP="${FC_ROOT}/genes.${SLURM_JOB_ID}.gtf"
+trap 'rm -f "${GTF_TMP}"' EXIT
+
+zcat "${GTF_GZ}" > "${GTF_TMP}"
+[[ -s "${GTF_TMP}" ]] || { echo "ERROR: GTF tmp is empty: ${GTF_TMP}" >&2; exit 1; }
+
+# Sanity: must contain exon features for -t exon
+if ! awk '$3=="exon"{found=1; exit} END{exit(found?0:1)}' "${GTF_TMP}"; then
+  echo "ERROR: Annotation has no exon features (or wrong format): ${GTF_TMP}" >&2
+  echo "First 5 non-comment lines:" >&2
+  grep -v '^#' "${GTF_TMP}" | head -n 5 >&2
+  exit 1
+fi
+
+featureCounts -T "${SLURM_CPUS_PER_TASK}" \
+  -a "${GTF_TMP}" \
+  -o "${FC_ROOT}/gene_counts.tsv" \
+  -g gene_id \
+  -t exon \
+  "${FC_MODE_FLAGS[@]}" \
+  "${BAMS[@]}"
+
+echo
+echo "DONE"
+echo "Counts      : ${FC_ROOT}/gene_counts.tsv"
+echo "STAR row QC  : ${ALN_QC}/alignment_stats.tsv"
+echo "Log.final QC : ${LOGFINAL_TSV}"
+echo "Outliers    : ${OUTLIERS}"
+echo "Summary     : ${SUMMARY}"
+date
