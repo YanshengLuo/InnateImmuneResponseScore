@@ -121,7 +121,7 @@ build_manifest() {
 if [[ "${SLURM_ARRAY_TASK_ID}" -eq 0 ]]; then
   (
     flock -n 9 || exit 0
-    if [[ ! -s "${MANIFEST}" ]]; then
+    if [[ ! -s "${MANIFEST}" ]] || [[ $(wc -l < "${MANIFEST}") -le 1 ]]; then
       echo "Building manifest at ${MANIFEST}"
       build_manifest
     fi
