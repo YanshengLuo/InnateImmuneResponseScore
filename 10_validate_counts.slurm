@@ -28,7 +28,7 @@
 #   COUNTS_FILE : path to gene count table (required)
 #   OUTDIR      : output directory (optional)
 #                 default:
-#                 /orange/qsong1/qsong1/qsong1/Yansheng/03_counts/GSE264344/featurecounts/validation
+#                 /orange/qsong1/Yansheng/03_counts/GSE264344/featurecounts/validation
 #   SEP         : delimiter (optional)
 #                 default: tab
 #
@@ -51,7 +51,7 @@ fi
 
 COUNTS="$1"
 
-DEFAULT_OUTDIR="/orange/qsong1/qsong1/qsong1/Yansheng/03_counts/GSE264344/featurecounts/validation"
+DEFAULT_OUTDIR="/orange/qsong1/Yansheng/03_counts/GSE264344/featurecounts/validation"
 OUTDIR="${2:-$DEFAULT_OUTDIR}"
 
 SEP="${3:-$'\t'}"
@@ -140,10 +140,11 @@ fi
 python3 validate_counts.py \
   --counts "${INPUT_FOR_VALIDATION}" \
   --outdir "${OUTDIR}" \
-  --sep $'\t' \
+  --sep "${SEP}" \
   --drop-non-gene-rows \
   --collapse-duplicates \
   --outlier-factor 5
 
+  
 echo "[DONE] Step 1 completed."
 echo "Outputs in: ${OUTDIR}"
