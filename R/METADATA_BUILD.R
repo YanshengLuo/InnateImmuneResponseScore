@@ -15,7 +15,10 @@ library(tibble)
 ## ----------------------------
 ## 1) Dataset + paths
 ## ----------------------------
-dataset_id <- "GSE264344"
+# Allow wrapper script to set dataset_id
+if (!exists("dataset_id", inherits = FALSE)) {
+  stop("dataset_id is not set. Run via wrapper or set dataset_id before sourcing METADATA_BUILD.R.")
+}
 
 project_root <- "C:/Users/john/Desktop/IMRS_Project"
 meta_dir <- file.path(project_root, "00_metadata", dataset_id)
