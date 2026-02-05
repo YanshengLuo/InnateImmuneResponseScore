@@ -14,8 +14,19 @@ Works on Windows/macOS/Linux with standard Python + tkinter.
 import os
 import sys
 import csv
+# PyInstaller + conda tkinter: point Tcl/Tk to bundled runtime
+if getattr(sys, "frozen", False):
+    base = sys._MEIPASS
+    os.environ["TCL_LIBRARY"] = os.path.join(base, "tcl", "tcl8.6")
+    os.environ["TK_LIBRARY"]  = os.path.join(base, "tcl", "tk8.6")
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
+
+if getattr(sys, "frozen", False):
+    # running as exe
+    os.chdir(os.path.dirname(sys.executable))
+else:
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # ---------- Utilities ----------
 
