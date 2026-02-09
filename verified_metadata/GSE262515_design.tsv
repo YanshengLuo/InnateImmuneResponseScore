@@ -1,0 +1,22 @@
+sample_id	group	tissue	timepoint_hr	batch
+SRR28462963	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
+SRR28462964	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
+SRR28462965	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
+SRR28462966	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
+SRR28462967	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
+SRR28462968	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
+SRR28462969	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
+SRR28462970	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
+SRR28462971	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
+SRR28462972	baseline_0	tissue	72	NA
+SRR28462973	baseline_0	tissue	72	NA
+SRR28462974	baseline_0	tissue	72	NA
+SRR28462975	delivery_tlnp_sihbv_50nm	cell line	72	NA
+SRR28462976	delivery_tlnp_sihbv_50nm	cell line	72	NA
+SRR28462977	delivery_tlnp_sihbv_50nm	cell line	72	NA
+SRR28462978	delivery_tlnp_sinc_50nm	cell line	72	NA
+SRR28462979	delivery_tlnp_sinc_50nm	cell line	72	NA
+SRR28462980	delivery_tlnp_sinc_50nm	cell line	72	NA
+SRR28462981	baseline_0	cell line	72	NA
+SRR28462982	baseline_0	cell line	72	NA
+SRR28462983	baseline_0	cell line	72	NA

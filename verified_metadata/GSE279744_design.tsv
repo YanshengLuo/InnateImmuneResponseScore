@@ -1,0 +1,10 @@
+sample_id	group	tissue	timepoint_hr	batch
+SRR31032504	delivery_vaccination_with_ssop	lymph node	6	NA
+SRR31032505	delivery_vaccination_with_ssop	lymph node	6	NA
+SRR31032506	delivery_vaccination_with_ssop	lymph node	6	NA
+SRR31032507	delivery_vaccination_with_sm102	lymph node	6	NA
+SRR31032508	delivery_vaccination_with_sm102	lymph node	6	NA
+SRR31032509	delivery_vaccination_with_sm102	lymph node	6	NA
+SRR31032510	baseline_0	lymph node	6	NA
+SRR31032511	baseline_0	lymph node	6	NA
+SRR31032512	baseline_0	lymph node	6	NA
