@@ -1,0 +1,6 @@
+tissue_raw	time_label	batch_raw	group_raw	group_token
+cell line	72h	NA	delivery_tlnp_sihbv_50nm	delivery_tlnp_sihbv_50nm
+cell line	72h	NA	delivery_tlnp_sinc_50nm	delivery_tlnp_sinc_50nm
+tissue	72h	NA	delivery_tlnp_sihbv_1mg_kg	delivery_tlnp_sihbv_1mg_kg
+tissue	72h	NA	delivery_tlnp_sihbv_2_5mg_kg	delivery_tlnp_sihbv_2_5mg_kg
+tissue	72h	NA	delivery_tlnp_sinc_1mg_kg	delivery_tlnp_sinc_1mg_kg

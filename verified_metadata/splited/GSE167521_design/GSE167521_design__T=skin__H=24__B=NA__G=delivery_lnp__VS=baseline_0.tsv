@@ -1,0 +1,9 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR13783173	baseline_0	skin	24	NA	baseline_0	skin	24	24	24h	NA	TRUE	CONTROL	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783175	baseline_0	skin	24	NA	baseline_0	skin	24	24	24h	NA	TRUE	CONTROL	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783177	baseline_0	skin	24	NA	baseline_0	skin	24	24	24h	NA	TRUE	CONTROL	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783179	baseline_0	skin	24	NA	baseline_0	skin	24	24	24h	NA	TRUE	CONTROL	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783174	delivery_lnp	skin	24	NA	delivery_lnp	skin	24	24	24h	NA	FALSE	DELIVERY	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783176	delivery_lnp	skin	24	NA	delivery_lnp	skin	24	24	24h	NA	FALSE	DELIVERY	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783178	delivery_lnp	skin	24	NA	delivery_lnp	skin	24	24	24h	NA	FALSE	DELIVERY	baseline_0	delivery_lnp__vs__baseline_0	matched_time
+SRR13783180	delivery_lnp	skin	24	NA	delivery_lnp	skin	24	24	24h	NA	FALSE	DELIVERY	baseline_0	delivery_lnp__vs__baseline_0	matched_time

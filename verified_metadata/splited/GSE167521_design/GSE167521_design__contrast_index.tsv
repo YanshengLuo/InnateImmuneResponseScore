@@ -1,0 +1,2 @@
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata/splited/GSE167521_design/GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0.tsv	GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0.tsv	skin	24	NA	NA	baseline_0	NA

@@ -1,0 +1,2 @@
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata/splited/GSE190850_HUMAN_design/GSE190850_HUMAN_design__T=BALF__H=1344__B=NA__G=GID00119535__VS=delivery_unstimulated.tsv	GSE190850_HUMAN_design__T=BALF__H=1344__B=NA__G=GID00119535__VS=delivery_unstimulated.tsv	BALF	1344	NA	GID00119535	delivery_unstimulated	delivery_stimulated_with_m_tb_whole_cell_lysate

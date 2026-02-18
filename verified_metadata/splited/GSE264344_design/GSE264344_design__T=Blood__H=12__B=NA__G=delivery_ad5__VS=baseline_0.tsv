@@ -1,0 +1,11 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR28740199	baseline_0	Blood	0	NA	baseline_0	Blood	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740200	baseline_0	Blood	0	NA	baseline_0	Blood	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740201	baseline_0	Blood	0	NA	baseline_0	Blood	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740202	baseline_0	Blood	0	NA	baseline_0	Blood	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740203	baseline_0	Blood	0	NA	baseline_0	Blood	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740182	delivery_ad5	Blood	12	NA	delivery_ad5	Blood	12	12	12h	NA	FALSE	DELIVERY	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740183	delivery_ad5	Blood	12	NA	delivery_ad5	Blood	12	12	12h	NA	FALSE	DELIVERY	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740184	delivery_ad5	Blood	12	NA	delivery_ad5	Blood	12	12	12h	NA	FALSE	DELIVERY	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740185	delivery_ad5	Blood	12	NA	delivery_ad5	Blood	12	12	12h	NA	FALSE	DELIVERY	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0
+SRR28740186	delivery_ad5	Blood	12	NA	delivery_ad5	Blood	12	12	12h	NA	FALSE	DELIVERY	baseline_0	delivery_ad5__vs__baseline_0	fallback_time0

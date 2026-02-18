@@ -1,0 +1,3 @@
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata/splited/GSE279744_design/GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0.tsv	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0.tsv	NA	6	NA	NA	baseline_0	NA
+C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata/splited/GSE279744_design/GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0.tsv	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0.tsv	NA	6	NA	NA	baseline_0	NA

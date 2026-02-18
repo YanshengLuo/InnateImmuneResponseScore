@@ -1,0 +1,7 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR28462972	baseline_0	tissue	72	NA	baseline_0	tissue	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time
+SRR28462973	baseline_0	tissue	72	NA	baseline_0	tissue	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time
+SRR28462974	baseline_0	tissue	72	NA	baseline_0	tissue	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time
+SRR28462963	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time
+SRR28462964	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time
+SRR28462965	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sihbv_2_5mg_kg__vs__baseline_0	matched_time

@@ -1,0 +1,7 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR518634	delivery_none	liver	4	NA	delivery_none	liver	4	4	4h	NA	TRUE	CONTROL	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
+SRR518635	delivery_none	liver	4	NA	delivery_none	liver	4	4	4h	NA	TRUE	CONTROL	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
+SRR518636	delivery_none	liver	4	NA	delivery_none	liver	4	4	4h	NA	TRUE	CONTROL	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
+SRR518631	delivery_lentiviral_vector_lv_	liver	4	NA	delivery_lentiviral_vector_lv_	liver	4	4	4h	NA	FALSE	DELIVERY	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
+SRR518632	delivery_lentiviral_vector_lv_	liver	4	NA	delivery_lentiviral_vector_lv_	liver	4	4	4h	NA	FALSE	DELIVERY	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
+SRR518633	delivery_lentiviral_vector_lv_	liver	4	NA	delivery_lentiviral_vector_lv_	liver	4	4	4h	NA	FALSE	DELIVERY	delivery_none	delivery_lentiviral_vector_lv___vs__delivery_none	matched_time
