@@ -4,6 +4,7 @@ suppressPackageStartupMessages({
   library(tibble)
   library(stringr)
   library(purrr)
+  library(tidyr)
 })
 
 project_root <- "C:/Users/john/Desktop/IMRS_Project"
@@ -24,25 +25,39 @@ is_anchor_time <- function(t) !is.na(t) & t < 24
 is_calib_time  <- function(t) !is.na(t) & t >= 24 & t <= 72
 
 # -------------------------
-# Helper: read one DE file
+# Helper: read one DE file (Option A)
+#   - Keep ONLY the columns needed for modeling
+#   - Drop any meta columns that can collide with meta_use columns
 # -------------------------
 read_de <- function(path) {
   df <- read_tsv(path, show_col_types = FALSE)
+
+  # Harmonize gene column name
   if (!("gene_id" %in% names(df))) {
-    # if gene column got renamed somehow
-    names(df)[1] <- "gene_id"
+    if ("gene" %in% names(df)) {
+      df <- df %>% rename(gene_id = gene)
+    } else {
+      names(df)[1] <- "gene_id"
+    }
   }
-  df <- df %>%
+
+  # Keep only columns used downstream (prevents duplicate name collisions)
+  keep <- intersect(
+    c("gene_id", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj"),
+    names(df)
+  )
+  df <- df %>% select(all_of(keep))
+
+  df %>%
     mutate(
       log2FoldChange = as.numeric(log2FoldChange),
       padj = as.numeric(padj)
     )
-  df
 }
 
 # -------------------------
 # Helper: parse metadata from filename
-#   expects your DE file name includes "...__H=24__..." somewhere
+#   expects DE filename includes "...__H=24__..." etc.
 # -------------------------
 parse_meta_from_filename <- function(path) {
   bn <- basename(path)
@@ -99,7 +114,7 @@ meta <- map_dfr(de_files, parse_meta_from_filename) %>%
 meta_use <- meta %>% filter(time_bin %in% c("anchor_lt24h", "calib_24to72h"))
 
 # -------------------------
-# Load all DE tables (only needed contrasts)
+# Load all DE tables (Option A prevents duplicate column name collisions)
 # -------------------------
 all_de <- meta_use %>%
   mutate(de = map(file, read_de)) %>%
@@ -116,11 +131,8 @@ if (nrow(anchors) == 0) {
 }
 
 anchors_flagged <- anchors %>%
-  mutate(pass = !is.na(padj) & padj <= padj_cutoff & !is.na(log2FoldChange) & abs(log2FoldChange) >= lfc_cutoff)
-
-anchor_counts <- anchors_flagged %>%
-  group_by(dataset_id, tissue, time_h, contrast_label) %>%
-  summarise(n_genes = n(), .groups = "drop")
+  mutate(pass = !is.na(padj) & padj <= padj_cutoff &
+                !is.na(log2FoldChange) & abs(log2FoldChange) >= lfc_cutoff)
 
 n_anchor_contrasts <- n_distinct(anchors_flagged %>% select(dataset_id, tissue, time_h, contrast_label))
 message("Anchor contrasts used: ", n_anchor_contrasts)
@@ -130,7 +142,6 @@ gene_support <- anchors_flagged %>%
   summarise(
     support = mean(pass, na.rm = TRUE),
     n_anchor_contrasts = n_distinct(paste(dataset_id, tissue, time_h, contrast_label, sep="|")),
-    # direction consistency among passing calls
     pos_frac = ifelse(sum(pass, na.rm=TRUE) > 0,
                       mean(log2FoldChange[pass] > 0, na.rm = TRUE),
                       NA_real_),
@@ -156,14 +167,12 @@ message("Wrote core gene set: ", core_file, " (n=", nrow(core), ")")
 # Step 6C: gene weights from anchors (robust median by default)
 # -------------------------
 core_genes <- core$gene_id
-
 anchor_core <- anchors %>% filter(gene_id %in% core_genes)
 
 weights <- anchor_core %>%
   group_by(gene_id) %>%
   summarise(
-    weight =
-      if (use_stat == "median") median(log2FoldChange, na.rm = TRUE) else mean(log2FoldChange, na.rm = TRUE),
+    weight = if (use_stat == "median") median(log2FoldChange, na.rm = TRUE) else mean(log2FoldChange, na.rm = TRUE),
     mean_lfc = mean(log2FoldChange, na.rm = TRUE),
     median_lfc = median(log2FoldChange, na.rm = TRUE),
     sd_lfc = sd(log2FoldChange, na.rm = TRUE),
