@@ -1,0 +1,358 @@
+#!/usr/bin/env Rscript
+# ============================================================
+# IMRS Step 06 — Build frozen model (LOCKED mouse anchors ONLY)
+# - Robust filename parsing (underscores safe)
+# - Locked anchor dataset list (pre-registered)
+# - Anchor time window: <24h (within locked anchors)
+# - Core genes by DATASET-LEVEL consensus (not pooled contrasts)
+# - UP-only core genes (innate activation)
+# - Robust weights (median) + optional capping
+#
+# OUTPUT (all under 05_score/):
+#   core_gene_set.tsv
+#   gene_weights.tsv
+#   anchor_audit.tsv
+#   core_gene_support_by_dataset.tsv
+#   contrast_counts_by_dataset.tsv
+#   contrast_counts_overall.tsv
+#
+# NOTE:
+# This script DOES NOT compute final IMRS scores.
+# Scoring samples belongs to Step 07 (sample-level z-scored expression).
+# ============================================================
+
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+  library(tibble)
+  library(stringr)
+  library(purrr)
+  library(tidyr)
+})
+
+# -------------------------
+# USER SETTINGS
+# -------------------------
+project_root <- "C:/Users/john/Desktop/IMRS_Project"
+
+# INPUT: DE result TSVs (contrast-level DE tables)
+# expects files ending with "__DE.tsv" somewhere under this root
+de_out_root  <- file.path(project_root, "04_de", "comparison")
+
+# OUTPUT: model artifacts
+model_root   <- file.path(project_root, "05_score","anchors")
+dir.create(model_root, showWarnings = FALSE, recursive = TRUE)
+
+# -------------------------
+# LOCKED ANCHOR DATASETS (MOUSE ONLY)
+# -------------------------
+ANCHOR_DATASETS_MOUSE <- c("GSE39129", "GSE167521", "GSE264344")
+
+# -------------------------
+# Parameters
+# -------------------------
+padj_cutoff <- 0.05
+lfc_cutoff  <- 1.0          # UP-only threshold: log2FC >= 1
+within_dataset_support_cutoff <- 0.50  # gene must pass in >=50% of that dataset's anchor contrasts
+anchor_consensus_k_fraction   <- 2/3   # core requires >= ceil(K * 2/3) anchor datasets supporting it
+
+use_weight_stat <- "median"  # "median" recommended; "mean" also ok
+
+# Optional weight capping to reduce dominance
+cap_weights <- TRUE
+cap_quantiles <- c(0.01, 0.99)
+
+# Anchor/calibration time rules (calibration not used here; kept for counting)
+is_anchor_time <- function(t) !is.na(t) & t < 24
+is_calib_time  <- function(t) !is.na(t) & t >= 24 & t <= 72
+
+# -------------------------
+# Helpers
+# -------------------------
+
+# Extract anything between __TAG= and next __ (underscore-safe)
+extract_tag <- function(x, tag) {
+  m <- str_match(x, paste0("__", tag, "=(.*?)__"))
+  out <- m[,2]
+  ifelse(is.na(out), NA_character_, out)
+}
+
+# Parse metadata from filename
+parse_meta_from_filename <- function(path) {
+  bn <- basename(path)
+
+  # Dataset id: require it starts with GSE#### and optional _HUMAN
+  dataset_id <- str_extract(bn, "^GSE\\d+(?:_HUMAN)?")
+  if (is.na(dataset_id)) dataset_id <- str_extract(bn, "^GSE\\d+")
+
+  time_h <- suppressWarnings(as.numeric(str_match(bn, "__H=([0-9.]+)__")[,2]))
+  tissue <- extract_tag(bn, "T")
+  group  <- extract_tag(bn, "G")
+  vs     <- extract_tag(bn, "VS")
+
+  contrast_label <- ifelse(!is.na(group) & !is.na(vs),
+                           paste0(group, "__vs__", vs),
+                           bn)
+
+  tibble(
+    dataset_id = dataset_id,
+    tissue = tissue,
+    time_h = time_h,
+    contrast_label = contrast_label,
+    file = path
+  )
+}
+
+# Read one DE file; keep only needed columns
+read_de <- function(path) {
+  df <- read_tsv(path, show_col_types = FALSE)
+
+  # Harmonize gene column
+  if (!("gene_id" %in% names(df))) {
+    if ("gene" %in% names(df)) {
+      df <- df %>% rename(gene_id = gene)
+    } else {
+      names(df)[1] <- "gene_id"
+    }
+  }
+
+  keep <- intersect(c("gene_id", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj"), names(df))
+  df <- df %>% select(all_of(keep))
+
+  df %>%
+    mutate(
+      gene_id = as.character(gene_id),
+      log2FoldChange = suppressWarnings(as.numeric(log2FoldChange)),
+      padj = suppressWarnings(as.numeric(padj))
+    )
+}
+
+# -------------------------
+# Collect DE files
+# -------------------------
+de_files <- list.files(de_out_root, pattern = "__DE\\.tsv$", recursive = TRUE, full.names = TRUE)
+if (length(de_files) == 0) {
+  stop("No DE files found under: ", de_out_root, "\nExpected files ending with __DE.tsv")
+}
+
+meta <- map_dfr(de_files, parse_meta_from_filename) %>%
+  mutate(
+    time_bin = case_when(
+      is_anchor_time(time_h) ~ "anchor_lt24h",
+      is_calib_time(time_h)  ~ "calib_24to72h",
+      TRUE ~ "other_or_unknown"
+    ),
+    is_human = str_detect(dataset_id, "_HUMAN$")
+  )
+
+# -------------------------
+# Contrast-level counts (audit)
+# -------------------------
+meta_summary_by_dataset <- meta %>%
+  mutate(
+    use_flag = case_when(
+      time_bin == "anchor_lt24h" ~ "anchor",
+      time_bin == "calib_24to72h" ~ "calibration",
+      TRUE ~ "excluded"
+    )
+  ) %>%
+  group_by(dataset_id, is_human) %>%
+  summarise(
+    total_contrasts = n(),
+    anchor_contrasts = sum(use_flag == "anchor"),
+    calibration_contrasts = sum(use_flag == "calibration"),
+    excluded_contrasts = sum(use_flag == "excluded"),
+    excluded_missing_time = sum(is.na(time_h)),
+    excluded_gt72h = sum(!is.na(time_h) & time_h > 72),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(total_contrasts))
+
+meta_summary_overall <- meta %>%
+  mutate(
+    use_flag = case_when(
+      time_bin == "anchor_lt24h" ~ "anchor",
+      time_bin == "calib_24to72h" ~ "calibration",
+      TRUE ~ "excluded"
+    )
+  ) %>%
+  summarise(
+    dataset_n = n_distinct(dataset_id),
+    dataset_n_human = n_distinct(dataset_id[is_human]),
+    dataset_n_mouse = n_distinct(dataset_id[!is_human]),
+    total_contrasts = n(),
+    anchor_contrasts = sum(use_flag == "anchor"),
+    calibration_contrasts = sum(use_flag == "calibration"),
+    excluded_contrasts = sum(use_flag == "excluded"),
+    excluded_missing_time = sum(is.na(time_h)),
+    excluded_gt72h = sum(!is.na(time_h) & time_h > 72)
+  )
+
+write_tsv(meta_summary_by_dataset, file.path(model_root, "contrast_counts_by_dataset.tsv"))
+write_tsv(meta_summary_overall, file.path(model_root, "contrast_counts_overall.tsv"))
+
+message("\n=== Contrast counts by dataset ===")
+print(meta_summary_by_dataset, n = Inf)
+message("\n=== Overall totals ===")
+print(meta_summary_overall)
+
+# -------------------------
+# Anchor lock check (audit)
+# -------------------------
+anchor_lock_check <- tibble(
+  anchor_dataset = ANCHOR_DATASETS_MOUSE
+) %>%
+  left_join(
+    meta %>% filter(!is_human) %>% group_by(dataset_id) %>%
+      summarise(
+        any_contrasts = n(),
+        any_anchor_contrasts = sum(time_bin == "anchor_lt24h"),
+        .groups = "drop"
+      ),
+    by = c("anchor_dataset" = "dataset_id")
+  ) %>%
+  mutate(
+    any_contrasts = coalesce(any_contrasts, 0L),
+    any_anchor_contrasts = coalesce(any_anchor_contrasts, 0L),
+    present = any_contrasts > 0,
+    present_anchor_lt24h = any_anchor_contrasts > 0
+  )
+
+write_tsv(anchor_lock_check, file.path(model_root, "anchor_audit.tsv"))
+message("\n=== Anchor lock audit (mouse) ===")
+print(anchor_lock_check)
+
+# Require at least 2 anchors present (otherwise consensus is meaningless)
+anchors_present <- anchor_lock_check %>% filter(present_anchor_lt24h) %>% pull(anchor_dataset)
+K <- length(ANCHOR_DATASETS_MOUSE)
+K_present <- length(anchors_present)
+if (K_present < 2) {
+  stop("FATAL: fewer than 2 locked anchor datasets found with <24h contrasts.\n",
+       "Locked anchors: ", paste(ANCHOR_DATASETS_MOUSE, collapse = ", "), "\n",
+       "Present (<24h): ", paste(anchors_present, collapse = ", "))
+}
+
+required_support_datasets <- ceiling(K_present * anchor_consensus_k_fraction)
+
+message("\nLocked anchors total K=", K,
+        "; present with <24h K_present=", K_present,
+        "; core requires >= ", required_support_datasets, " supporting anchor datasets.\n")
+
+# -------------------------
+# Load DE tables for LOCKED MOUSE ANCHORS (<24h) ONLY
+# -------------------------
+meta_anchor_locked <- meta %>%
+  filter(
+    !is_human,
+    dataset_id %in% anchors_present,
+    time_bin == "anchor_lt24h"
+  )
+
+if (nrow(meta_anchor_locked) == 0) {
+  stop("No DE tables found for locked anchors with time_h < 24. Check filename tags (__H=...__).")
+}
+
+anchor_de <- meta_anchor_locked %>%
+  mutate(de = map(file, read_de)) %>%
+  select(dataset_id, tissue, time_h, contrast_label, de) %>%
+  unnest(de)
+
+# Sanity: count anchor contrasts actually used
+n_anchor_contrasts_used <- meta_anchor_locked %>%
+  distinct(dataset_id, tissue, time_h, contrast_label) %>%
+  nrow()
+message("Anchor contrasts used (locked mouse, <24h): ", n_anchor_contrasts_used)
+
+# -------------------------
+# Core gene selection by DATASET-LEVEL support
+#   1) define pass per contrast (UP-only)
+#   2) summarize within each anchor dataset
+#   3) require majority across anchor datasets
+# -------------------------
+anchor_flagged <- anchor_de %>%
+  mutate(
+    pass = !is.na(padj) & padj <= padj_cutoff &
+           !is.na(log2FoldChange) & (log2FoldChange >= lfc_cutoff)
+  )
+
+# Within-dataset support: fraction of that dataset's anchor contrasts where gene passes
+support_by_dataset <- anchor_flagged %>%
+  group_by(dataset_id, gene_id) %>%
+  summarise(
+    n_contrasts_dataset = n_distinct(paste(tissue, time_h, contrast_label, sep="|")),
+    support_in_dataset = mean(pass, na.rm = TRUE),
+    # direction consistency among passing contrasts (should be UP by definition, but keep audit)
+    median_lfc_pass = ifelse(any(pass, na.rm=TRUE), median(log2FoldChange[pass], na.rm = TRUE), NA_real_),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    dataset_support_flag = !is.na(support_in_dataset) & (support_in_dataset >= within_dataset_support_cutoff)
+  )
+
+write_tsv(support_by_dataset, file.path(model_root, "core_gene_support_by_dataset.tsv"))
+
+# Across-dataset consensus: how many anchor datasets support this gene
+core_support <- support_by_dataset %>%
+  group_by(gene_id) %>%
+  summarise(
+    support_datasets = sum(dataset_support_flag, na.rm = TRUE),
+    support_fraction = support_datasets / K_present,
+    datasets_supporting = paste(sort(unique(dataset_id[dataset_support_flag])), collapse = ";"),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(support_datasets), desc(support_fraction))
+
+core_gene_set <- core_support %>%
+  filter(support_datasets >= required_support_datasets) %>%
+  arrange(desc(support_datasets), desc(support_fraction), gene_id)
+
+if (nrow(core_gene_set) == 0) {
+  stop("Core gene set is EMPTY under current thresholds.\n",
+       "Try lowering lfc_cutoff or within_dataset_support_cutoff, or verify anchors are correct.")
+}
+
+write_tsv(core_gene_set, file.path(model_root, "core_gene_set.tsv"))
+message("Wrote core gene set: ", file.path(model_root, "core_gene_set.tsv"),
+        " (n=", nrow(core_gene_set), ")")
+
+# -------------------------
+# Gene weights from locked anchors
+# Weight definition: robust central tendency of log2FC across ALL anchor contrasts
+# (You can later switch to dataset-median then grand-median; this is fine for now.)
+# -------------------------
+core_genes <- core_gene_set$gene_id
+
+weights <- anchor_flagged %>%
+  filter(gene_id %in% core_genes) %>%
+  group_by(gene_id) %>%
+  summarise(
+    weight_raw = if (use_weight_stat == "median") median(log2FoldChange, na.rm = TRUE) else mean(log2FoldChange, na.rm = TRUE),
+    mean_lfc   = mean(log2FoldChange, na.rm = TRUE),
+    median_lfc = median(log2FoldChange, na.rm = TRUE),
+    sd_lfc     = sd(log2FoldChange, na.rm = TRUE),
+    n          = sum(!is.na(log2FoldChange)),
+    .groups = "drop"
+  )
+
+# Optional cap to reduce dominance
+if (cap_weights) {
+  lo <- quantile(weights$weight_raw, cap_quantiles[1], na.rm = TRUE)
+  hi <- quantile(weights$weight_raw, cap_quantiles[2], na.rm = TRUE)
+  weights <- weights %>%
+    mutate(
+      weight = pmax(pmin(weight_raw, hi), lo),
+      weight_cap_lo = lo,
+      weight_cap_hi = hi
+    )
+} else {
+  weights <- weights %>% mutate(weight = weight_raw)
+}
+
+# Ensure weights are positive-ish given UP-only core; still keep as-is
+weights <- weights %>% arrange(desc(weight))
+
+write_tsv(weights, file.path(model_root, "gene_weights.tsv"))
+message("Wrote gene weights: ", file.path(model_root, "gene_weights.tsv"))
+
+message("\nDONE: Step 06 model built and frozen (locked mouse anchors only).\n",
+        "Next: Step 07 should score SAMPLES using normalized expression z-scores (not DE log2FC).\n")

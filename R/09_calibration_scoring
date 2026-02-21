@@ -1,0 +1,192 @@
+#!/usr/bin/env Rscript
+
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(tidyr)
+})
+
+# =========================
+# INPUT / OUTPUT
+# =========================
+in_path <- "C:/Users/john/Desktop/IMRS_Project/05_score/imrs_scores_samples_mouse.tsv"
+out_dir <- "C:/Users/john/Desktop/IMRS_Project/05_score/calibrated"
+dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+out_calibrated <- file.path(out_dir, "imrs_scores_samples_mouse_calibrated.tsv")
+out_params     <- file.path(out_dir, "imrs_calibration_params_mouse.tsv")
+out_qc         <- file.path(out_dir, "imrs_calibration_qc_mouse.tsv")
+
+# =========================
+# PARAMETERS
+# =========================
+anchor_min <- 0
+anchor_max <- 24          # anchor: [0, 24)
+calib_min  <- 24
+calib_max  <- 72          # calibration: [24, 72]
+
+min_n_calib <- 6          # require at least this many calib samples to calibrate a stratum
+min_n_anchor_stratum <- 4 # if no calib, fallback to stratum anchor if >= this many
+
+eps <- 1e-8               # avoid division by zero
+
+# =========================
+# HELPERS (robust location & scale)
+# =========================
+robust_loc <- function(x) median(x, na.rm = TRUE)
+robust_scale <- function(x) {
+  # MAD scaled to be comparable to sd under Normal
+  s <- mad(x, constant = 1.4826, na.rm = TRUE)
+  if (is.na(s) || s < eps) NA_real_ else s
+}
+
+in_window <- function(t, a, b) !is.na(t) & t >= a & t <= b
+
+# =========================
+# LOAD
+# =========================
+df <- read_tsv(in_path, show_col_types = FALSE) %>%
+  filter(is_human == FALSE) %>%
+  mutate(
+    # ensure these exist
+    stratum = if (!("stratum" %in% names(.))) paste0(tissue, "__B=NO_BATCH") else stratum,
+    # time bins
+    time_bin = case_when(
+      !is.na(timepoint_hr) & timepoint_hr >= anchor_min & timepoint_hr < anchor_max ~ "anchor",
+      in_window(timepoint_hr, calib_min, calib_max) ~ "calibration",
+      TRUE ~ "other"
+    )
+  )
+
+if (!("imrs_norm" %in% names(df))) stop("Missing column: imrs_norm")
+
+# =========================
+# GLOBAL REFERENCE SCALE from ANCHORS (mouse-only)
+# =========================
+ref_anchor <- df %>% filter(time_bin == "anchor")
+
+if (nrow(ref_anchor) < 10) {
+  stop("Too few mouse anchor samples (<24h) to build a stable global reference. Found: ", nrow(ref_anchor))
+}
+
+ref_loc <- robust_loc(ref_anchor$imrs_norm)
+ref_scale <- robust_scale(ref_anchor$imrs_norm)
+
+if (is.na(ref_scale)) {
+  stop("Global anchor scale (MAD) is ~0 or NA. Check imrs_norm distribution in anchors.")
+}
+
+message("Global anchor reference (mouse-only):")
+message("  ref_loc  = ", signif(ref_loc, 5))
+message("  ref_scale(MAD) = ", signif(ref_scale, 5))
+message("  n_anchor = ", nrow(ref_anchor))
+
+# =========================
+# CALIBRATE PER STRATUM
+# Strategy:
+#  - If stratum has enough 24-72h samples: use calibration window to estimate loc/scale
+#  - Else fallback to stratum anchors (if enough)
+#  - Else no calibration (identity)
+# =========================
+stratum_stats <- df %>%
+  group_by(dataset_id, tissue, stratum) %>%
+  summarise(
+    n_total = n(),
+    n_anchor = sum(time_bin == "anchor"),
+    n_calib  = sum(time_bin == "calibration"),
+    calib_loc  = robust_loc(imrs_norm[time_bin == "calibration"]),
+    calib_scale = robust_scale(imrs_norm[time_bin == "calibration"]),
+    anchor_loc  = robust_loc(imrs_norm[time_bin == "anchor"]),
+    anchor_scale = robust_scale(imrs_norm[time_bin == "anchor"]),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    method = case_when(
+      n_calib >= min_n_calib & !is.na(calib_scale) ~ "calib_24to72_MAD",
+      n_anchor >= min_n_anchor_stratum & !is.na(anchor_scale) ~ "anchor_stratum_MAD",
+      TRUE ~ "none_identity"
+    ),
+    used_loc = case_when(
+      method == "calib_24to72_MAD" ~ calib_loc,
+      method == "anchor_stratum_MAD" ~ anchor_loc,
+      TRUE ~ NA_real_
+    ),
+    used_scale = case_when(
+      method == "calib_24to72_MAD" ~ calib_scale,
+      method == "anchor_stratum_MAD" ~ anchor_scale,
+      TRUE ~ NA_real_
+    )
+  )
+
+# =========================
+# APPLY CALIBRATION
+# calibrated = (x - used_loc)/used_scale * ref_scale + ref_loc
+# If method == none_identity: calibrated = x
+# =========================
+df_cal <- df %>%
+  left_join(stratum_stats %>%
+              select(dataset_id, tissue, stratum, method, used_loc, used_scale,
+                     n_total, n_anchor, n_calib),
+            by = c("dataset_id", "tissue", "stratum")) %>%
+  mutate(
+    imrs_calibrated = case_when(
+      method %in% c("calib_24to72_MAD", "anchor_stratum_MAD") ~
+        ((imrs_norm - used_loc) / (used_scale + eps)) * ref_scale + ref_loc,
+      TRUE ~ imrs_norm
+    )
+  )
+
+# =========================
+# QC SUMMARY
+# =========================
+qc <- df_cal %>%
+  group_by(dataset_id, tissue, stratum, method) %>%
+  summarise(
+    n_total = n(),
+    n_anchor = sum(time_bin == "anchor"),
+    n_calib  = sum(time_bin == "calibration"),
+    pre_loc_anchor  = robust_loc(imrs_norm[time_bin == "anchor"]),
+    pre_scale_anchor = robust_scale(imrs_norm[time_bin == "anchor"]),
+    post_loc_anchor  = robust_loc(imrs_calibrated[time_bin == "anchor"]),
+    post_scale_anchor = robust_scale(imrs_calibrated[time_bin == "anchor"]),
+    pre_loc_calib   = robust_loc(imrs_norm[time_bin == "calibration"]),
+    pre_scale_calib = robust_scale(imrs_norm[time_bin == "calibration"]),
+    post_loc_calib  = robust_loc(imrs_calibrated[time_bin == "calibration"]),
+    post_scale_calib = robust_scale(imrs_calibrated[time_bin == "calibration"]),
+    .groups = "drop"
+  ) %>%
+  arrange(dataset_id, tissue, stratum)
+
+# =========================
+# WRITE OUTPUTS
+# =========================
+write_tsv(
+  df_cal %>%
+    mutate(ref_loc = ref_loc, ref_scale = ref_scale) %>%
+    select(
+      dataset_id, is_human, sample_id,
+      imrs_raw, imrs_norm, imrs_calibrated,
+      timepoint_hr, time_bin,
+      delivery_group, tissue, batch, stratum, stratum_n,
+      n_core_genes_model, n_core_genes_present, core_presence_fraction,
+      method, used_loc, used_scale, ref_loc, ref_scale,
+      metadata_source
+    ),
+  out_calibrated
+)
+
+write_tsv(
+  stratum_stats %>%
+    mutate(ref_loc = ref_loc, ref_scale = ref_scale) %>%
+    select(dataset_id, tissue, stratum, n_total, n_anchor, n_calib,
+           method, used_loc, used_scale, ref_loc, ref_scale),
+  out_params
+)
+
+write_tsv(qc, out_qc)
+
+message("DONE (mouse-only calibration). Wrote:")
+message(" - ", out_calibrated)
+message(" - ", out_params)
+message(" - ", out_qc)

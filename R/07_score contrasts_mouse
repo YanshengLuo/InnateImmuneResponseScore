@@ -1,0 +1,298 @@
+#!/usr/bin/env Rscript
+# ============================================================
+# IMRS Step 07 — Score SAMPLES from normalized counts (STRATIFIED)
+#
+# Stratification:
+#   - Always within (dataset_id, tissue)
+#   - Additionally within batch ONLY IF:
+#       every batch level in that tissue has >= 4 samples
+#
+# IMRS per sample in each stratum:
+#   log2(norm+1) -> per-gene z-score within stratum -> sum(weight*z)
+#
+# Inputs:
+#   05_score/core_gene_set.tsv
+#   05_score/gene_weights.tsv
+#   04_de/<DATASET>/normalized/gene_counts_normalized.tsv
+#   verified_metadata/<DATASET>_design.tsv   (preferred)
+#
+# Outputs:
+#   05_score/imrs_scores_samples_mouse.tsv   (updated)
+#   05_score/imrs_scores_samples_all.tsv
+#   05_score/imrs_sample_qc_by_dataset.tsv
+# ============================================================
+
+suppressPackageStartupMessages({
+  library(readr)
+  library(dplyr)
+  library(stringr)
+  library(tidyr)
+  library(purrr)
+  library(tibble)
+})
+
+project_root <- "C:/Users/john/Desktop/IMRS_Project"
+
+model_root   <- file.path(project_root, "05_score")
+weights_path <- file.path(model_root,"anchors", "gene_weights.tsv")
+core_path    <- file.path(model_root,"anchors", "core_gene_set.tsv")
+
+norm_root <- file.path(project_root, "04_de")
+
+verified_meta_root <- file.path(
+  project_root,
+  "Hypergator_scripts", "InnateImmuneResponseScore",
+  "verified_metadata"
+)
+split_design_root <- file.path(verified_meta_root, "splited")
+
+out_all   <- file.path(model_root, "imrs_scores_samples_all.tsv")
+out_mouse <- file.path(model_root, "imrs_scores_samples_mouse.tsv")
+out_human <- file.path(model_root, "imrs_scores_samples_human.tsv")
+out_qc    <- file.path(model_root, "imrs_sample_qc_by_dataset.tsv")
+
+dir.create(model_root, showWarnings = FALSE, recursive = TRUE)
+
+# -------------------------
+# Helpers
+# -------------------------
+row_zscore <- function(mat) {
+  mu  <- rowMeans(mat, na.rm = TRUE)
+  sdv <- apply(mat, 1, sd, na.rm = TRUE)
+  sdv[is.na(sdv) | sdv == 0] <- NA_real_
+  z <- (mat - mu) / sdv
+  z[is.na(z)] <- 0
+  z
+}
+
+standardize_design_cols <- function(df) {
+  nms <- names(df)
+
+  if (!("sample_id" %in% nms)) {
+    cand <- intersect(c("id","sample","run","SRR","accession","srr","Run"), nms)
+    if (length(cand) >= 1) df <- df %>% rename(sample_id = all_of(cand[1]))
+  }
+  if ("group" %in% names(df) && !("delivery_group" %in% names(df))) df <- df %>% rename(delivery_group = group)
+  if ("time_h" %in% names(df) && !("timepoint_hr" %in% names(df))) df <- df %>% rename(timepoint_hr = time_h)
+  if ("time" %in% names(df) && !("timepoint_hr" %in% names(df))) df <- df %>% rename(timepoint_hr = time)
+
+  df
+}
+
+read_dataset_design <- function(dataset_id) {
+  path <- file.path(verified_meta_root, paste0(dataset_id, "_design.tsv"))
+  if (!file.exists(path)) return(NULL)
+  df <- read_tsv(path, show_col_types = FALSE) %>% standardize_design_cols()
+  if (!("sample_id" %in% names(df))) names(df)[1] <- "sample_id"
+  df
+}
+
+# fallback only (not used unless dataset-level design missing)
+read_design_any <- function(path) {
+  df <- read_tsv(path, show_col_types = FALSE) %>% standardize_design_cols()
+  if (!("sample_id" %in% names(df))) names(df)[1] <- "sample_id"
+  df
+}
+merge_split_designs <- function(design_dir) {
+  if (!dir.exists(design_dir)) return(NULL)
+  files <- list.files(design_dir, pattern = "\\.tsv$", full.names = TRUE)
+  files <- files[!str_detect(basename(files), "contrast_index|group_map")]
+  if (length(files) == 0) return(NULL)
+  df_all <- map_dfr(files, read_design_any) %>% filter(!is.na(sample_id))
+  df_all %>%
+    group_by(sample_id) %>%
+    summarise(across(everything(), ~ .x[1]), .n_rows = n(), .groups = "drop")
+}
+
+infer_dataset_id <- function(path) {
+  parts <- strsplit(normalizePath(path, winslash = "/"), "/")[[1]]
+  idx <- which(parts == "04_de")
+  if (length(idx) == 1 && length(parts) >= idx + 1) return(parts[idx + 1])
+  d <- str_extract(path, "GSE\\d+(?:_HUMAN)?")
+  ifelse(is.na(d), "UNKNOWN", d)
+}
+
+# Decide if batch is usable WITHIN a tissue:
+# require batch exists, and every batch level has >=4 samples in that tissue
+batch_usable_in_tissue <- function(df_tissue) {
+  if (!("batch" %in% names(df_tissue))) return(FALSE)
+  if (all(is.na(df_tissue$batch))) return(FALSE)
+  tab <- table(df_tissue$batch, useNA = "no")
+  if (length(tab) <= 1) return(FALSE)
+  all(tab >= 4)
+}
+
+# -------------------------
+# Load model
+# -------------------------
+if (!file.exists(weights_path)) stop("Missing: ", weights_path)
+if (!file.exists(core_path))    stop("Missing: ", core_path)
+
+weights <- read_tsv(weights_path, show_col_types = FALSE)
+core    <- read_tsv(core_path, show_col_types = FALSE)
+
+if (!("gene_id" %in% names(weights))) stop("gene_weights.tsv must contain gene_id")
+if (!("weight" %in% names(weights)) && !("weight_raw" %in% names(weights))) stop("gene_weights.tsv must contain weight or weight_raw")
+if (!("gene_id" %in% names(core))) stop("core_gene_set.tsv must contain gene_id")
+
+core_genes <- unique(core$gene_id)
+weight_col <- if ("weight" %in% names(weights)) "weight" else "weight_raw"
+w_tbl <- weights %>% select(gene_id, weight = all_of(weight_col)) %>% distinct()
+
+# -------------------------
+# Discover normalized matrices
+# -------------------------
+count_files <- list.files(norm_root, pattern = "^gene_counts_normalized\\.tsv$", recursive = TRUE, full.names = TRUE)
+if (length(count_files) == 0) stop("No gene_counts_normalized.tsv under: ", norm_root)
+
+datasets <- tibble(
+  dataset_id  = map_chr(count_files, infer_dataset_id),
+  counts_path = count_files
+) %>% distinct(dataset_id, counts_path)
+
+message("Found datasets: ", nrow(datasets))
+
+# -------------------------
+# Score ONE dataset with stratified z-scoring
+# -------------------------
+score_one_dataset <- function(dataset_id, counts_path) {
+  message("\n=== Scoring dataset: ", dataset_id, " ===")
+  is_human <- str_detect(dataset_id, "_HUMAN$")
+
+  # read metadata
+  meta_df <- read_dataset_design(dataset_id)
+  meta_source <- "dataset_design"
+
+  if (is.null(meta_df)) {
+    design_dir <- file.path(split_design_root, paste0(dataset_id, "_design"))
+    meta_df <- merge_split_designs(design_dir)
+    meta_source <- "split_design_fallback"
+  }
+  if (is.null(meta_df)) stop("No design metadata found for: ", dataset_id)
+
+  # require tissue
+  if (!("tissue" %in% names(meta_df))) stop("Design missing tissue for: ", dataset_id)
+
+  # read counts
+  df <- read_tsv(counts_path, show_col_types = FALSE)
+  if (!("gene_id" %in% names(df))) names(df)[1] <- "gene_id"
+
+  sample_cols <- setdiff(names(df), "gene_id")
+
+  # align to samples present in metadata
+  common_samples <- intersect(sample_cols, meta_df$sample_id)
+  if (length(common_samples) < 3) stop("Too few common samples between counts and design for: ", dataset_id)
+
+  meta_use <- meta_df %>%
+    filter(sample_id %in% common_samples) %>%
+    mutate(dataset_id = dataset_id, is_human = is_human)
+
+  # subset to core genes
+  df_core <- df %>% filter(gene_id %in% core_genes)
+  n_core_present <- nrow(df_core)
+
+  # create matrix genes x samples (only common samples, in meta order)
+  sample_order <- meta_use$sample_id
+  mat <- as.matrix(df_core %>% select(all_of(sample_order)))
+  storage.mode(mat) <- "numeric"
+  rownames(mat) <- df_core$gene_id
+
+  mat_log <- log2(mat + 1)
+
+  # weights aligned to rows
+  w_vec <- w_tbl %>% filter(gene_id %in% rownames(mat_log)) %>% distinct(gene_id, .keep_all = TRUE)
+  w_aligned <- w_vec$weight[match(rownames(mat_log), w_vec$gene_id)]
+  w_aligned[is.na(w_aligned)] <- 0
+  denom <- sum(abs(w_aligned), na.rm = TRUE)
+  if (!is.finite(denom) || denom <= 0) denom <- NA_real_
+
+  # ---- STRATIFIED z-scoring + scoring
+  # Always within tissue; within batch if batch usable in that tissue
+  meta_use <- meta_use %>%
+    group_by(tissue) %>%
+    mutate(.use_batch = batch_usable_in_tissue(pick(everything()))) %>%
+    ungroup() %>%
+    mutate(
+      .stratum = ifelse(.use_batch & !is.na(batch),
+                        paste(tissue, batch, sep="__B="),
+                        paste(tissue, "NO_BATCH", sep="__B="))
+    )
+
+  strata <- unique(meta_use$.stratum)
+
+  score_list <- lapply(strata, function(s) {
+    smps <- meta_use %>% filter(.stratum == s) %>% pull(sample_id)
+    # need at least 3 samples to z-score
+    if (length(smps) < 3) return(NULL)
+
+    z <- row_zscore(mat_log[, smps, drop = FALSE])
+    imrs_raw  <- as.numeric(t(z) %*% w_aligned)
+    imrs_norm <- if (is.na(denom)) rep(NA_real_, length(smps)) else imrs_raw / denom
+
+    tibble(
+      sample_id = smps,
+      imrs_raw  = imrs_raw,
+      imrs_norm = imrs_norm,
+      stratum   = s,
+      stratum_n = length(smps)
+    )
+  })
+
+  score_df <- bind_rows(score_list)
+
+  # join back metadata
+  out <- meta_use %>%
+    left_join(score_df, by = "sample_id") %>%
+    mutate(
+      n_core_genes_model = length(core_genes),
+      n_core_genes_present = n_core_present,
+      core_presence_fraction = n_core_present / length(core_genes),
+      metadata_source = meta_source
+    ) %>%
+    select(
+      dataset_id, is_human, sample_id,
+      imrs_raw, imrs_norm,
+      n_core_genes_model, n_core_genes_present, core_presence_fraction,
+      delivery_group, tissue, timepoint_hr, batch,
+      stratum, stratum_n, metadata_source
+    )
+
+  qc <- out %>%
+    summarise(
+      dataset_id = first(dataset_id),
+      is_human = first(is_human),
+      n_samples_scored = sum(!is.na(imrs_norm)),
+      n_samples_total  = n(),
+      n_core_genes_model = first(n_core_genes_model),
+      n_core_genes_present = first(n_core_genes_present),
+      core_presence_fraction = first(core_presence_fraction),
+      n_strata = n_distinct(stratum),
+      metadata_source = first(metadata_source),
+      counts_path = counts_path
+    )
+
+  list(scores = out, qc = qc)
+}
+
+# -------------------------
+# Run
+# -------------------------
+res <- pmap(datasets, score_one_dataset)
+
+scores_all <- bind_rows(map(res, "scores"))
+qc_all     <- bind_rows(map(res, "qc"))
+
+write_tsv(scores_all, out_all)
+write_tsv(qc_all, out_qc)
+
+scores_mouse <- scores_all %>% filter(!is_human)
+scores_human <- scores_all %>% filter(is_human)
+
+write_tsv(scores_mouse, out_mouse)
+write_tsv(scores_human, out_human)
+
+message("\nDONE (stratified scoring).")
+message("Wrote: ", out_all)
+message("Wrote: ", out_mouse)
+message("Wrote: ", out_human)
+message("Wrote: ", out_qc)
