@@ -176,13 +176,25 @@ run_one_dataset <- function(dataset_id) {
   norm_mat <- norm_mat[, shared, drop = FALSE]
   sf_df <- sf_df %>% filter(sample_id %in% shared) %>% arrange(match(sample_id, shared))
 
-  # reconstruct raw
-  sf_vec <- sf_df$size_factor
-  names(sf_vec) <- sf_df$sample_id
+# ---- load RAW counts instead of reconstructing from normalized ----
+  raw_counts_path <- file.path(
+    project_root, "03_counts", dataset_id,
+    "featurecounts", "validation", "gene_counts_clean.tsv"
+  )
+  if (!file.exists(raw_counts_path)) {
+    stop("Missing raw counts: ", raw_counts_path)
+  }
 
-  raw_mat <- sweep(norm_mat, 2, sf_vec[colnames(norm_mat)], `*`)
-  raw_mat <- round(raw_mat)
-  raw_mat[raw_mat < 0] <- 0
+  raw_df  <- read_table_robust(raw_counts_path)
+  raw_mat <- make_counts_matrix(raw_df)
+
+  # Keep only shared samples with size factors
+  shared <- intersect(colnames(raw_mat), sf_df$sample_id)
+  if (length(shared) < 4) {
+    message("Skip: too few shared samples between raw counts and size_factors for ", dataset_id)
+    return(invisible(NULL))
+  }
+  raw_mat <- raw_mat[, shared, drop = FALSE]
   storage.mode(raw_mat) <- "integer"
 
   # outputs
