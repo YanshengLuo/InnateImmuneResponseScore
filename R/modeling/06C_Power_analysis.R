@@ -1,26 +1,34 @@
 #!/usr/bin/env Rscript
 # ============================================================
-# IMRS Step 06C — Power / information screening (using SE_meta)
-# - Direction-agnostic (supports future UP or DOWN usage)
-# - Uses SE_meta from Step 6B (gene_heterogeneity.tsv)
+# IMRS Step 06C — Power / information screening (ANCHOR ONLY)
+# - Uses se_meta from Step 6B output: gene_heterogeneity.tsv
 # - Computes power to detect |log2FC| = Delta at alpha=0.05 (two-sided)
 # - Computes for ALL genes, but flags low-power only for core genes (if core exists)
 #
-# Outputs (per phase):
-#   <project_root>/05_score/<phase>/gene_power.tsv
+# Inputs:
+#   <project_root>/05_score/anchors/gene_heterogeneity.tsv
+#   <project_root>/05_score/anchors/core_gene_set.tsv   (optional; used for flagging)
+#
+# Outputs:
+#   <project_root>/05_score/anchors/gene_power.tsv
 # ============================================================
 
 suppressPackageStartupMessages({
   library(readr)
   library(dplyr)
-  library(tibble)
-  library(stringr)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
 project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
-PHASES <- c("anchor", "calibration")
+# ---- Phase fixed to anchor only (consistent with your plan) ----
+PHASE <- "anchor"
+
+phase_out_dir <- function(phase) {
+  if (phase == "anchor") return("anchors")
+  if (phase == "calibration") return("calibration")
+  stop("bad phase: ", phase)
+}
 
 # Best-practice defaults for your use case
 Delta <- 1.0         # detectable effect size in log2FC units (absolute)
@@ -41,54 +49,56 @@ power_two_sided <- function(se, Delta = 1.0, alpha = 0.05) {
   p_upper + p_lower
 }
 
-for (phase in PHASES) {
-  out_root <- file.path(project_root, "05_score", phase)
-  if (!dir.exists(out_root)) {
-    message("PHASE=", phase, ": missing folder: ", out_root, " (skipping)")
-    next
-  }
-
-  het_path <- file.path(out_root, "gene_heterogeneity.tsv")
-  if (!file.exists(het_path)) {
-    stop("Missing Step 6B output for phase=", phase, ": ", het_path)
-  }
-
-  het <- read_tsv(het_path, show_col_types = FALSE)
-
-  if (!all(c("gene_id", "se_meta") %in% names(het))) {
-    stop("gene_heterogeneity.tsv must contain columns: gene_id, se_meta\nFile: ", het_path)
-  }
-
-  # Core genes (optional) used only for flagging
-  core_path <- file.path(out_root, "core_gene_set.tsv")
-  core_genes <- character(0)
-  if (file.exists(core_path)) {
-    core_df <- read_tsv(core_path, show_col_types = FALSE)
-    if ("gene_id" %in% names(core_df)) core_genes <- as.character(core_df$gene_id)
-  }
-
-  out <- het %>%
-    transmute(
-      gene_id = as.character(gene_id),
-      phase = phase,
-      se_meta = suppressWarnings(as.numeric(se_meta)),
-      beta_meta = if ("beta_meta" %in% names(het)) suppressWarnings(as.numeric(het$beta_meta)) else NA_real_
-    ) %>%
-    mutate(
-      is_core = gene_id %in% core_genes,
-      # power to detect an absolute effect of Delta (works for up or down)
-      power_delta1 = ifelse(is.na(se_meta), NA_real_, power_two_sided(se_meta, Delta = Delta, alpha = alpha)),
-      low_power_flag = ifelse(is_core & !is.na(power_delta1) & power_delta1 < power_cutoff, TRUE, FALSE)
-    ) %>%
-    arrange(desc(is_core), desc(low_power_flag), power_delta1, gene_id)
-
-  out_path <- file.path(out_root, "gene_power.tsv")
-  write_tsv(out, out_path)
-
-  message("PHASE=", phase, ": wrote ", out_path,
-          " | genes=", nrow(out),
-          " | core_loaded=", length(core_genes),
-          " | low_power_core=", sum(out$low_power_flag, na.rm = TRUE))
+# -------------------------
+# MAIN
+# -------------------------
+out_root <- file.path(project_root, "05_score", phase_out_dir(PHASE))
+if (!dir.exists(out_root)) {
+  stop("Missing folder: ", out_root, "\nDid Step 06A/06B write outputs here?")
 }
 
-message("\nDONE: Step 06C power computed using SE_meta (Delta=1, alpha=0.05 two-sided, cutoff=0.8).")
+het_path <- file.path(out_root, "gene_heterogeneity.tsv")
+if (!file.exists(het_path)) {
+  stop("Missing Step 06B output: ", het_path)
+}
+
+het <- read_tsv(het_path, show_col_types = FALSE)
+
+if (!all(c("gene_id", "se_meta") %in% names(het))) {
+  stop("gene_heterogeneity.tsv must contain columns: gene_id, se_meta\nFile: ", het_path)
+}
+
+# Core genes (optional) used only for flagging
+core_path <- file.path(out_root, "core_gene_set.tsv")
+core_genes <- character(0)
+if (file.exists(core_path)) {
+  core_df <- read_tsv(core_path, show_col_types = FALSE)
+  if ("gene_id" %in% names(core_df)) core_genes <- as.character(core_df$gene_id)
+}
+
+out <- het %>%
+  transmute(
+    gene_id   = as.character(.data$gene_id),
+    phase     = PHASE,
+    se_meta   = suppressWarnings(as.numeric(.data$se_meta)),
+    beta_meta = if ("beta_meta" %in% names(het)) suppressWarnings(as.numeric(.data$beta_meta)) else NA_real_
+  ) %>%
+  mutate(
+    is_core = .data$gene_id %in% core_genes,
+    power_delta = ifelse(is.na(.data$se_meta), NA_real_,
+                         power_two_sided(.data$se_meta, Delta = Delta, alpha = alpha)),
+    low_power_flag = .data$is_core & !is.na(.data$power_delta) & (.data$power_delta < power_cutoff)
+  ) %>%
+  arrange(desc(.data$is_core), desc(.data$low_power_flag), .data$power_delta, .data$gene_id)
+
+out_path <- file.path(out_root, "gene_power.tsv")
+write_tsv(out, out_path)
+
+message("PHASE=", PHASE, ": wrote ", out_path,
+        " | genes=", nrow(out),
+        " | core_loaded=", length(core_genes),
+        " | low_power_core=", sum(out$low_power_flag, na.rm = TRUE),
+        " | Delta=", Delta, " | alpha=", alpha, " | cutoff=", power_cutoff)
+
+message("\nDONE: Step 06C power computed using SE_meta (two-sided normal approx).")
+

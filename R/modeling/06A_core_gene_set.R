@@ -1,16 +1,19 @@
 # ============================================================
 # IMRS Step 06A — Core gene sets (LOCKED mouse datasets)
 # - Builds core gene set separately for:
-#     (1) ANCHOR phase      (H <= 24)   -> Step 5 output folder: .../anchor/
-#     (2) CALIBRATION phase (24 < H <72)-> Step 5 output folder: .../calibration/
+#     (1) ANCHOR phase      (H <= 24)    -> Step 5 output: .../anchor/
+#     (2) CALIBRATION phase (24 < H <72) -> Step 5 output: .../calibration/
 #
-# Reads Step 5 workflow DE tables:
+# Reads Step 5 DE tables (workflow schema preferred):
 #   gene, log2FC, SE, stat, pval, FDR
+#
+# Also supports DESeq2 "full" tables if present:
+#   gene/log2FoldChange/padj (mapped -> log2FC/FDR)
 #
 # Outputs:
 #   <project_root>/05_score/anchors/core_gene_set.tsv
 #   <project_root>/05_score/calibration/core_gene_set.tsv
-#   plus small contrast-count audits per phase
+#   plus contrast-count audits per phase
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -31,7 +34,7 @@ project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 de_comp_root <- file.path(project_root, "04_de", "comparison")
 
 # Locked mouse datasets (pre-registered)
-LOCKED_DATASETS_MOUSE <- c("GSE39129", "GSE167521", "GSE264344")
+LOCKED_DATASETS_MOUSE <- c("GSE39129", "GSE167521", "GSE264344", "GSE279372", "GSE279744","GSE262515")
 
 # Thresholds
 fdr_cutoff <- 0.05
@@ -39,25 +42,60 @@ lfc_cutoff <- 1.0
 within_dataset_support_cutoff <- 0.50   # gene passes in >=50% contrasts within dataset
 consensus_k_fraction          <- 2/3    # gene supported by >= ceil(K_present*2/3) datasets
 
+# Direction control:
+#   "both" (default): abs(log2FC) >= lfc_cutoff
+#   "up":   log2FC >= lfc_cutoff
+#   "down": log2FC <= -lfc_cutoff
+direction <- "both"
+
 # Which phases to build
 PHASES <- c("anchor", "calibration")
 
 # -------------------------
 # Helpers
 # -------------------------
-read_de_workflow <- function(path) {
+read_de_table <- function(path) {
   df <- read_tsv(path, show_col_types = FALSE)
-  required <- c("gene", "log2FC", "SE", "stat", "pval", "FDR")
-  missing <- setdiff(required, names(df))
-  if (length(missing) > 0) {
-    stop("Missing required columns in: ", path, "\nMissing: ", paste(missing, collapse = ", "))
-  }
-  df %>%
-    transmute(
-      gene_id = as.character(gene),
-      log2FC  = suppressWarnings(as.numeric(log2FC)),
-      FDR     = suppressWarnings(as.numeric(FDR))
+  coln <- names(df)
+
+  # Identify gene column (workflow may use gene; full may use gene_id)
+  gene_col <- dplyr::case_when(
+    "gene" %in% coln    ~ "gene",
+    "gene_id" %in% coln ~ "gene_id",
+    TRUE               ~ NA_character_
+  )
+  if (is.na(gene_col)) {
+    stop(
+      "Unrecognized DE table schema in: ", path, "\n",
+      "No gene column found. Columns: ", paste(coln, collapse = ", ")
     )
+  }
+
+  # Workflow schema: gene + log2FC + FDR
+  if (all(c("log2FC", "FDR") %in% coln)) {
+    return(df %>%
+      transmute(
+        gene_id = as.character(.data[[gene_col]]),
+        log2FC  = suppressWarnings(as.numeric(log2FC)),
+        FDR     = suppressWarnings(as.numeric(FDR))
+      ))
+  }
+
+  # DESeq2 full schema: log2FoldChange + padj
+  if (all(c("log2FoldChange", "padj") %in% coln)) {
+    return(df %>%
+      transmute(
+        gene_id = as.character(.data[[gene_col]]),
+        log2FC  = suppressWarnings(as.numeric(log2FoldChange)),
+        FDR     = suppressWarnings(as.numeric(padj))
+      ))
+  }
+
+  stop(
+    "Unrecognized DE table schema in: ", path, "\n",
+    "Columns found: ", paste(coln, collapse = ", "), "\n",
+    "Expected workflow (log2FC,FDR) or full (log2FoldChange,padj)."
+  )
 }
 
 get_dataset_from_path <- function(path) {
@@ -68,17 +106,30 @@ get_dataset_from_path <- function(path) {
   NA_character_
 }
 
+pass_by_direction <- function(log2FC, lfc_cutoff, direction) {
+  if (direction == "both") return(!is.na(log2FC) & abs(log2FC) >= lfc_cutoff)
+  if (direction == "up")   return(!is.na(log2FC) & log2FC >= lfc_cutoff)
+  if (direction == "down") return(!is.na(log2FC) & log2FC <= -lfc_cutoff)
+  stop("direction must be one of: both, up, down")
+}
+
+phase_out_dir <- function(phase) {
+  if (phase == "anchor") return("anchors")   # match your spec
+  if (phase == "calibration") return("calibration")
+  stop("bad phase")
+}
+
 # Build core gene set for one phase folder (anchor or calibration)
 build_core_for_phase <- function(phase) {
   stopifnot(phase %in% c("anchor", "calibration"))
 
-  out_root <- file.path(project_root, "05_score", phase)
+  out_root <- file.path(project_root, "05_score", phase_out_dir(phase))
   dir.create(out_root, showWarnings = FALSE, recursive = TRUE)
 
-  # Collect workflow files from this phase
+  # Collect workflow/full files from this phase
   all_files <- list.files(
     de_comp_root,
-    pattern = "__DE_workflow\\.tsv$",
+    pattern = "__(DE_workflow|DE_full)\\.tsv$",
     recursive = TRUE,
     full.names = TRUE
   )
@@ -86,7 +137,7 @@ build_core_for_phase <- function(phase) {
   phase_files <- all_files[str_detect(all_files, paste0("deseq2_contrasts[\\\\/]+", phase, "[\\\\/]"))]
 
   if (length(phase_files) == 0) {
-    message("PHASE=", phase, ": no DE_workflow files found. Skipping.")
+    message("PHASE=", phase, ": no DE tables found for this phase. Skipping.")
     return(invisible(NULL))
   }
 
@@ -112,6 +163,7 @@ build_core_for_phase <- function(phase) {
     arrange(desc(n_contrasts))
   overall <- tibble(
     phase = phase,
+    direction = direction,
     datasets_present = n_distinct(meta$dataset_id),
     total_contrasts = nrow(meta)
   )
@@ -122,38 +174,39 @@ build_core_for_phase <- function(phase) {
   K_present <- length(datasets_present)
 
   if (K_present < 2) {
-    stop("PHASE=", phase, ": fewer than 2 locked datasets present. Need >=2 for consensus.\n",
-         "Present: ", paste(datasets_present, collapse = ", "))
-  }
+  message("PHASE=", phase, ": fewer than 2 locked datasets present (K_present=", K_present, "). Skipping this phase.\n",
+          "Present: ", paste(datasets_present, collapse = ", "))
+  return(invisible(NULL))
+}
 
   required_support <- ceiling(K_present * consensus_k_fraction)
 
   message("\nPHASE=", phase,
+          " | direction=", direction,
           " | locked datasets present: ", paste(datasets_present, collapse = ", "),
           " | K_present=", K_present,
           " | core requires >= ", required_support, " supporting datasets")
 
   # Load DE + pass flag
   de_long <- meta %>%
-    mutate(de = map(file, read_de_workflow)) %>%
+    mutate(de = map(file, read_de_table)) %>%
     tidyr::unnest(de) %>%
     mutate(
-      pass = !is.na(FDR) & (FDR <= fdr_cutoff) &
-             !is.na(log2FC) & (log2FC >= lfc_cutoff)
+      pass = !is.na(FDR) & (FDR <= fdr_cutoff) & pass_by_direction(log2FC, lfc_cutoff, direction)
     )
 
-  # Within-dataset reproducibility
+  # Within-dataset reproducibility (collapse within dataset first)
   support_by_dataset <- de_long %>%
-  mutate(pass = ifelse(is.na(pass), FALSE, pass)) %>%   # NA -> FAIL
-  group_by(dataset_id, gene_id) %>%
-  summarise(
-    n_contrasts_dataset = n_distinct(file),
-    n_pass = sum(pass),
-    support_in_dataset = n_pass / n_contrasts_dataset,  # denominator includes NA contrasts
-    dataset_support_flag = support_in_dataset >= within_dataset_support_cutoff,
-    .groups = "drop"
-  )
-  
+    mutate(pass = ifelse(is.na(pass), FALSE, pass)) %>%
+    group_by(dataset_id, gene_id) %>%
+    summarise(
+      n_contrasts_dataset = n_distinct(file),
+      n_pass = sum(pass),
+      support_in_dataset = n_pass / n_contrasts_dataset,
+      dataset_support_flag = support_in_dataset >= within_dataset_support_cutoff,
+      .groups = "drop"
+    )
+
   # Across-dataset consensus
   core_support <- support_by_dataset %>%
     group_by(gene_id) %>%
@@ -173,7 +226,8 @@ build_core_for_phase <- function(phase) {
     stop("PHASE=", phase, ": core gene set is EMPTY under thresholds.\n",
          "Try lowering lfc_cutoff or within_dataset_support_cutoff.\n",
          "Current: FDR<=", fdr_cutoff,
-         ", log2FC>=", lfc_cutoff,
+         ", direction=", direction,
+         ", |log2FC| cutoff=", lfc_cutoff,
          ", within_dataset_support_cutoff=", within_dataset_support_cutoff,
          ", across>=ceil(K_present*", consensus_k_fraction, ")")
   }

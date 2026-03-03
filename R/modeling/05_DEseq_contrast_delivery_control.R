@@ -4,8 +4,9 @@
 # Part A: Size-factor normalization (from RAW counts + full design)
 #   - Compute size factors separately for:
 #       (1) ANCHOR phase     : H <= 24
-#       (2) CALIBRATION      : H > 24 and H < 72
-#   - IMPORTANT FIX: For BOTH phases, DO NOT time-filter CONTROL samples.
+#       (2) CALIBRATION      : size factors computed on ALL samples (no time filtering)
+#   - IMPORTANT: Anchor SFs use ALL controls + time-filtered delivery.
+#                Calibration SFs use ALL samples (prevents sparse SF overlap across contrasts).
 #     Always include ALL CONTROL samples in size-factor estimation.
 #     Only time-filter DELIVERY samples.
 #   - Hard-validate counts are integers (no rounding)
@@ -36,6 +37,9 @@
 #   DE results (phase-specific):
 #     <project_root>/04_de/comparison/<DATASET>/deseq2_contrasts/anchor/*.tsv
 #     <project_root>/04_de/comparison/<DATASET>/deseq2_contrasts/calibration/*.tsv
+#
+# Tracker output:
+#   <project_root>/04_de/comparison/_tracker/step5_phase_tracker.tsv
 #
 # Usage:
 #   Rscript 05_IMRS_Step5_Windows_Phased.R [project_root] [dataset_id_optional]
@@ -75,10 +79,10 @@ gene_min_total  <- 10
 
 # Phase rules (as requested):
 #   anchor:      H <= 24
-#   calibration: H > 24 and H < 72
+#   calibration: 24 < H < 72
 anchor_hours_max      <- 24
 calib_hours_lower_exc <- 24
-calib_hours_upper_exc <- 72
+calib_hours_upper_exc <- 73  # your existing convention: <73 means <=72
 
 run_anchor      <- TRUE
 run_calibration <- TRUE
@@ -88,6 +92,35 @@ message("Split design root: ", split_design_root)
 message("Output base: ", out_base)
 message("ANCHOR rule: H <= ", anchor_hours_max)
 message("CALIBRATION rule: H > ", calib_hours_lower_exc, " and H < ", calib_hours_upper_exc)
+
+# -------------------------
+# TRACKER (metadata + processing audit)
+# -------------------------
+TRACKER <- new.env(parent = emptyenv())
+TRACKER$rows <- list()
+
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+
+track_add <- function(row_list) {
+  TRACKER$rows[[length(TRACKER$rows) + 1]] <<- tibble::as_tibble(row_list)
+}
+
+track_write <- function(out_base) {
+  if (length(TRACKER$rows) == 0) {
+    message("Tracker: no rows to write.")
+    return(invisible(NULL))
+  }
+  df <- dplyr::bind_rows(TRACKER$rows)
+
+  out_dir <- file.path(out_base, "_tracker")
+  dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+
+  out_file <- file.path(out_dir, "step5_phase_tracker.tsv")
+  readr::write_tsv(df, out_file)
+  message("Tracker wrote: ", out_file)
+
+  invisible(df)
+}
 
 # -------------------------
 # HELPERS
@@ -109,6 +142,7 @@ read_table_robust <- function(path) {
 }
 
 make_counts_matrix <- function(df) {
+
   gene_col <- dplyr::case_when(
     "gene_id" %in% names(df) ~ "gene_id",
     "Geneid"  %in% names(df) ~ "Geneid",
@@ -116,7 +150,8 @@ make_counts_matrix <- function(df) {
     "gene"    %in% names(df) ~ "gene",
     TRUE                     ~ names(df)[1]
   )
-  df <- df %>% rename(gene_id = !!gene_col)
+
+  names(df)[names(df) == gene_col] <- "gene_id"
 
   if (ncol(df) < 3) {
     stop("Counts table has <3 columns (need gene_id + >=2 samples). Columns: ",
@@ -249,6 +284,39 @@ get_condition_simple_full_design <- function(design_df) {
   out
 }
 
+# Metadata tracker: count split designs by phase (mouse-only assumption is handled upstream in how you call datasets)
+count_split_designs_by_phase <- function(dataset_id,
+                                        anchor_max = 24,
+                                        calib_lower_exc = 24,
+                                        calib_upper_exc = 72) {
+  design_dir <- file.path(split_design_root, paste0(dataset_id, "_design"))
+  if (!dir.exists(design_dir)) {
+    return(list(total = 0, anchor = 0, calibration = 0, other = 0, missingH = 0))
+  }
+
+  design_files <- list.files(design_dir, pattern = "\\.tsv$", full.names = TRUE)
+  design_files <- design_files[sapply(design_files, is_real_split_design)]
+  if (length(design_files) == 0) {
+    return(list(total = 0, anchor = 0, calibration = 0, other = 0, missingH = 0))
+  }
+
+  Hs <- vapply(design_files, parse_H_from_name, numeric(1))
+  phs <- vapply(
+    Hs, phase_from_H, character(1),
+    anchor_max = anchor_max,
+    calib_lower_exc = calib_lower_exc,
+    calib_upper_exc = calib_upper_exc
+  )
+
+  list(
+    total = length(design_files),
+    anchor = sum(phs == "anchor", na.rm = TRUE),
+    calibration = sum(phs == "calibration", na.rm = TRUE),
+    other = sum(phs == "other", na.rm = TRUE),
+    missingH = sum(is.na(Hs))
+  )
+}
+
 # -------------------------
 # STEP 5A: compute phase-specific size factors + normalized counts
 # -------------------------
@@ -270,49 +338,47 @@ compute_size_factors <- function(dataset_id, raw_mat, full_design_path,
 
   if (nrow(design) < 4) stop("Too few samples after aligning full design to counts for ", dataset_id)
 
-  th <- get_time_hours(design)
-  has_time <- !all(is.na(th))
-
-  cond_full <- get_condition_simple_full_design(design)
-  has_cond  <- !all(is.na(cond_full))
-
-  # If we can't reliably identify condition in FULL design, fall back to ALL samples
-  if (!has_cond) {
-    message("NOTE: Could not identify CONTROL/DELIVERY in full design for ", dataset_id,
-            "; computing size factors on ALL samples for phase=", phase)
+  # ---- KEY CHANGE ----
+  # For calibration: compute size factors on ALL samples in the dataset
+  if (phase == "calibration") {
     design_sf <- design
+    message("Size factors computed on phase=calibration for ", dataset_id, " using ALL samples (n=", nrow(design_sf), ").")
   } else {
-    # Always keep ALL CONTROL samples (ignore time for controls)
-    is_control  <- cond_full == "CONTROL"
-    is_delivery <- cond_full == "DELIVERY"
+    # ---- ANCHOR behavior unchanged (ALL controls + time-filtered delivery if possible) ----
+    th <- get_time_hours(design)
+    has_time <- !all(is.na(th))
 
-    # For DELIVERY only, apply phase filters
-    if (has_time) {
-      if (phase == "anchor") {
-        keep_delivery <- !is.na(th) & th <= anchor_max
-      } else {
-        keep_delivery <- !is.na(th) & th > calib_lower_exc & th < calib_upper_exc
-      }
-    } else {
-      # No time column: fall back to anchor_flag/phase heuristic (DELIVERY only)
-      is_anchor <- anchor_filter_full_design(design, cutoff_hours = anchor_max)
-      if (phase == "anchor") {
-        keep_delivery <- is_anchor
-      } else {
-        keep_delivery <- !is_anchor
-      }
-    }
+    cond_full <- get_condition_simple_full_design(design)
+    has_cond  <- !all(is.na(cond_full))
 
-    keep_sf <- is_control | (is_delivery & keep_delivery)
-    design_sf <- design[keep_sf, , drop = FALSE]
-
-    if (nrow(design_sf) < 4) {
-      message("NOTE: Phase=", phase, " size-factor set <4 samples for ", dataset_id,
-              "; falling back to ALL samples for size factors.")
+    # If we can't reliably identify condition in FULL design, fall back to ALL samples
+    if (!has_cond) {
+      message("NOTE: Could not identify CONTROL/DELIVERY in full design for ", dataset_id,
+              "; computing size factors on ALL samples for phase=anchor")
       design_sf <- design
     } else {
-      message("Size factors computed on phase=", phase, " for ", dataset_id,
-              " with ALL controls + phase-filtered delivery (n=", nrow(design_sf), ").")
+      is_control  <- cond_full == "CONTROL"
+      is_delivery <- cond_full == "DELIVERY"
+
+      if (has_time) {
+        keep_delivery <- !is.na(th) & th <= anchor_max
+      } else {
+        # No time column: fall back to anchor_flag/phase heuristic (DELIVERY only)
+        is_anchor <- anchor_filter_full_design(design, cutoff_hours = anchor_max)
+        keep_delivery <- is_anchor
+      }
+
+      keep_sf <- is_control | (is_delivery & keep_delivery)
+      design_sf <- design[keep_sf, , drop = FALSE]
+
+      if (nrow(design_sf) < 4) {
+        message("NOTE: phase=anchor size-factor set <4 samples for ", dataset_id,
+                "; falling back to ALL samples for size factors.")
+        design_sf <- design
+      } else {
+        message("Size factors computed on phase=anchor for ", dataset_id,
+                " with ALL controls + phase-filtered delivery (n=", nrow(design_sf), ").")
+      }
     }
   }
 
@@ -320,7 +386,6 @@ compute_size_factors <- function(dataset_id, raw_mat, full_design_path,
   mat_sf <- raw_mat[, design_sf$sample_id, drop = FALSE]
   coldata_sf <- design_sf %>% column_to_rownames("sample_id")
 
-  # Size-factor estimation does not need a condition design
   dds0 <- DESeqDataSetFromMatrix(countData = mat_sf, colData = coldata_sf, design = ~ 1)
   dds0 <- dds0[rowSums(counts(dds0)) >= 10, ]
   dds0 <- estimateSizeFactors(dds0)
@@ -345,31 +410,40 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
   design_dir <- file.path(split_design_root, paste0(dataset_id, "_design"))
   if (!dir.exists(design_dir)) {
     message("Skip: missing split design folder: ", design_dir)
-    return(invisible(NULL))
+    return(invisible(list(
+      dataset_id = dataset_id, phase = phase,
+      n_design_total = 0, n_written = 0, n_skipped = 0, skip_reasons = "missing_split_design_folder"
+    )))
   }
 
-  design_files <- list.files(design_dir, pattern = "\\.tsv$", full.names = TRUE)
-  design_files <- design_files[sapply(design_files, is_real_split_design)]
-  if (length(design_files) == 0) {
+  design_files_all <- list.files(design_dir, pattern = "\\.tsv$", full.names = TRUE)
+  design_files_all <- design_files_all[sapply(design_files_all, is_real_split_design)]
+  if (length(design_files_all) == 0) {
     message("Skip: no per-contrast design TSVs found in: ", design_dir)
-    return(invisible(NULL))
+    return(invisible(list(
+      dataset_id = dataset_id, phase = phase,
+      n_design_total = 0, n_written = 0, n_skipped = 0, skip_reasons = "no_split_designs_found"
+    )))
   }
 
   # Filter split designs by __H= in filename
-  Hs <- vapply(design_files, parse_H_from_name, numeric(1))
-  phases <- vapply(
-    Hs, phase_from_H, character(1),
+  Hs_all <- vapply(design_files_all, parse_H_from_name, numeric(1))
+  phases_all <- vapply(
+    Hs_all, phase_from_H, character(1),
     anchor_max = anchor_max,
     calib_lower_exc = calib_lower_exc,
     calib_upper_exc = calib_upper_exc
   )
 
-  keep <- phases == phase
-  design_files <- design_files[keep]
+  keep <- phases_all == phase
+  design_files <- design_files_all[keep]
 
   if (length(design_files) == 0) {
     message("No split designs for phase=", phase, " in ", dataset_id, " (based on __H= in filename).")
-    return(invisible(NULL))
+    return(invisible(list(
+      dataset_id = dataset_id, phase = phase,
+      n_design_total = 0, n_written = 0, n_skipped = 0, skip_reasons = "no_designs_in_phase"
+    )))
   }
 
   out_root <- file.path(out_base, dataset_id, "deseq2_contrasts", phase)
@@ -377,10 +451,18 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
 
   written <- character(0)
 
+  # tracking counters
+  n_design_total <- length(design_files)
+  skip_reasons <- list()
+  skip_inc <- function(reason) {
+    skip_reasons[[reason]] <<- (skip_reasons[[reason]] %||% 0) + 1
+  }
+
   for (df_path in design_files) {
     d <- read_table_robust(df_path)
 
     if (!all(c("sample_id","condition_simple") %in% names(d))) {
+      skip_inc("missing_required_columns")
       message("Skip design (missing sample_id/condition_simple): ", basename(df_path))
       next
     }
@@ -395,12 +477,14 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
     # Must contain BOTH groups
     u_conds <- unique(as.character(d$condition_simple))
     if (length(u_conds) < 2) {
+      skip_inc("one_group_only_initial")
       message("Skip design (only one group present: ", paste(u_conds, collapse = ","), "): ", basename(df_path))
       next
     }
 
     tab2 <- table(d$condition_simple)
     if (any(tab2[c("CONTROL","DELIVERY")] < min_n_per_group)) {
+      skip_inc("min_n_per_group_failed")
       message("Skip design (<", min_n_per_group, " per group): ", basename(df_path))
       next
     }
@@ -408,6 +492,7 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
     # Filter to samples present in counts AND in size factors
     samples <- intersect(d$sample_id, intersect(colnames(raw_mat), names(sf_vec)))
     if (length(samples) < 4) {
+      skip_inc("too_few_samples_counts_sf")
       message("Skip design (too few samples found in counts/sf): ", basename(df_path))
       next
     }
@@ -419,6 +504,7 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
     # After filtering, still need both groups
     u2 <- unique(as.character(d2$condition_simple))
     if (length(u2) < 2) {
+      skip_inc("lost_group_after_align")
       message("Skip design (lost one group after aligning to counts/sf): ", basename(df_path))
       next
     }
@@ -435,6 +521,7 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
     dds <- dds[rowSums(counts(dds)) >= gene_min_total, ]
 
     if (nrow(dds) < 50) {
+      skip_inc("too_few_genes_after_filter")
       message("Skip design (too few genes after filtering): ", basename(df_path))
       next
     }
@@ -486,7 +573,21 @@ run_deseq2_contrasts <- function(dataset_id, raw_mat, sf_vec,
     message("No contrasts written for ", dataset_id, " phase=", phase)
   }
 
-  invisible(NULL)
+  skip_str <- if (length(skip_reasons) == 0) {
+    ""
+  } else {
+    paste(paste0(names(skip_reasons), "=", unlist(skip_reasons)), collapse = ";")
+  }
+
+  return(invisible(list(
+    dataset_id = dataset_id,
+    phase = phase,
+    n_design_total = n_design_total,
+    n_written = length(written),
+    n_skipped = n_design_total - length(written),
+    skip_reasons = skip_str,
+    index_file = index_file
+  )))
 }
 
 # -------------------------
@@ -497,12 +598,32 @@ run_one_dataset <- function(dataset_id) {
   message("DATASET: ", dataset_id)
   message("==============================")
 
+  # Pre-count split design metadata (for tracker visibility)
+  split_counts <- count_split_designs_by_phase(
+    dataset_id,
+    anchor_max = anchor_hours_max,
+    calib_lower_exc = calib_hours_lower_exc,
+    calib_upper_exc = calib_hours_upper_exc
+  )
+
   raw_counts_path <- file.path(
     project_root, "03_counts", dataset_id,
     "featurecounts", "validation", "gene_counts_clean.tsv"
   )
   if (!file.exists(raw_counts_path)) {
     message("Skip: missing raw counts: ", raw_counts_path)
+
+    # still track that we skipped dataset
+    track_add(list(
+      dataset_id = dataset_id,
+      phase = "dataset",
+      status = "skipped_missing_counts",
+      split_total = split_counts$total,
+      split_anchor = split_counts$anchor,
+      split_calibration = split_counts$calibration,
+      split_other = split_counts$other,
+      split_missingH = split_counts$missingH
+    ))
     return(invisible(NULL))
   }
 
@@ -544,13 +665,31 @@ run_one_dataset <- function(dataset_id) {
     )
 
     raw_mat_a <- raw_mat[, intersect(colnames(raw_mat), names(sf_vec_a)), drop = FALSE]
-    run_deseq2_contrasts(
+
+    stats_a <- run_deseq2_contrasts(
       dataset_id, raw_mat_a, sf_vec_a,
       phase = "anchor",
       anchor_max = anchor_hours_max,
       calib_lower_exc = calib_hours_lower_exc,
       calib_upper_exc = calib_hours_upper_exc
     )
+
+    track_add(list(
+      dataset_id = dataset_id,
+      phase = "anchor",
+      status = "ran",
+      counts_samples_n = ncol(raw_mat),
+      sf_used_samples_n = length(sf_res_a$used_samples),
+      split_total = split_counts$total,
+      split_anchor = split_counts$anchor,
+      split_calibration = split_counts$calibration,
+      split_other = split_counts$other,
+      split_missingH = split_counts$missingH,
+      designs_total_in_phase = stats_a$n_design_total,
+      contrasts_written = stats_a$n_written,
+      contrasts_skipped = stats_a$n_skipped,
+      skip_reasons = stats_a$skip_reasons
+    ))
   }
 
   # ---- CALIBRATION phase ----
@@ -578,13 +717,31 @@ run_one_dataset <- function(dataset_id) {
     )
 
     raw_mat_c <- raw_mat[, intersect(colnames(raw_mat), names(sf_vec_c)), drop = FALSE]
-    run_deseq2_contrasts(
+
+    stats_c <- run_deseq2_contrasts(
       dataset_id, raw_mat_c, sf_vec_c,
       phase = "calibration",
       anchor_max = anchor_hours_max,
       calib_lower_exc = calib_hours_lower_exc,
       calib_upper_exc = calib_hours_upper_exc
     )
+
+    track_add(list(
+      dataset_id = dataset_id,
+      phase = "calibration",
+      status = "ran",
+      counts_samples_n = ncol(raw_mat),
+      sf_used_samples_n = length(sf_res_c$used_samples),
+      split_total = split_counts$total,
+      split_anchor = split_counts$anchor,
+      split_calibration = split_counts$calibration,
+      split_other = split_counts$other,
+      split_missingH = split_counts$missingH,
+      designs_total_in_phase = stats_c$n_design_total,
+      contrasts_written = stats_c$n_written,
+      contrasts_skipped = stats_c$n_skipped,
+      skip_reasons = stats_c$skip_reasons
+    ))
   }
 
   invisible(NULL)
@@ -613,6 +770,9 @@ print(dataset_ids)
 
 for (ds in dataset_ids) run_one_dataset(ds)
 
+track_write(out_base)
+
 message("\nAll Step 5 (phase-specific) normalization + DE contrasts finished.")
 message("Normalized outputs under: <project_root>/04_de/<DATASET>/normalized/(anchor|calibration)/")
 message("DE outputs under:         ", out_base, "/<DATASET>/deseq2_contrasts/(anchor|calibration)/")
+message("Tracker under:            ", out_base, "/_tracker/step5_phase_tracker.tsv")
