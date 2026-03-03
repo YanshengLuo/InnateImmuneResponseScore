@@ -1,4 +1,3 @@
-#!/usr/bin/env Rscript
 # ============================================================
 # IMRS Step 06A — Core gene sets (LOCKED mouse datasets)
 # - Builds core gene set separately for:
