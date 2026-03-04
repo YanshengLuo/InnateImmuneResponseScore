@@ -1,271 +1,368 @@
 #!/usr/bin/env Rscript
 # ============================================================
-# IMRS Step 08 — Score samples (Innate activation IMRS)
-# A weighted activation score measuring deviation from healthy control baseline using reproducible innate immune response genes derived from anchor datasets.
+# IMRS Step 08 — Score samples using FROZEN ANCHOR WEIGHTS 
 #
-# Recommended settings (Option A):
-# - Input: Step 5 DESeq2 normalized counts (phase-specific)
-# - Transform: log2(norm + 1)
-# - Z-score genes using CONTROL samples only (within dataset + phase)
-# - Score ALL samples (control + delivery)
-# - Genes: core genes only, excluding 6B heterogeneity_flag and 6C low_power_flag
-# - Weights: beta_meta (fixed-effect), with absolute capping
+# built on: scoring.pdf (2026-03-03)
 #
-# Outputs (per phase):
-#   <project_root>/05_score/<phase>/scores/<DATASET>__IMRS_scores.tsv
-#   <project_root>/05_score/<phase>/scores/<DATASET>__IMRS_gene_audit.tsv
+# Inputs (per dataset):
+#   1) Raw integer counts:
+#        <project_root>/03_counts/<DATASET>/.../gene_counts_clean.tsv
+#   2) Design table with:
+#        sample_id
+#        condition_simple  in {CONTROL, DELIVERY}
+#      (recommended path)
+#        <project_root>/00_metadata/<DATASET>/<DATASET>_design.tsv
+#   3) Frozen anchor weights (NEVER refit):
+#        <project_root>/05_score/anchors/gene_weights.tsv
+#
+# Fixed defaults:
+#   - Normalize counts with DESeq2 size factors on ALL samples, design ~ 1
+#   - Transform: log2(norm + 1)
+#   - Gene z-score using CONTROLS only
+#   - Minimum controls: n >= 3 (else fail)
+#   - Gene SD floor: 0.10
+#   - Final score SD floor: 0.10
+#   - Strip Ensembl version suffix: TRUE
+#   - Coverage >= 0.80 (else fail)
+#
+# Outputs (per dataset-countfile, under 05_score/transfer/):
+#   - scores/<ID>__imrs_scores.tsv
+#   - qc/<ID>__qc_summary.tsv
+#   - qc/<ID>__top_contributors.tsv   (top genes by |w*z| per sample)
+#
+# Notes:
+#   - Weights are loaded ONCE from anchors and reused for all scoring.
+#   - Calibration datasets are scored identically; NO weight updates.
 # ============================================================
 
 suppressPackageStartupMessages({
+  library(DESeq2)
   library(readr)
   library(dplyr)
-  library(tibble)
   library(stringr)
+  library(tibble)
+  library(purrr)
 })
 
 # -------------------------
-# CONFIG
+# CONFIG (PDF defaults)
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
 project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
-PHASES <- c("anchor", "calibration")
+weights_path <- file.path(project_root, "05_score", "anchors", "gene_weights.tsv")
 
-# Weight handling
-cap_abs_beta <- 3.0        # cap |beta_meta| to reduce dominance
-min_ctrl_n   <- 2          # need >=2 controls to compute SD
-sd_floor     <- 1e-8       # avoid divide-by-zero
+min_ctrl_n       <- 3
+gene_sd_floor    <- 0.10
+score_sd_floor   <- 0.10
+min_coverage     <- 0.80
+strip_ens_ver    <- TRUE
 
-# Locked datasets (same as Step 6)
-LOCKED_DATASETS_MOUSE <- c("GSE39129", "GSE167521", "GSE264344")
+# How many contributors to report PER sample
+top_k_contrib <- 20
+
+# Output base
+out_base <- file.path(project_root, "05_score", "transfer")
+out_scores_dir <- file.path(out_base, "scores")
+out_qc_dir     <- file.path(out_base, "qc")
+dir.create(out_scores_dir, showWarnings = FALSE, recursive = TRUE)
+dir.create(out_qc_dir, showWarnings = FALSE, recursive = TRUE)
 
 # -------------------------
-# Helpers: read normalized counts
+# Helpers
 # -------------------------
-read_norm_counts <- function(path) {
-  df <- read_tsv(path, show_col_types = FALSE)
-  if (!("gene_id" %in% names(df))) {
-    # step5 wrote gene_id for normalized counts
-    names(df)[1] <- "gene_id"
-  }
-  gene_id <- as.character(df$gene_id)
-  mat <- as.matrix(df %>% select(-gene_id))
-  suppressWarnings(storage.mode(mat) <- "numeric")
-  rownames(mat) <- gene_id
-  colnames(mat) <- trimws(colnames(mat))
-  mat
-}
-
-# Try to infer CONTROL/DELIVERY from full design (same idea as Step 5)
-get_condition_simple_full_design <- function(design_df) {
-  nm_low <- tolower(names(design_df))
-  cand <- c("condition_simple", "condition", "group", "treatment", "arm")
-  idx <- match(cand, nm_low)
-  idx <- idx[!is.na(idx)][1]
-  if (is.na(idx)) return(rep(NA_character_, nrow(design_df)))
-
-  col <- names(design_df)[idx]
-  v <- tolower(trimws(as.character(design_df[[col]])))
-
-  out <- rep(NA_character_, length(v))
-  out[str_detect(v, "control|baseline|vehicle|mock|untreat|naive|saline|pbs")] <- "CONTROL"
-  out[str_detect(v, "delivery|treat|treated|infect|inj|ad5|ad26|aav|lenti|dose|vax|vacc")] <- "DELIVERY"
-  out
+strip_ensembl_version <- function(x) {
+  x <- as.character(x)
+  sub("\\.\\d+$", "", x)
 }
 
 read_table_robust <- function(path) {
   df <- tryCatch(read_delim(path, delim = "\t", show_col_types = FALSE, progress = FALSE),
                  error = function(e) NULL)
-  if (!is.null(df) && ncol(df) > 1) return(df)
+  if (!is.null(df) && ncol(df) >= 2) return(df)
 
   df <- tryCatch(read_delim(path, delim = ",", show_col_types = FALSE, progress = FALSE),
                  error = function(e) NULL)
-  if (!is.null(df) && ncol(df) > 1) return(df)
+  if (!is.null(df) && ncol(df) >= 2) return(df)
 
   df <- tryCatch(read_table(path, show_col_types = FALSE, progress = FALSE),
                  error = function(e) NULL)
-  if (!is.null(df) && ncol(df) > 1) return(df)
+  if (!is.null(df) && ncol(df) >= 2) return(df)
 
-  stop("Failed to read (delimiter/header issue): ", path)
+  stop("Failed to read design (delimiter/header issue): ", path)
 }
 
-# -------------------------
-# Load weights for a phase
-# -------------------------
-load_phase_weights <- function(phase) {
-  score_root <- file.path(project_root, "05_score", phase)
+# Find all gene_counts_clean.tsv under 03_counts/<DATASET>/
+find_counts_files <- function(dataset_id) {
+  root <- file.path(project_root, "03_counts", dataset_id)
+  if (!dir.exists(root)) return(character(0))
+  list.files(root, pattern = "^gene_counts_clean\\.tsv$", recursive = TRUE, full.names = TRUE)
+}
 
-  core_path <- file.path(score_root, "core_gene_set.tsv")
-  het_path  <- file.path(score_root, "gene_heterogeneity.tsv")
-  pow_path  <- file.path(score_root, "gene_power.tsv")
+# Build a stable ID for outputs from dataset + relative path
+make_counts_id <- function(dataset_id, counts_path) {
+  root <- file.path(project_root, "03_counts", dataset_id)
+  rel <- sub(paste0("^", gsub("\\\\", "/", root), "/?"), "", gsub("\\\\", "/", counts_path))
+  rel <- sub("/gene_counts_clean\\.tsv$", "", rel)
+  rel <- ifelse(nchar(rel) == 0, "counts", rel)
+  rel <- gsub("[^A-Za-z0-9_\\-]+", "_", rel)
+  paste0(dataset_id, "__", rel)
+}
 
-  if (!file.exists(core_path)) stop("Missing core genes (Step 6A): ", core_path)
-  if (!file.exists(het_path))  stop("Missing heterogeneity (Step 6B): ", het_path)
-  if (!file.exists(pow_path))  stop("Missing power (Step 6C): ", pow_path)
+# Read counts: first col gene_id, rest samples
+read_counts_matrix <- function(path) {
+  df <- read_tsv(path, show_col_types = FALSE, progress = FALSE)
+  if (ncol(df) < 2) stop("Counts file has <2 columns: ", path)
 
-  core <- read_tsv(core_path, show_col_types = FALSE)
-  if (!("gene_id" %in% names(core))) stop("core_gene_set.tsv must contain gene_id: ", core_path)
+  names(df)[1] <- "gene_id"
+  gene_id <- as.character(df$gene_id)
+  mat <- as.matrix(df[, -1, drop = FALSE])
 
-  het <- read_tsv(het_path, show_col_types = FALSE)
-  if (!all(c("gene_id","beta_meta","heterogeneity_flag") %in% names(het))) {
-    stop("gene_heterogeneity.tsv missing required columns gene_id,beta_meta,heterogeneity_flag: ", het_path)
+  # Preserve numeric/integer values; validate integers later
+  suppressWarnings(storage.mode(mat) <- "numeric")
+
+  rownames(mat) <- gene_id
+  colnames(mat) <- trimws(colnames(mat))
+  mat
+}
+
+# Strict integer check (PDF QC rule #1)
+is_integerish_matrix <- function(mat) {
+  # allow numeric storage, but values must be whole numbers
+  all(is.finite(mat)) && all(abs(mat - round(mat)) < 1e-6)
+}
+
+# Load frozen weights (anchors only)
+load_frozen_anchor_weights <- function(path) {
+  if (!file.exists(path)) stop("Missing frozen anchor weights: ", path)
+  w <- read_tsv(path, show_col_types = FALSE)
+
+  if (!("gene_id" %in% names(w))) stop("gene_weights.tsv must contain column: gene_id")
+  if (!("beta_meta" %in% names(w)) && !("weight" %in% names(w))) {
+    stop("gene_weights.tsv must contain 'beta_meta' (preferred) or 'weight'")
   }
 
-  pow <- read_tsv(pow_path, show_col_types = FALSE)
-  if (!all(c("gene_id","low_power_flag") %in% names(pow))) {
-    stop("gene_power.tsv missing required columns gene_id,low_power_flag: ", pow_path)
-  }
+  if (!("beta_meta" %in% names(w))) w$beta_meta <- w$weight
 
-  w <- core %>%
-    select(gene_id) %>%
-    left_join(het %>% select(gene_id, beta_meta, heterogeneity_flag), by = "gene_id") %>%
-    left_join(pow %>% select(gene_id, low_power_flag), by = "gene_id") %>%
-    mutate(
+  # If flags exist, apply them (PDF says weights already stabilized; flags are allowed to exclude)
+  if (!("heterogeneity_flag" %in% names(w))) w$heterogeneity_flag <- FALSE
+  if (!("low_power_flag" %in% names(w)))      w$low_power_flag <- FALSE
+
+  w <- w %>%
+    transmute(
+      gene_id = as.character(gene_id),
       beta_meta = suppressWarnings(as.numeric(beta_meta)),
       heterogeneity_flag = as.logical(heterogeneity_flag),
       low_power_flag = as.logical(low_power_flag)
     ) %>%
-    mutate(
-      exclude = (isTRUE(heterogeneity_flag) | isTRUE(low_power_flag) | is.na(beta_meta)),
-      weight_raw = beta_meta,
-      weight = pmax(pmin(weight_raw,  cap_abs_beta), -cap_abs_beta)
-    ) %>%
-    filter(!exclude) %>%
-    arrange(desc(abs(weight)))
+    filter(!is.na(beta_meta)) %>%
+    filter(!(isTRUE(heterogeneity_flag) | isTRUE(low_power_flag)))
 
-  if (nrow(w) == 0) {
-    stop("After filtering flags, no genes remain for phase=", phase,
-         ". Check 6B/6C thresholds or whether core genes were produced.")
+  if (strip_ens_ver) {
+    w <- w %>% mutate(gene_id = strip_ensembl_version(gene_id))
   }
+
+  # Deduplicate (keep the largest |beta| if any duplicates after stripping)
+  w <- w %>%
+    group_by(gene_id) %>%
+    slice_max(order_by = abs(beta_meta), n = 1, with_ties = FALSE) %>%
+    ungroup()
+
+  if (nrow(w) == 0) stop("No usable weights after filtering/cleaning: ", path)
 
   w
 }
 
 # -------------------------
-# Score one dataset-phase
+# Core scoring function 
 # -------------------------
-score_one_dataset_phase <- function(dataset_id, phase, weights_df) {
-  # normalized counts path (Step 5 output)
-  norm_path <- file.path(project_root, "04_de", dataset_id, "normalized", phase, "gene_counts_normalized.tsv")
-  if (!file.exists(norm_path)) {
-    message("Skip: missing normalized counts: ", norm_path)
-    return(invisible(NULL))
+score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df) {
+  counts_id <- make_counts_id(dataset_id, counts_path)
+
+  # ---- counts
+  counts <- read_counts_matrix(counts_path)
+
+  # optional: strip Ensembl version suffix
+  if (strip_ens_ver) {
+    rownames(counts) <- strip_ensembl_version(rownames(counts))
   }
 
-  # design file path (for CONTROL/DELIVERY labels)
-  design_path <- file.path(project_root, "00_metadata", dataset_id, paste0(dataset_id, "_design.tsv"))
-  if (!file.exists(design_path)) {
-    message("Skip: missing design file: ", design_path)
-    return(invisible(NULL))
+  # ---- design: require sample_id and condition_simple
+  if (!("sample_id" %in% names(design_df))) stop("Design missing sample_id for dataset: ", dataset_id)
+  if (!("condition_simple" %in% names(design_df))) {
+    stop("Design missing condition_simple (CONTROL/DELIVERY) for dataset: ", dataset_id)
   }
 
-  mat <- read_norm_counts(norm_path)
-  # log transform
-  expr <- log2(mat + 1)
-
-  design <- read_table_robust(design_path)
-  if (!("sample_id" %in% names(design))) {
-    message("Skip: design missing sample_id: ", design_path)
-    return(invisible(NULL))
-  }
-
-  design <- design %>%
-    mutate(sample_id = trimws(as.character(sample_id))) %>%
-    filter(sample_id %in% colnames(expr))
+  design <- design_df %>%
+    mutate(
+      sample_id = trimws(as.character(sample_id)),
+      condition_simple = toupper(trimws(as.character(condition_simple)))
+    ) %>%
+    filter(sample_id %in% colnames(counts))
 
   if (nrow(design) == 0) {
-    message("Skip: no samples overlap between design and normalized counts for ", dataset_id, " / ", phase)
+    message("Skip (no overlapping samples): ", counts_id)
     return(invisible(NULL))
   }
 
-  cond <- get_condition_simple_full_design(design)
-  design$condition_simple <- cond
+  # align columns to design order
+  counts <- counts[, design$sample_id, drop = FALSE]
 
-  # require controls for z reference
+  # ---- QC1: counts must be integer
+  if (!is_integerish_matrix(counts)) {
+    message("FAIL (non-integer counts): ", counts_id, " | ", counts_path)
+    qc <- tibble(
+      id = counts_id,
+      dataset_id = dataset_id,
+      counts_path = counts_path,
+      pass = FALSE,
+      fail_reason = "Counts not integer"
+    )
+    write_tsv(qc, file.path(out_qc_dir, paste0(counts_id, "__qc_summary.tsv")))
+    return(invisible(NULL))
+  }
+
+  counts_int <- round(counts)
+  storage.mode(counts_int) <- "integer"
+
+  # ---- QC2: controls >= 3
   ctrl_ids <- design$sample_id[design$condition_simple == "CONTROL"]
   if (length(ctrl_ids) < min_ctrl_n) {
-    message("Skip: < ", min_ctrl_n, " CONTROL samples for z-score reference in ",
-            dataset_id, " / ", phase, " (found ", length(ctrl_ids), ")")
+    message("FAIL (controls < ", min_ctrl_n, "): ", counts_id, " | n_ctrl=", length(ctrl_ids))
+    qc <- tibble(
+      id = counts_id,
+      dataset_id = dataset_id,
+      counts_path = counts_path,
+      pass = FALSE,
+      fail_reason = paste0("Controls < ", min_ctrl_n),
+      n_controls = length(ctrl_ids)
+    )
+    write_tsv(qc, file.path(out_qc_dir, paste0(counts_id, "__qc_summary.tsv")))
     return(invisible(NULL))
   }
 
-  # align samples (design order)
-  samp_ids <- design$sample_id
-  expr <- expr[, samp_ids, drop = FALSE]
+  # ---- Step 08A: DESeq2 size-factor normalization on ALL samples, design ~ 1
+  sf <- estimateSizeFactorsForMatrix(counts_int)
+  norm <- sweep(counts_int, 2, sf, "/")
 
-  # subset to weighted genes present
-  genes_use <- intersect(rownames(expr), weights_df$gene_id)
-  if (length(genes_use) < 5) {
-    message("Skip: too few weighted genes present in expression matrix for ", dataset_id, " / ", phase,
-            " (n=", length(genes_use), ")")
+  # log transform
+  x <- log2(norm + 1)
+
+  # ---- Step 08C: gene match + coverage gate (use WEIGHT genes as denominator)
+  w_genes <- weights_df$gene_id
+  overlap <- intersect(rownames(x), w_genes)
+  coverage <- length(overlap) / length(w_genes)
+
+  if (!is.finite(coverage) || coverage < min_coverage) {
+    message("FAIL (coverage < ", min_coverage, "): ", counts_id,
+            " | coverage=", sprintf("%.3f", coverage),
+            " | overlap=", length(overlap), " / ", length(w_genes))
+    qc <- tibble(
+      id = counts_id,
+      dataset_id = dataset_id,
+      counts_path = counts_path,
+      pass = FALSE,
+      fail_reason = paste0("Coverage < ", min_coverage),
+      coverage = coverage,
+      n_weights = length(w_genes),
+      n_overlap = length(overlap),
+      n_controls = length(ctrl_ids)
+    )
+    write_tsv(qc, file.path(out_qc_dir, paste0(counts_id, "__qc_summary.tsv")))
     return(invisible(NULL))
   }
 
-  wsub <- weights_df %>% filter(gene_id %in% genes_use)
-  expr_sub <- expr[genes_use, , drop = FALSE]
+  # subset expression + weights to overlap
+  wsub <- weights_df %>%
+    filter(gene_id %in% overlap) %>%
+    arrange(match(gene_id, overlap))
+  xsub <- x[overlap, , drop = FALSE]
 
-  # compute control mean/sd per gene
-  ctrl_mat <- expr_sub[, ctrl_ids, drop = FALSE]
+  # ---- Step 08B: control-based gene standardization with SD floor 0.10
+  ctrl_mat <- xsub[, ctrl_ids, drop = FALSE]
   mu <- rowMeans(ctrl_mat, na.rm = TRUE)
   sdv <- apply(ctrl_mat, 1, sd, na.rm = TRUE)
-  sdv <- pmax(sdv, sd_floor)
 
-  # drop genes with NA mu or sd (rare)
-  ok_gene <- !is.na(mu) & !is.na(sdv) & is.finite(mu) & is.finite(sdv)
-  expr_sub <- expr_sub[ok_gene, , drop = FALSE]
-  mu <- mu[ok_gene]
-  sdv <- sdv[ok_gene]
-  wsub <- wsub %>% filter(gene_id %in% rownames(expr_sub))
+  sdv_floor <- pmax(sdv, gene_sd_floor)
+  n_hit_floor <- sum(sdv < gene_sd_floor, na.rm = TRUE)
 
-  if (nrow(expr_sub) < 5) {
-    message("Skip: too few genes after filtering NA/SD issues for ", dataset_id, " / ", phase)
-    return(invisible(NULL))
-  }
+  # z = (x - mu) / sd*
+  z <- sweep(xsub, 1, mu, "-")
+  z <- sweep(z, 1, sdv_floor, "/")
 
-  # z-scores for all samples
-  Z <- sweep(expr_sub, 1, mu, "-")
-  Z <- sweep(Z, 1, sdv, "/")
-
-  # weighted score: normalize by sum(|w|) so scale is comparable
-  wvec <- wsub$weight
+  # ---- Step 08C: IMRS_raw = sum_g w_g * z_g,s (NO normalization by sum|w|)
+  wvec <- wsub$beta_meta
   names(wvec) <- wsub$gene_id
-  wvec <- wvec[rownames(Z)]
-  denom <- sum(abs(wvec))
-  if (!is.finite(denom) || denom <= 0) denom <- 1
+  wvec <- wvec[rownames(z)]
 
-  score_raw <- as.numeric(crossprod(wvec, Z)) / denom
-  names(score_raw) <- colnames(Z)
+  imrs_raw <- as.numeric(crossprod(wvec, z))
+  names(imrs_raw) <- colnames(z)
 
-  # Standardize score using controls (QC-friendly)
-  ctrl_scores <- score_raw[ctrl_ids]
-  score_z <- (score_raw - mean(ctrl_scores, na.rm = TRUE)) / pmax(sd(ctrl_scores, na.rm = TRUE), sd_floor)
+  # ---- Step 08C' optional: IMRS_z within dataset using controls, score SD floor 0.10
+  ctrl_scores <- imrs_raw[ctrl_ids]
+  mu_score <- mean(ctrl_scores, na.rm = TRUE)
+  sd_score <- sd(ctrl_scores, na.rm = TRUE)
+  sd_score_floor <- max(sd_score, score_sd_floor)
 
+  imrs_z <- (imrs_raw - mu_score) / sd_score_floor
+
+  # ---- Output: imrs_scores.tsv (PDF-required fields + a few extra stable QC fields)
   out_scores <- tibble(
-    sample_id = samp_ids,
-    dataset_id = dataset_id,
-    phase = phase,
+    sample_id = design$sample_id,
     condition_simple = design$condition_simple,
-    IMRS_raw = as.numeric(score_raw[samp_ids]),
-    IMRS_z   = as.numeric(score_z[samp_ids]),
-    n_genes_used = nrow(Z),
-    denom_sum_abs_w = denom
+    imrs_raw = as.numeric(imrs_raw[design$sample_id]),
+    imrs_z   = as.numeric(imrs_z[design$sample_id]),
+    coverage = coverage
   )
 
-  # gene audit
-  out_gene_audit <- wsub %>%
-    mutate(
-      used = gene_id %in% rownames(Z)
-    ) %>%
-    select(gene_id, weight_raw, weight, used)
+  write_tsv(out_scores, file.path(out_scores_dir, paste0(counts_id, "__imrs_scores.tsv")))
 
-  out_dir <- file.path(project_root, "05_score", phase, "scores")
-  dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
+  # ---- QC summary (PDF-required + explicit checks)
+  qc <- tibble(
+    id = counts_id,
+    dataset_id = dataset_id,
+    counts_path = counts_path,
+    pass = TRUE,
+    n_samples = nrow(design),
+    n_controls = length(ctrl_ids),
+    n_delivery = sum(design$condition_simple == "DELIVERY"),
+    n_weights = length(w_genes),
+    n_overlap = length(overlap),
+    coverage = coverage,
+    n_genes_sd_floor = n_hit_floor,
+    gene_sd_floor = gene_sd_floor,
+    score_sd_floor = score_sd_floor,
+    controls_imrs_z_mean = mean(imrs_z[ctrl_ids], na.rm = TRUE),
+    controls_imrs_z_sd   = sd(imrs_z[ctrl_ids], na.rm = TRUE)
+  )
 
-  write_tsv(out_scores, file.path(out_dir, paste0(dataset_id, "__IMRS_scores.tsv")))
-  write_tsv(out_gene_audit, file.path(out_dir, paste0(dataset_id, "__IMRS_gene_audit.tsv")))
+  write_tsv(qc, file.path(out_qc_dir, paste0(counts_id, "__qc_summary.tsv")))
 
-  message("Wrote scores: ", file.path(out_dir, paste0(dataset_id, "__IMRS_scores.tsv")),
-          " | n_samples=", nrow(out_scores), " | n_genes_used=", nrow(Z))
+  # ---- Top contributors (PDF QC rule #6): w_g * z_g,s ranked by |.| per sample
+  # long format: one row per (sample, gene) among top K
+  contrib_mat <- sweep(z, 1, wvec, "*")  # w * z
+  top_tbl <- map_dfr(colnames(contrib_mat), function(sid) {
+    v <- contrib_mat[, sid]
+    ord <- order(abs(v), decreasing = TRUE)
+    ord <- ord[seq_len(min(top_k_contrib, length(ord)))]
+    tibble(
+      sample_id = sid,
+      gene_id = rownames(contrib_mat)[ord],
+      weight = as.numeric(wvec[rownames(contrib_mat)[ord]]),
+      z = as.numeric(z[rownames(contrib_mat)[ord], sid]),
+      w_times_z = as.numeric(v[ord]),
+      abs_w_times_z = abs(as.numeric(v[ord])),
+      rank = seq_along(ord)
+    )
+  })
+
+  write_tsv(top_tbl, file.path(out_qc_dir, paste0(counts_id, "__top_contributors.tsv")))
+
+  message("OK: ", counts_id,
+          " | n_samples=", nrow(design),
+          " | n_ctrl=", length(ctrl_ids),
+          " | coverage=", sprintf("%.3f", coverage),
+          " | sd_floor_genes=", n_hit_floor)
 
   invisible(NULL)
 }
@@ -273,30 +370,54 @@ score_one_dataset_phase <- function(dataset_id, phase, weights_df) {
 # -------------------------
 # MAIN
 # -------------------------
-# discover datasets present under 04_de
-de_root <- file.path(project_root, "04_de")
-if (!dir.exists(de_root)) stop("Missing 04_de root: ", de_root)
+if (!file.exists(weights_path)) stop("Frozen weights missing: ", weights_path)
 
-dataset_ids <- list.dirs(de_root, recursive = FALSE, full.names = FALSE)
+weights_df <- load_frozen_anchor_weights(weights_path)
+message("Loaded frozen anchor weights: n_genes=", nrow(weights_df),
+        " | path=", weights_path)
+
+counts_root <- file.path(project_root, "03_counts")
+if (!dir.exists(counts_root)) stop("Missing 03_counts root: ", counts_root)
+
+dataset_ids <- list.dirs(counts_root, recursive = FALSE, full.names = FALSE)
 dataset_ids <- dataset_ids[grepl("^GSE", dataset_ids)]
 
-if (length(dataset_ids) == 0) stop("No datasets found under: ", de_root)
+if (length(dataset_ids) == 0) stop("No datasets found under: ", counts_root)
 
-for (phase in PHASES) {
+for (ds in dataset_ids) {
+  design_path <- file.path(project_root, "00_metadata", ds, paste0(ds, "_design.tsv"))
+  if (!file.exists(design_path)) {
+    message("Skip dataset (missing design): ", ds, " | ", design_path)
+    next
+  }
+
+  design_df <- read_table_robust(design_path)
+
+  # STRICT: require condition_simple exists; do not infer heuristically
+  if (!("condition_simple" %in% names(design_df))) {
+    message("Skip dataset (design missing condition_simple): ", ds)
+    next
+  }
+
+  # Find all count files for dataset
+  cfiles <- find_counts_files(ds)
+  if (length(cfiles) == 0) {
+    message("Skip dataset (no gene_counts_clean.tsv found): ", ds)
+    next
+  }
+
   message("\n==============================")
-  message("STEP 07 PHASE: ", phase)
+  message("DATASET: ", ds, " | count_files=", length(cfiles))
   message("==============================")
 
-  weights_df <- load_phase_weights(phase)
-  message("Loaded weights for phase=", phase, " | genes=", nrow(weights_df))
-
-  for (ds in dataset_ids) {
-    # You can choose to score all datasets, not just locked ones.
-    # If you want to restrict to locked, uncomment:
-    # if (!(ds %in% LOCKED_DATASETS_MOUSE)) next
-
-    score_one_dataset_phase(ds, phase, weights_df)
+  for (cf in cfiles) {
+    tryCatch(
+      score_one_counts_file(ds, cf, design_df, weights_df),
+      error = function(e) {
+        message("ERROR scoring: ", ds, " | ", cf, " | ", conditionMessage(e))
+      }
+    )
   }
 }
 
-message("\nDONE: Step 07 scoring finished (log2(norm+1), control-z, beta_meta weights, flags applied).")
+message("\nDONE: Step 08 scoring finished (STRICT PDF workflow; frozen anchor weights; no retraining).")
