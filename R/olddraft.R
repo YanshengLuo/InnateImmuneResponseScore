@@ -1,335 +1,227 @@
+#!/usr/bin/env Rscript
+# ============================================================
+# GSE139529 — Fill missing group in design.tsv by:
+#   GSM (from GEO website) -> group_label
+#   GSM <-> SRR mapping via SraRunTable.csv
+# Then update design.tsv "group" (or create it) using SRR (sample_id).
+#
+# INPUTS (edit paths):
+#   - SraRunTable.csv
+#   - GSE139529_design.tsv
+#
+# OUTPUT:
+#   - GSE139529_design.filled_group.tsv
+# ============================================================
+
 suppressPackageStartupMessages({
   library(readr)
   library(dplyr)
-  library(tibble)
   library(stringr)
-  library(purrr)
-  library(tidyr)
+  library(tibble)
 })
 
-project_root <- "C:/Users/john/Desktop/IMRS_Project"
-
-# INPUT: where DE result TSVs are
-de_out_root  <- file.path(project_root, "04_de", "comparison")
-
-# OUTPUT: write ALL outputs here (per your request)
-score_root   <- file.path(project_root, "05_score")
-dir.create(score_root, showWarnings = FALSE, recursive = TRUE)
+# -------------------------
+# USER SETTINGS (Windows)
+# -------------------------
+base_dir <- "D:/IMRS_Project/00_metadata/validations/GSE139529"
+run_table_csv <- file.path(base_dir, "SraRunTable.csv")
+design_tsv    <- file.path(base_dir, "GSE139529_design.tsv")
+out_tsv       <- file.path(base_dir, "GSE139529_design.filled_group.tsv")
 
 # -------------------------
-# Parameters (tune if needed)
+# GSM -> group mapping (from GEO website)
 # -------------------------
-padj_cutoff <- 0.05
-lfc_cutoff  <- 1.0          # abs(log2FC) >= 1
-support_cutoff <- 0.5       # core gene must pass in >=50% anchors
-use_stat <- "median"        # "median" recommended; "mean" also ok
+gsm_map <- tribble(
+  ~GSM,        ~group_raw,
+  "GSM4142998","Ad_fHbp",
+  "GSM4142999","Ad_fHbp",
+  "GSM4143000","Ad_fHbp",
+  "GSM4143001","Ad_fHbp",
+  "GSM4143002","Ad_fHbp",
+  "GSM4143003","Ad_fHbp",
+  "GSM4143004","MVA_fHbp",
+  "GSM4143005","MVA_fHbp",
+  "GSM4143006","MVA_fHbp",
+  "GSM4143007","MVA_fHbp",
+  "GSM4143008","MVA_fHbp",
+  "GSM4143009","MVA_fHbp",
+  "GSM4143010","Bexsero",
+  "GSM4143011","Bexsero",
+  "GSM4143012","Bexsero",
+  "GSM4143013","Bexsero",
+  "GSM4143014","Bexsero",
+  "GSM4143015","Bexsero",
+  "GSM4143016","Bex.Bex",
+  "GSM4143017","Bex.Bex",
+  "GSM4143018","Bex.Bex",
+  "GSM4143019","Bex.Bex",
+  "GSM4143020","Bex.Bex",
+  "GSM4143021","Bex.Bex",
+  "GSM4143022","MVA.Ad",
+  "GSM4143023","MVA.Ad",
+  "GSM4143024","MVA.Ad",
+  "GSM4143025","MVA.Ad",
+  "GSM4143026","MVA.Ad",
+  "GSM4143027","MVA.Ad",
+  "GSM4143028","None",
+  "GSM4143029","None",
+  "GSM4143030","None",
+  "GSM4143031","None",
+  "GSM4143032","None",
+  "GSM4143033","None",
+  "GSM4143034","Ad.MVA",
+  "GSM4143035","Ad.MVA",
+  "GSM4143036","Ad.MVA",
+  "GSM4143037","Ad.MVA",
+  "GSM4143038","Ad.MVA",
+  "GSM4143039","Ad.MVA",
+  "GSM4143040","Ad_empty",
+  "GSM4143041","Ad_empty",
+  "GSM4143042","Ad_empty",
+  "GSM4143043","Ad_empty",
+  "GSM4143044","Ad_empty",
+  "GSM4143045","Ad_empty",
+  "GSM4143046","Trumenba",
+  "GSM4143047","Trumenba",
+  "GSM4143048","Trumenba",
+  "GSM4143049","Trumenba",
+  "GSM4143050","Trumenba",
+  "GSM4143051","Trumenba",
+  "GSM4143052","Tru.Tru",
+  "GSM4143053","Tru.Tru",
+  "GSM4143054","Tru.Tru",
+  "GSM4143055","Tru.Tru",
+  "GSM4143056","Tru.Tru",
+  "GSM4143057","Ad_preF",
+  "GSM4143058","Ad_preF",
+  "GSM4143059","Ad_preF",
+  "GSM4143060","Ad_preF",
+  "GSM4143061","Ad_preF",
+  "GSM4143062","Ad_preF"
+)
 
-# anchor/calibration time rules
-is_anchor_time <- function(t) !is.na(t) & t < 24
-is_calib_time  <- function(t) !is.na(t) & t >= 24 & t <= 72
+sanitize_group <- function(x) {
+  x %>%
+    str_trim() %>%
+    str_replace_all("[/]", "_") %>%
+    str_replace_all("[^A-Za-z0-9_\\.]+", "_") %>%
+    str_replace_all("\\.+", ".") %>%
+    str_replace_all("_+", "_") %>%
+    str_replace_all("^_|_$", "") %>%
+    tolower()
+}
+
+infer_condition_simple <- function(group_raw) {
+  # Rule: "None" is CONTROL, everything else DELIVERY
+  ifelse(str_to_lower(group_raw) == "none", "CONTROL", "DELIVERY")
+}
 
 # -------------------------
-# Helper: read one DE file (Option A)
-#   - Keep ONLY the columns needed for modeling
-#   - Drop any meta columns that can collide with meta_use columns
+# Load files
 # -------------------------
-read_de <- function(path) {
-  df <- read_tsv(path, show_col_types = FALSE)
+if (!file.exists(run_table_csv)) stop("Missing: ", run_table_csv)
+if (!file.exists(design_tsv))    stop("Missing: ", design_tsv)
 
-  # Harmonize gene column name
-  if (!("gene_id" %in% names(df))) {
-    if ("gene" %in% names(df)) {
-      df <- df %>% rename(gene_id = gene)
-    } else {
-      names(df)[1] <- "gene_id"
-    }
+rt <- read_csv(run_table_csv, show_col_types = FALSE)
+des <- read_tsv(design_tsv, show_col_types = FALSE)
+
+# -------------------------
+# Identify columns in SraRunTable
+# -------------------------
+# SRR column
+run_col_candidates <- c("Run", "run", "SRR", "srr", "srr_id")
+run_col <- run_col_candidates[run_col_candidates %in% colnames(rt)][1]
+if (is.na(run_col)) {
+  stop("Could not find SRR/Run column in SraRunTable.csv. Columns are: ",
+       paste(colnames(rt), collapse = ", "))
+}
+
+# GSM column (GEO accession)
+gsm_col_candidates <- c("GEO_Accession", "geo_accession", "GSM", "gsm", "GEO", "Sample_Name", "sample_name")
+gsm_col <- gsm_col_candidates[gsm_col_candidates %in% colnames(rt)][1]
+if (is.na(gsm_col)) {
+  # Try fuzzy find: anything containing "GEO" or "GSM"
+  idx <- which(str_detect(colnames(rt), regex("geo|gsm", ignore_case = TRUE)))
+  if (length(idx) == 1) {
+    gsm_col <- colnames(rt)[idx]
+  } else {
+    stop("Could not confidently find GSM/GEO column in SraRunTable.csv. Columns are: ",
+         paste(colnames(rt), collapse = ", "),
+         "\nTip: Open SraRunTable.csv and tell me the exact column name containing GSM IDs.")
   }
-
-  # Keep only columns used downstream (prevents duplicate name collisions)
-  keep <- intersect(
-    c("gene_id", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj"),
-    names(df)
-  )
-  df <- df %>% select(all_of(keep))
-
-  df %>%
-    mutate(
-      log2FoldChange = as.numeric(log2FoldChange),
-      padj = as.numeric(padj)
-    )
 }
 
 # -------------------------
-# Helper: parse metadata from filename
-#   expects DE filename includes "...__H=24__..." etc.
+# Build SRR -> GSM mapping
 # -------------------------
-parse_meta_from_filename <- function(path) {
-  bn <- basename(path)
+srr2gsm <- rt %>%
+  transmute(
+    sample_id = as.character(.data[[run_col]]),
+    GSM       = as.character(.data[[gsm_col]])
+  ) %>%
+  filter(!is.na(sample_id), sample_id != "", !is.na(GSM), GSM != "") %>%
+  distinct()
 
-  dataset_id <- str_extract(bn, "^GSE[^_]+(?:_[A-Za-z0-9]+)?")  # catches GSE190850_HUMAN too
-  if (is.na(dataset_id)) dataset_id <- str_extract(bn, "^GSE\\d+")
-
-  # time in hours: __H=24__
-  time_h <- suppressWarnings(as.numeric(str_match(bn, "__H=([0-9.]+)__")[,2]))
-
-  tissue <- str_match(bn, "__T=([^_]+)__")[,2]
-  if (is.na(tissue)) tissue <- NA_character_
-
-  # group label: __G=delivery_lnp__
-  group <- str_match(bn, "__G=([^_]+)__")[,2]
-  if (is.na(group)) group <- NA_character_
-
-  # vs label: __VS=baseline_0
-  vs <- str_match(bn, "__VS=([^\\.]+)")[,2]
-  if (is.na(vs)) vs <- NA_character_
-
-  contrast_label <- ifelse(!is.na(group) & !is.na(vs),
-                           paste0(group, "__vs__", vs),
-                           bn)
-
-  tibble(
-    dataset_id = dataset_id,
-    tissue = tissue,
-    time_h = time_h,
-    contrast_label = contrast_label,
-    file = path
+# -------------------------
+# Join GSM -> group, then update design
+# -------------------------
+mapped <- srr2gsm %>%
+  left_join(gsm_map, by = "GSM") %>%
+  mutate(
+    group = sanitize_group(group_raw),
+    condition_simple = infer_condition_simple(group_raw)
   )
+
+# sanity: any SRR with missing group?
+missing_group <- mapped %>% filter(is.na(group_raw) | group_raw == "")
+if (nrow(missing_group) > 0) {
+  stop("Some SRRs could not be mapped to a group via GSM. Example rows:\n",
+       paste(utils::capture.output(print(head(missing_group, 10))), collapse = "\n"))
 }
 
-# -------------------------
-# Collect all DE files
-# -------------------------
-de_files <- list.files(de_out_root, pattern = "__DE\\.tsv$", recursive = TRUE, full.names = TRUE)
-
-if (length(de_files) == 0) {
-  stop("No DE files found under: ", de_out_root, "\nExpected files ending with __DE.tsv")
+# ensure design has sample_id
+if (!("sample_id" %in% colnames(des))) {
+  stop("design.tsv must contain a 'sample_id' column (SRR IDs). Found columns: ",
+       paste(colnames(des), collapse = ", "))
 }
 
-meta <- map_dfr(de_files, parse_meta_from_filename) %>%
-  mutate(
-    time_bin = case_when(
-      is_anchor_time(time_h) ~ "anchor_lt24h",
-      is_calib_time(time_h)  ~ "calib_24to72h",
-      TRUE ~ "other_or_unknown"
-    ),
-    # IMPORTANT: flag HUMAN datasets so they never enter anchor/calibration modeling
-    is_human = str_detect(dataset_id, "_HUMAN$")
-  )
+# merge into design
+des_out <- des %>%
+  left_join(mapped %>% select(sample_id, group, condition_simple), by = "sample_id")
 
-# -------------------------
-# Summary: contrast counts by dataset (includes HUMAN flag)
-# NOTE: this is contrast-level counts (DE files), not raw sample counts.
-# -------------------------
-meta_summary_by_dataset <- meta %>%
-  mutate(
-    use_flag = case_when(
-      time_bin == "anchor_lt24h" ~ "anchor",
-      time_bin == "calib_24to72h" ~ "calibration",
-      TRUE ~ "excluded"
-    )
-  ) %>%
-  group_by(dataset_id, is_human) %>%
-  summarise(
-    total_contrasts = n(),
-    anchor_contrasts = sum(use_flag == "anchor"),
-    calibration_contrasts = sum(use_flag == "calibration"),
-    excluded_contrasts = sum(use_flag == "excluded"),
-    excluded_missing_time = sum(is.na(time_h)),
-    excluded_gt72h = sum(!is.na(time_h) & time_h > 72),
-    .groups = "drop"
-  ) %>%
-  arrange(desc(total_contrasts))
-
-meta_summary_overall <- meta %>%
-  mutate(
-    use_flag = case_when(
-      time_bin == "anchor_lt24h" ~ "anchor",
-      time_bin == "calib_24to72h" ~ "calibration",
-      TRUE ~ "excluded"
-    )
-  ) %>%
-  summarise(
-    dataset_n = n_distinct(dataset_id),
-    dataset_n_human = n_distinct(dataset_id[is_human]),
-    dataset_n_mouse = n_distinct(dataset_id[!is_human]),
-    total_contrasts = n(),
-    anchor_contrasts = sum(use_flag == "anchor"),
-    calibration_contrasts = sum(use_flag == "calibration"),
-    excluded_contrasts = sum(use_flag == "excluded"),
-    excluded_missing_time = sum(is.na(time_h)),
-    excluded_gt72h = sum(!is.na(time_h) & time_h > 72)
-  )
-
-message("\n=== DE file / contrast counts by dataset (HUMAN flagged) ===")
-print(meta_summary_by_dataset, n = Inf)
-message("\n=== Overall totals ===")
-print(meta_summary_overall)
-
-write_tsv(meta_summary_by_dataset, file.path(score_root, "contrast_counts_by_dataset.tsv"))
-write_tsv(meta_summary_overall, file.path(score_root, "contrast_counts_overall.tsv"))
-
-# -------------------------
-# Build model using MOUSE ONLY (anchors + calibration time window)
-# -------------------------
-meta_use_mouse <- meta %>%
-  filter(
-    time_bin %in% c("anchor_lt24h", "calib_24to72h"),
-    !is_human
-  )
-
-# Load mouse DE tables
-all_de_mouse <- meta_use_mouse %>%
-  mutate(de = map(file, read_de)) %>%
-  select(-file) %>%
-  tidyr::unnest(de)
-
-# -------------------------
-# Step 6B: build core gene set from MOUSE anchors only
-# -------------------------
-anchors_mouse <- all_de_mouse %>% filter(time_bin == "anchor_lt24h")
-
-if (nrow(anchors_mouse) == 0) {
-  stop("No MOUSE anchor contrasts found (time_h < 24). Check filename parsing for __H=..__")
-}
-
-anchors_flagged <- anchors_mouse %>%
-  mutate(pass = !is.na(padj) & padj <= padj_cutoff &
-                !is.na(log2FoldChange) & abs(log2FoldChange) >= lfc_cutoff)
-
-n_anchor_contrasts <- n_distinct(anchors_flagged %>% select(dataset_id, tissue, time_h, contrast_label))
-message("MOUSE anchor contrasts used: ", n_anchor_contrasts)
-
-gene_support <- anchors_flagged %>%
-  group_by(gene_id) %>%
-  summarise(
-    support = mean(pass, na.rm = TRUE),
-    n_anchor_contrasts = n_distinct(paste(dataset_id, tissue, time_h, contrast_label, sep="|")),
-    pos_frac = ifelse(sum(pass, na.rm=TRUE) > 0,
-                      mean(log2FoldChange[pass] > 0, na.rm = TRUE),
-                      NA_real_),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    direction = case_when(
-      !is.na(pos_frac) & pos_frac >= 0.8 ~ "UP",
-      !is.na(pos_frac) & pos_frac <= 0.2 ~ "DOWN",
-      TRUE ~ "MIXED"
-    )
-  )
-
-core <- gene_support %>%
-  filter(support >= support_cutoff) %>%
-  arrange(desc(support))
-
-write_tsv(core, file.path(score_root, "core_gene_set.tsv"))
-message("Wrote core gene set: ", file.path(score_root, "core_gene_set.tsv"), " (n=", nrow(core), ")")
-
-# -------------------------
-# Step 6C: gene weights from MOUSE anchors (robust median by default)
-# -------------------------
-core_genes <- core$gene_id
-anchor_core <- anchors_mouse %>% filter(gene_id %in% core_genes)
-
-weights <- anchor_core %>%
-  group_by(gene_id) %>%
-  summarise(
-    weight = if (use_stat == "median") median(log2FoldChange, na.rm = TRUE) else mean(log2FoldChange, na.rm = TRUE),
-    mean_lfc = mean(log2FoldChange, na.rm = TRUE),
-    median_lfc = median(log2FoldChange, na.rm = TRUE),
-    sd_lfc = sd(log2FoldChange, na.rm = TRUE),
-    n = sum(!is.na(log2FoldChange)),
-    .groups = "drop"
-  )
-
-write_tsv(weights, file.path(score_root, "gene_weights.tsv"))
-message("Wrote gene weights: ", file.path(score_root, "gene_weights.tsv"))
-
-# -------------------------
-# Step 6D: Score MOUSE anchors + calibrations
-# -------------------------
-w <- weights %>% select(gene_id, weight)
-
-mouse_scored <- all_de_mouse %>%
-  filter(time_bin %in% c("anchor_lt24h", "calib_24to72h")) %>%
-  inner_join(w, by = "gene_id") %>%
-  mutate(contrib = weight * log2FoldChange)
-
-mouse_scores <- mouse_scored %>%
-  group_by(dataset_id, tissue, time_h, time_bin, contrast_label) %>%
-  summarise(
-    imrs_score = sum(contrib, na.rm = TRUE),
-    imrs_score_norm = sum(contrib, na.rm = TRUE) / sum(abs(weight), na.rm = TRUE),
-    n_core_genes_used = sum(!is.na(log2FoldChange)),
-    .groups = "drop"
-  ) %>%
-  arrange(dataset_id, time_h, tissue, contrast_label)
-
-write_tsv(mouse_scores, file.path(score_root, "imrs_scores_mouse_anchor_and_calibration.tsv"))
-message("Wrote MOUSE scores: ", file.path(score_root, "imrs_scores_mouse_anchor_and_calibration.tsv"))
-
-mouse_calib_summary <- mouse_scores %>%
-  filter(time_bin == "calib_24to72h") %>%
-  group_by(dataset_id, contrast_label) %>%
-  summarise(
-    n = n(),
-    score_mean = mean(imrs_score_norm, na.rm = TRUE),
-    score_sd   = sd(imrs_score_norm, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  arrange(desc(score_mean))
-
-write_tsv(mouse_calib_summary, file.path(score_root, "calibration_summary_mouse.tsv"))
-message("Wrote MOUSE calibration summary: ", file.path(score_root, "calibration_summary_mouse.tsv"))
-
-# -------------------------
-# OPTIONAL: Score HUMAN datasets separately (no influence on model)
-# -------------------------
-meta_use_human <- meta %>%
-  filter(
-    time_bin %in% c("anchor_lt24h", "calib_24to72h"),
-    is_human
-  )
-
-if (nrow(meta_use_human) > 0) {
-
-  all_de_human <- meta_use_human %>%
-    mutate(de = map(file, read_de)) %>%
-    select(-file) %>%
-    tidyr::unnest(de)
-
-  human_scored <- all_de_human %>%
-    inner_join(w, by = "gene_id") %>%
-    mutate(contrib = weight * log2FoldChange)
-
-  human_scores <- human_scored %>%
-    group_by(dataset_id, tissue, time_h, time_bin, contrast_label) %>%
-    summarise(
-      imrs_score = sum(contrib, na.rm = TRUE),
-      imrs_score_norm = sum(contrib, na.rm = TRUE) / sum(abs(weight), na.rm = TRUE),
-      n_core_genes_used = sum(!is.na(log2FoldChange)),
-      .groups = "drop"
-    ) %>%
-    arrange(dataset_id, time_h, tissue, contrast_label)
-
-  write_tsv(human_scores, file.path(score_root, "imrs_scores_human.tsv"))
-  message("Wrote HUMAN scores: ", file.path(score_root, "imrs_scores_human.tsv"))
-
-  human_calib_summary <- human_scores %>%
-    filter(time_bin == "calib_24to72h") %>%
-    group_by(dataset_id, contrast_label) %>%
-    summarise(
-      n = n(),
-      score_mean = mean(imrs_score_norm, na.rm = TRUE),
-      score_sd   = sd(imrs_score_norm, na.rm = TRUE),
-      .groups = "drop"
-    ) %>%
-    arrange(desc(score_mean))
-
-  write_tsv(human_calib_summary, file.path(score_root, "calibration_summary_human.tsv"))
-  message("Wrote HUMAN calibration summary: ", file.path(score_root, "calibration_summary_human.tsv"))
-
+# if design already has 'group'/'condition_simple', replace them
+if ("group.x" %in% colnames(des_out) && "group.y" %in% colnames(des_out)) {
+  des_out <- des_out %>%
+    mutate(group = ifelse(!is.na(group.y), group.y, group.x)) %>%
+    select(-group.x, -group.y)
+} else if ("group" %in% colnames(des_out)) {
+  # keep as is (already named group)
 } else {
-  message("No HUMAN datasets detected for scoring (dataset_id ending with _HUMAN).")
+  # join created group column directly
 }
 
-message("\nDONE: mouse-only model built; human scored separately (no leakage).")
+if ("condition_simple.x" %in% colnames(des_out) && "condition_simple.y" %in% colnames(des_out)) {
+  des_out <- des_out %>%
+    mutate(condition_simple = ifelse(!is.na(condition_simple.y), condition_simple.y, condition_simple.x)) %>%
+    select(-condition_simple.x, -condition_simple.y)
+}
+
+# hard check: all sample_ids in design mapped?
+unmapped_design <- des_out %>% filter(is.na(group) | group == "")
+if (nrow(unmapped_design) > 0) {
+  stop("Some sample_id values in design.tsv did not map to GSM/group. Example:\n",
+       paste(utils::capture.output(print(head(unmapped_design, 10))), collapse = "\n"))
+}
+
+# -------------------------
+# Write
+# -------------------------
+write_tsv(des_out, out_tsv)
+message("Wrote: ", out_tsv)
+
+# Optional: print counts
+message("\nGroup counts:")
+print(des_out %>% count(group, sort = TRUE), n = 50)
+
+message("\nCondition_simple counts:")
+print(des_out %>% count(condition_simple, sort = TRUE))

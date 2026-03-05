@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # ============================================================
-# IMRS Step 08 — Score samples using FROZEN ANCHOR WEIGHTS 
+# IMRS Step 08 — Score samples using FROZEN ANCHOR WEIGHTS
 #
 # built on: scoring.pdf (2026-03-03)
 #
@@ -10,8 +10,8 @@
 #   2) Design table with:
 #        sample_id
 #        condition_simple  in {CONTROL, DELIVERY}
-#      (recommended path)
-#        <project_root>/00_metadata/<DATASET>/<DATASET>_design.tsv
+#      (UPDATED PATH)
+#        <project_root>/00_metadata/verified_metadata/scoring/<DATASET>/<DATASET>_design.tsv
 #   3) Frozen anchor weights (NEVER refit):
 #        <project_root>/05_score/anchors/gene_weights.tsv
 #
@@ -51,6 +51,9 @@ args <- commandArgs(trailingOnly = TRUE)
 project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
 weights_path <- file.path(project_root, "05_score", "anchors", "gene_weights.tsv")
+
+# UPDATED: scoring design root (dataset-level)
+design_root <- file.path(project_root, "00_metadata", "verified_metadata", "scoring")
 
 min_ctrl_n       <- 3
 gene_sd_floor    <- 0.10
@@ -128,7 +131,6 @@ read_counts_matrix <- function(path) {
 
 # Strict integer check (PDF QC rule #1)
 is_integerish_matrix <- function(mat) {
-  # allow numeric storage, but values must be whole numbers
   all(is.finite(mat)) && all(abs(mat - round(mat)) < 1e-6)
 }
 
@@ -137,20 +139,27 @@ load_frozen_anchor_weights <- function(path) {
   if (!file.exists(path)) stop("Missing frozen anchor weights: ", path)
   w <- read_tsv(path, show_col_types = FALSE)
 
-  if (!("gene_id" %in% names(w))) stop("gene_weights.tsv must contain column: gene_id")
+  # Accept either "gene" (spec) or "gene_id" (internal)
+  gene_col <- NULL
+  if ("gene_id" %in% names(w)) gene_col <- "gene_id"
+  if (is.null(gene_col) && ("gene" %in% names(w))) gene_col <- "gene"
+  if (is.null(gene_col)) {
+    stop("gene_weights.tsv must contain a gene column named 'gene' (spec) or 'gene_id' (internal)")
+  }
+
+  # Accept either beta_meta (preferred) or weight (spec)
   if (!("beta_meta" %in% names(w)) && !("weight" %in% names(w))) {
     stop("gene_weights.tsv must contain 'beta_meta' (preferred) or 'weight'")
   }
-
   if (!("beta_meta" %in% names(w))) w$beta_meta <- w$weight
 
-  # If flags exist, apply them (PDF says weights already stabilized; flags are allowed to exclude)
+  # Optional flags (if present) can exclude genes
   if (!("heterogeneity_flag" %in% names(w))) w$heterogeneity_flag <- FALSE
   if (!("low_power_flag" %in% names(w)))      w$low_power_flag <- FALSE
 
   w <- w %>%
     transmute(
-      gene_id = as.character(gene_id),
+      gene_id = as.character(.data[[gene_col]]),
       beta_meta = suppressWarnings(as.numeric(beta_meta)),
       heterogeneity_flag = as.logical(heterogeneity_flag),
       low_power_flag = as.logical(low_power_flag)
@@ -162,32 +171,27 @@ load_frozen_anchor_weights <- function(path) {
     w <- w %>% mutate(gene_id = strip_ensembl_version(gene_id))
   }
 
-  # Deduplicate (keep the largest |beta| if any duplicates after stripping)
   w <- w %>%
     group_by(gene_id) %>%
     slice_max(order_by = abs(beta_meta), n = 1, with_ties = FALSE) %>%
     ungroup()
 
   if (nrow(w) == 0) stop("No usable weights after filtering/cleaning: ", path)
-
   w
 }
 
 # -------------------------
-# Core scoring function 
+# Core scoring function
 # -------------------------
 score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df) {
   counts_id <- make_counts_id(dataset_id, counts_path)
 
-  # ---- counts
   counts <- read_counts_matrix(counts_path)
 
-  # optional: strip Ensembl version suffix
   if (strip_ens_ver) {
     rownames(counts) <- strip_ensembl_version(rownames(counts))
   }
 
-  # ---- design: require sample_id and condition_simple
   if (!("sample_id" %in% names(design_df))) stop("Design missing sample_id for dataset: ", dataset_id)
   if (!("condition_simple" %in% names(design_df))) {
     stop("Design missing condition_simple (CONTROL/DELIVERY) for dataset: ", dataset_id)
@@ -205,10 +209,8 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
     return(invisible(NULL))
   }
 
-  # align columns to design order
   counts <- counts[, design$sample_id, drop = FALSE]
 
-  # ---- QC1: counts must be integer
   if (!is_integerish_matrix(counts)) {
     message("FAIL (non-integer counts): ", counts_id, " | ", counts_path)
     qc <- tibble(
@@ -225,7 +227,6 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
   counts_int <- round(counts)
   storage.mode(counts_int) <- "integer"
 
-  # ---- QC2: controls >= 3
   ctrl_ids <- design$sample_id[design$condition_simple == "CONTROL"]
   if (length(ctrl_ids) < min_ctrl_n) {
     message("FAIL (controls < ", min_ctrl_n, "): ", counts_id, " | n_ctrl=", length(ctrl_ids))
@@ -241,14 +242,10 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
     return(invisible(NULL))
   }
 
-  # ---- Step 08A: DESeq2 size-factor normalization on ALL samples, design ~ 1
   sf <- estimateSizeFactorsForMatrix(counts_int)
   norm <- sweep(counts_int, 2, sf, "/")
-
-  # log transform
   x <- log2(norm + 1)
 
-  # ---- Step 08C: gene match + coverage gate (use WEIGHT genes as denominator)
   w_genes <- weights_df$gene_id
   overlap <- intersect(rownames(x), w_genes)
   coverage <- length(overlap) / length(w_genes)
@@ -272,13 +269,11 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
     return(invisible(NULL))
   }
 
-  # subset expression + weights to overlap
   wsub <- weights_df %>%
     filter(gene_id %in% overlap) %>%
     arrange(match(gene_id, overlap))
   xsub <- x[overlap, , drop = FALSE]
 
-  # ---- Step 08B: control-based gene standardization with SD floor 0.10
   ctrl_mat <- xsub[, ctrl_ids, drop = FALSE]
   mu <- rowMeans(ctrl_mat, na.rm = TRUE)
   sdv <- apply(ctrl_mat, 1, sd, na.rm = TRUE)
@@ -286,11 +281,9 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
   sdv_floor <- pmax(sdv, gene_sd_floor)
   n_hit_floor <- sum(sdv < gene_sd_floor, na.rm = TRUE)
 
-  # z = (x - mu) / sd*
   z <- sweep(xsub, 1, mu, "-")
   z <- sweep(z, 1, sdv_floor, "/")
 
-  # ---- Step 08C: IMRS_raw = sum_g w_g * z_g,s (NO normalization by sum|w|)
   wvec <- wsub$beta_meta
   names(wvec) <- wsub$gene_id
   wvec <- wvec[rownames(z)]
@@ -298,7 +291,6 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
   imrs_raw <- as.numeric(crossprod(wvec, z))
   names(imrs_raw) <- colnames(z)
 
-  # ---- Step 08C' optional: IMRS_z within dataset using controls, score SD floor 0.10
   ctrl_scores <- imrs_raw[ctrl_ids]
   mu_score <- mean(ctrl_scores, na.rm = TRUE)
   sd_score <- sd(ctrl_scores, na.rm = TRUE)
@@ -306,7 +298,6 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
 
   imrs_z <- (imrs_raw - mu_score) / sd_score_floor
 
-  # ---- Output: imrs_scores.tsv (PDF-required fields + a few extra stable QC fields)
   out_scores <- tibble(
     sample_id = design$sample_id,
     condition_simple = design$condition_simple,
@@ -317,7 +308,6 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
 
   write_tsv(out_scores, file.path(out_scores_dir, paste0(counts_id, "__imrs_scores.tsv")))
 
-  # ---- QC summary (PDF-required + explicit checks)
   qc <- tibble(
     id = counts_id,
     dataset_id = dataset_id,
@@ -338,9 +328,7 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
 
   write_tsv(qc, file.path(out_qc_dir, paste0(counts_id, "__qc_summary.tsv")))
 
-  # ---- Top contributors (PDF QC rule #6): w_g * z_g,s ranked by |.| per sample
-  # long format: one row per (sample, gene) among top K
-  contrib_mat <- sweep(z, 1, wvec, "*")  # w * z
+  contrib_mat <- sweep(z, 1, wvec, "*")
   top_tbl <- map_dfr(colnames(contrib_mat), function(sid) {
     v <- contrib_mat[, sid]
     ord <- order(abs(v), decreasing = TRUE)
@@ -381,25 +369,28 @@ if (!dir.exists(counts_root)) stop("Missing 03_counts root: ", counts_root)
 
 dataset_ids <- list.dirs(counts_root, recursive = FALSE, full.names = FALSE)
 dataset_ids <- dataset_ids[grepl("^GSE", dataset_ids)]
-
 if (length(dataset_ids) == 0) stop("No datasets found under: ", counts_root)
 
+if (!dir.exists(design_root)) {
+  stop("Missing design_root (run scoring-design builder first): ", design_root)
+}
+
 for (ds in dataset_ids) {
-  design_path <- file.path(project_root, "00_metadata", ds, paste0(ds, "_design.tsv"))
+  # UPDATED: scoring design path
+  design_path <- file.path(design_root, ds, paste0(ds, "_design.tsv"))
+
   if (!file.exists(design_path)) {
-    message("Skip dataset (missing design): ", ds, " | ", design_path)
+    message("Skip dataset (missing scoring design): ", ds, " | ", design_path)
     next
   }
 
   design_df <- read_table_robust(design_path)
 
-  # STRICT: require condition_simple exists; do not infer heuristically
   if (!("condition_simple" %in% names(design_df))) {
     message("Skip dataset (design missing condition_simple): ", ds)
     next
   }
 
-  # Find all count files for dataset
   cfiles <- find_counts_files(ds)
   if (length(cfiles) == 0) {
     message("Skip dataset (no gene_counts_clean.tsv found): ", ds)

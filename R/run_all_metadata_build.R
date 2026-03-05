@@ -11,8 +11,8 @@ suppressPackageStartupMessages({
   library(tibble)
 })
 
-project_root <- "C:/Users/john/Desktop/IMRS_Project"
-meta_root <- file.path(project_root, "00_metadata")
+project_root <- "D:/IMRS_Project"
+meta_root <- file.path(project_root, "00_metadata","validations")
 
 metadata_build_script <- file.path(
   project_root,
