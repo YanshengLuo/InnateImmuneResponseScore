@@ -1,21 +1,13 @@
 #!/usr/bin/env Rscript
 # ============================================================
 # IMRS threshold sensitivity summary
-#
-# Reads threshold snapshots from:
-#   <project_root>/05_score/sensitivity_runs/thr_*/...
-#
-# Writes:
-#   <project_root>/05_score/sensitivity_runs/threshold_sensitivity_summary.tsv
-#   <project_root>/05_score/sensitivity_runs/threshold_sensitivity_by_dataset.tsv
+# Corrected for your folder structure
 # ============================================================
 
 suppressPackageStartupMessages({
   library(readr)
   library(dplyr)
   library(tibble)
-  library(stringr)
-  library(purrr)
 })
 
 args <- commandArgs(trailingOnly = TRUE)
@@ -27,7 +19,7 @@ if (!dir.exists(sens_root)) {
 }
 
 threshold_dirs <- list.dirs(sens_root, recursive = FALSE, full.names = TRUE)
-threshold_dirs <- threshold_dirs[grepl("thr_", basename(threshold_dirs))]
+threshold_dirs <- threshold_dirs[grepl("^thr_", basename(threshold_dirs))]
 
 if (length(threshold_dirs) == 0) {
   stop("No threshold snapshot folders found under: ", sens_root)
@@ -55,11 +47,6 @@ read_one_run <- function(run_dir) {
   overall_path         <- file.path(run_dir, "transfer", "eval", "checks", "06_overall_pass_check.tsv")
   core_path            <- file.path(run_dir, "anchors", "core_gene_set.tsv")
   weights_path         <- file.path(run_dir, "anchors", "gene_weights.tsv")
-
-  if (!file.exists(dataset_summary_path)) stop("Missing: ", dataset_summary_path)
-  if (!file.exists(anchor_summary_path))  stop("Missing: ", anchor_summary_path)
-  if (!file.exists(early_summary_path))   stop("Missing: ", early_summary_path)
-  if (!file.exists(overall_path))         stop("Missing: ", overall_path)
 
   dataset_summary <- read_tsv(dataset_summary_path, show_col_types = FALSE)
   anchor_summary  <- read_tsv(anchor_summary_path, show_col_types = FALSE)
