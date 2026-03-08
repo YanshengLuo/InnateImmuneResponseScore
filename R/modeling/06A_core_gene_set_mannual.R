@@ -31,26 +31,16 @@ suppressPackageStartupMessages({
 args <- commandArgs(trailingOnly = TRUE)
 project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
-# NEW: allow threshold sensitivity from command line
-lfc_cutoff <- if (length(args) >= 2) suppressWarnings(as.numeric(args[2])) else 1.0
-if (!is.finite(lfc_cutoff)) lfc_cutoff <- 1.0
-
 de_comp_root <- file.path(project_root, "04_de", "comparison")
 
-# Locked mouse datasets
-LOCKED_DATASETS_MOUSE <- c(
-  "GSE39129",
-  "GSE167521",
-  "GSE264344",
-  "GSE279372",
-  "GSE279744",
-  "GSE262515"
-)
+# Locked mouse datasets (pre-registered)
+LOCKED_DATASETS_MOUSE <- c("GSE39129", "GSE167521", "GSE264344", "GSE279372", "GSE279744","GSE262515")
 
 # Thresholds
 fdr_cutoff <- 0.05
+lfc_cutoff <- 1.0
 within_dataset_support_cutoff <- 0.50   # gene passes in >=50% contrasts within dataset
-consensus_k_fraction <- 2/3             # gene supported by >= ceil(K_present*2/3) datasets
+consensus_k_fraction          <- 2/3    # gene supported by >= ceil(K_present*2/3) datasets
 
 # Direction control:
 #   "both" (default): abs(log2FC) >= lfc_cutoff
@@ -59,9 +49,7 @@ consensus_k_fraction <- 2/3             # gene supported by >= ceil(K_present*2/
 direction <- "both"
 
 # Which phases to build
-PHASES <- c("anchor")
-
-message("Using lfc_cutoff = ", lfc_cutoff)
+PHASES <- c("anchor", "calibration")
 
 # -------------------------
 # Helpers
@@ -70,12 +58,12 @@ read_de_table <- function(path) {
   df <- read_tsv(path, show_col_types = FALSE)
   coln <- names(df)
 
+  # Identify gene column (workflow may use gene; full may use gene_id)
   gene_col <- dplyr::case_when(
-    "gene" %in% coln ~ "gene",
+    "gene" %in% coln    ~ "gene",
     "gene_id" %in% coln ~ "gene_id",
-    TRUE ~ NA_character_
+    TRUE               ~ NA_character_
   )
-
   if (is.na(gene_col)) {
     stop(
       "Unrecognized DE table schema in: ", path, "\n",
@@ -83,6 +71,7 @@ read_de_table <- function(path) {
     )
   }
 
+  # Workflow schema: gene + log2FC + FDR
   if (all(c("log2FC", "FDR") %in% coln)) {
     return(df %>%
       transmute(
@@ -92,6 +81,7 @@ read_de_table <- function(path) {
       ))
   }
 
+  # DESeq2 full schema: log2FoldChange + padj
   if (all(c("log2FoldChange", "padj") %in% coln)) {
     return(df %>%
       transmute(
@@ -109,6 +99,7 @@ read_de_table <- function(path) {
 }
 
 get_dataset_from_path <- function(path) {
+  # .../comparison/<DATASET>/deseq2_contrasts/<phase>/<file>
   parts <- strsplit(normalizePath(path, winslash = "/"), "/")[[1]]
   i <- which(parts == "comparison")
   if (length(i) == 1 && length(parts) >= i + 1) return(parts[i + 1])
@@ -123,7 +114,7 @@ pass_by_direction <- function(log2FC, lfc_cutoff, direction) {
 }
 
 phase_out_dir <- function(phase) {
-  if (phase == "anchor") return("anchors")
+  if (phase == "anchor") return("anchors")   # match your spec
   if (phase == "calibration") return("calibration")
   stop("bad phase")
 }
@@ -135,6 +126,7 @@ build_core_for_phase <- function(phase) {
   out_root <- file.path(project_root, "05_score", phase_out_dir(phase))
   dir.create(out_root, showWarnings = FALSE, recursive = TRUE)
 
+  # Collect workflow/full files from this phase
   all_files <- list.files(
     de_comp_root,
     pattern = "__(DE_workflow|DE_full)\\.tsv$",
@@ -160,31 +152,21 @@ build_core_for_phase <- function(phase) {
     )
 
   if (nrow(meta) == 0) {
-    message(
-      "PHASE=", phase,
-      ": found files, but none match locked mouse datasets: ",
-      paste(LOCKED_DATASETS_MOUSE, collapse = ", "),
-      ". Skipping."
-    )
+    message("PHASE=", phase, ": found files, but none match locked mouse datasets: ",
+            paste(LOCKED_DATASETS_MOUSE, collapse = ", "), ". Skipping.")
     return(invisible(NULL))
   }
 
-  # Audit
+  # Audit: contrast counts
   by_ds <- meta %>%
     count(dataset_id, name = "n_contrasts") %>%
     arrange(desc(n_contrasts))
-
   overall <- tibble(
     phase = phase,
     direction = direction,
-    fdr_cutoff = fdr_cutoff,
-    lfc_cutoff = lfc_cutoff,
-    within_dataset_support_cutoff = within_dataset_support_cutoff,
-    consensus_k_fraction = consensus_k_fraction,
     datasets_present = n_distinct(meta$dataset_id),
     total_contrasts = nrow(meta)
   )
-
   write_tsv(by_ds, file.path(out_root, "contrast_counts_by_dataset.tsv"))
   write_tsv(overall, file.path(out_root, "contrast_counts_overall.tsv"))
 
@@ -192,25 +174,20 @@ build_core_for_phase <- function(phase) {
   K_present <- length(datasets_present)
 
   if (K_present < 2) {
-    message(
-      "PHASE=", phase,
-      ": fewer than 2 locked datasets present (K_present=", K_present, "). Skipping this phase.\n",
-      "Present: ", paste(datasets_present, collapse = ", ")
-    )
-    return(invisible(NULL))
-  }
+  message("PHASE=", phase, ": fewer than 2 locked datasets present (K_present=", K_present, "). Skipping this phase.\n",
+          "Present: ", paste(datasets_present, collapse = ", "))
+  return(invisible(NULL))
+}
 
   required_support <- ceiling(K_present * consensus_k_fraction)
 
-  message(
-    "\nPHASE=", phase,
-    " | direction=", direction,
-    " | lfc_cutoff=", lfc_cutoff,
-    " | locked datasets present: ", paste(datasets_present, collapse = ", "),
-    " | K_present=", K_present,
-    " | core requires >= ", required_support, " supporting datasets"
-  )
+  message("\nPHASE=", phase,
+          " | direction=", direction,
+          " | locked datasets present: ", paste(datasets_present, collapse = ", "),
+          " | K_present=", K_present,
+          " | core requires >= ", required_support, " supporting datasets")
 
+  # Load DE + pass flag
   de_long <- meta %>%
     mutate(de = map(file, read_de_table)) %>%
     tidyr::unnest(de) %>%
@@ -218,6 +195,7 @@ build_core_for_phase <- function(phase) {
       pass = !is.na(FDR) & (FDR <= fdr_cutoff) & pass_by_direction(log2FC, lfc_cutoff, direction)
     )
 
+  # Within-dataset reproducibility (collapse within dataset first)
   support_by_dataset <- de_long %>%
     mutate(pass = ifelse(is.na(pass), FALSE, pass)) %>%
     group_by(dataset_id, gene_id) %>%
@@ -229,6 +207,7 @@ build_core_for_phase <- function(phase) {
       .groups = "drop"
     )
 
+  # Across-dataset consensus
   core_support <- support_by_dataset %>%
     group_by(gene_id) %>%
     summarise(
@@ -244,15 +223,13 @@ build_core_for_phase <- function(phase) {
     arrange(desc(support_datasets), desc(support_fraction), gene_id)
 
   if (nrow(core_gene_set) == 0) {
-    stop(
-      "PHASE=", phase, ": core gene set is EMPTY under thresholds.\n",
-      "Try lowering lfc_cutoff or within_dataset_support_cutoff.\n",
-      "Current: FDR<=", fdr_cutoff,
-      ", direction=", direction,
-      ", |log2FC| cutoff=", lfc_cutoff,
-      ", within_dataset_support_cutoff=", within_dataset_support_cutoff,
-      ", across>=ceil(K_present*", consensus_k_fraction, ")"
-    )
+    stop("PHASE=", phase, ": core gene set is EMPTY under thresholds.\n",
+         "Try lowering lfc_cutoff or within_dataset_support_cutoff.\n",
+         "Current: FDR<=", fdr_cutoff,
+         ", direction=", direction,
+         ", |log2FC| cutoff=", lfc_cutoff,
+         ", within_dataset_support_cutoff=", within_dataset_support_cutoff,
+         ", across>=ceil(K_present*", consensus_k_fraction, ")")
   }
 
   out_path <- file.path(out_root, "core_gene_set.tsv")
@@ -266,10 +243,8 @@ build_core_for_phase <- function(phase) {
 # MAIN
 # -------------------------
 if (!dir.exists(de_comp_root)) {
-  stop(
-    "DE comparison root not found: ", de_comp_root,
-    "\nExpected: <project_root>/04_de/comparison to exist."
-  )
+  stop("DE comparison root not found: ", de_comp_root,
+       "\nExpected: <project_root>/04_de/comparison to exist.")
 }
 
 for (ph in PHASES) {
