@@ -29,3 +29,5 @@ p <- ggplot(scores, aes(x = condition_simple, y = imrs_z, fill = condition_simpl
   theme(legend.position = "none")
 
 print(p)
+
+wilcox.test(imrs_z ~ condition_simple, data = scores)

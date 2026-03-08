@@ -45,6 +45,13 @@ suppressPackageStartupMessages({
   library(ggplot2)
 })
 
+if (!requireNamespace("pROC", quietly = TRUE)) {
+  message("Installing pROC...")
+  install.packages("pROC", repos = "https://cloud.r-project.org")
+}
+
+library(pROC)
+
 # -------------------------
 # CONFIG
 # -------------------------
@@ -53,7 +60,7 @@ project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
 # Edit this to the datasets you want to evaluate
 calibration_dataset_ids <- c(
-"GSE262515"
+"GSE262515","GSE39129","GSE167521","GSE264344","GSE279372","GSE279744"
 )
 
 do_auc <- TRUE
