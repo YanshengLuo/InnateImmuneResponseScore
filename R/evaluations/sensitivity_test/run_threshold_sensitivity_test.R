@@ -2,6 +2,7 @@
 # ============================================================
 # IMRS threshold sensitivity driver
 # Corrected for your actual file names / directories
+# with robust directory snapshot copying via fs::dir_copy()
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -44,7 +45,7 @@ sens_root <- file.path(project_root, "05_score", "sensitivity_runs")
 dir.create(sens_root, recursive = TRUE, showWarnings = FALSE)
 
 # -------------------------
-# helper
+# helpers
 # -------------------------
 run_rscript <- function(script, args_vec = character()) {
   cmd <- c(shQuote(script), vapply(args_vec, shQuote, character(1)))
@@ -57,32 +58,53 @@ run_rscript <- function(script, args_vec = character()) {
 }
 
 copy_dir_if_exists <- function(from, to) {
-  if (dir.exists(from)) {
-    if (dir.exists(to)) unlink(to, recursive = TRUE, force = TRUE)
-    dir.create(dirname(to), recursive = TRUE, showWarnings = FALSE)
-    file.copy(from, to, recursive = TRUE)
-    TRUE
-  } else {
-    FALSE
+  if (!dir.exists(from)) {
+    warning("Source directory does not exist: ", from)
+    return(FALSE)
   }
+
+  if (dir.exists(to)) {
+    unlink(to, recursive = TRUE, force = TRUE)
+  }
+
+  dir.create(dirname(to), recursive = TRUE, showWarnings = FALSE)
+
+  fs::dir_copy(from, to, overwrite = TRUE)
+  TRUE
 }
 
 snapshot_outputs <- function(thr) {
   thr_tag <- paste0("thr_", format(thr, nsmall = 1))
   out_dir <- file.path(sens_root, thr_tag)
+
+  if (dir.exists(out_dir)) {
+    unlink(out_dir, recursive = TRUE, force = TRUE)
+  }
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
-  copy_dir_if_exists(file.path(project_root, "05_score", "anchors"),
-                     file.path(out_dir, "anchors"))
+  copy_dir_if_exists(
+    file.path(project_root, "05_score", "anchors"),
+    file.path(out_dir, "anchors")
+  )
 
-  copy_dir_if_exists(file.path(project_root, "05_score", "transfer"),
-                     file.path(out_dir, "transfer"))
+  copy_dir_if_exists(
+    file.path(project_root, "05_score", "transfer"),
+    file.path(out_dir, "transfer")
+  )
 
-  copy_dir_if_exists(file.path(project_root, "05_score", "human_transfer"),
-                     file.path(out_dir, "human_transfer"))
+  if (dir.exists(file.path(project_root, "05_score", "human_transfer"))) {
+    copy_dir_if_exists(
+      file.path(project_root, "05_score", "human_transfer"),
+      file.path(out_dir, "human_transfer")
+    )
+  }
 
-  copy_dir_if_exists(file.path(project_root, "06_figures", "step09_calibration"),
-                     file.path(out_dir, "figures", "step09_calibration"))
+  if (dir.exists(file.path(project_root, "06_figures", "step09_calibration"))) {
+    copy_dir_if_exists(
+      file.path(project_root, "06_figures", "step09_calibration"),
+      file.path(out_dir, "figures", "step09_calibration")
+    )
+  }
 
   message("[SNAPSHOT] Saved outputs to: ", out_dir)
 }
