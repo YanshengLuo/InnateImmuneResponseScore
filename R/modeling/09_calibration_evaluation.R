@@ -2,16 +2,21 @@
 # ============================================================
 # IMRS Step 09 — Calibration Evaluation by SPLIT CONTRAST
 #
-# Corrected version:
-#   1) output dataset_id is based on DELIVERY sample_id from split file
+# Updated version:
+#   1) Separate anchor vs external datasets
+#   2) Adds dataset_type column = "anchor" / "external"
+#   3) Special rule for GSE264344:
+#        <= 24 h  -> anchor
+#        >  24 h  -> external
+#   4) output dataset_id is based on DELIVERY sample_id from split file
 #      (usually SRR...)
-#   2) time_h is taken from:
+#   5) time_h is taken from:
 #        a) H= in split filename, or
 #        b) DELIVERY-only time_h
 #      and never averaged with control 0h samples
-#   3) split files are searched recursively
-#   4) only true contrast files containing "__VS=" are used
-#   5) plotting guards added to avoid crashes on sparse datasets
+#   6) split files are searched recursively
+#   7) only true contrast files containing "__VS=" are used
+#   8) plotting guards added to avoid crashes on sparse datasets
 #
 # Inputs:
 #   1) Step 08 score files:
@@ -49,7 +54,6 @@ if (!requireNamespace("pROC", quietly = TRUE)) {
   message("Installing pROC...")
   install.packages("pROC", repos = "https://cloud.r-project.org")
 }
-
 library(pROC)
 
 # -------------------------
@@ -58,10 +62,43 @@ library(pROC)
 args <- commandArgs(trailingOnly = TRUE)
 project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
 
-# Edit this to the datasets you want to evaluate
-calibration_dataset_ids <- c(
-"GSE262515","GSE39129","GSE167521","GSE264344","GSE279372","GSE279744"
+# -------------------------
+# DATASET GROUPS
+# -------------------------
+anchor_dataset_ids <- c(
+  "GSE279372",
+  "GSE39129",
+  "GSE167521",
+  "GSE264344",
+  "GSE279744"
 )
+
+calibration_dataset_ids <- c(
+  "GSE264344",
+  "GSE262515",
+  "GSE178313",
+  "GSE279743",
+  "GSE166655",
+  "GSE139529"
+)
+
+all_eval_datasets <- union(anchor_dataset_ids, calibration_dataset_ids)
+
+# -------------------------
+# special handling for GSE264344:
+#   <= 24 h  -> anchor
+#   >  24 h  -> external
+# --------------------------
+
+assign_dataset_type <- function(gse_id, time_h) {
+  case_when(
+    gse_id == "GSE264344" & is.finite(time_h) & time_h <= 24 ~ "anchor",
+    gse_id == "GSE264344" & is.finite(time_h) & time_h > 24  ~ "external",
+    gse_id %in% anchor_dataset_ids ~ "anchor",
+    gse_id %in% calibration_dataset_ids ~ "external",
+    TRUE ~ NA_character_
+  )
+}
 
 do_auc <- TRUE
 write_roc <- TRUE
@@ -241,20 +278,20 @@ score_index <- tibble(
   gse_id = vapply(all_score_files, extract_gse_id_from_scorefile, character(1)),
   score_id = vapply(all_score_files, extract_score_id, character(1))
 ) %>%
-  filter(gse_id %in% calibration_dataset_ids)
+  filter(gse_id %in% all_eval_datasets)
 
 if (nrow(score_index) == 0) {
-  stop("No Step 08 scores found for calibration datasets: ",
-       paste(calibration_dataset_ids, collapse = ", "))
+  stop("No Step 08 scores found for evaluation datasets: ",
+       paste(all_eval_datasets, collapse = ", "))
 }
 
 score_map <- score_index %>%
   group_by(gse_id) %>%
   summarise(
     scores_path = choose_best_score_file(scores_path),
-    score_id = choose_best_score_file(score_id),
     .groups = "drop"
-  )
+  ) %>%
+  mutate(score_id = vapply(scores_path, extract_score_id, character(1)))
 
 # -------------------------
 # MAIN EVALUATION
@@ -262,7 +299,7 @@ score_map <- score_index %>%
 eval_rows <- list()
 sample_level_rows <- list()
 
-for (ds in calibration_dataset_ids) {
+for (ds in all_eval_datasets) {
 
   split_dir_candidates <- c(
     file.path(split_root, ds),
@@ -312,7 +349,6 @@ for (ds in calibration_dataset_ids) {
     recursive = TRUE
   )
 
-  # keep only true contrast split files
   split_files <- split_files[grepl("__VS=", basename(split_files))]
 
   if (length(split_files) == 0) {
@@ -321,8 +357,6 @@ for (ds in calibration_dataset_ids) {
   }
 
   message("Dataset: ", ds, " | split files: ", length(split_files))
-  # message("First few split files:")
-  # print(head(split_files))
 
   for (sf in split_files) {
     split_id <- sub("\\.tsv$", "", basename(sf))
@@ -331,6 +365,7 @@ for (ds in calibration_dataset_ids) {
     if (is.null(split_df)) {
       eval_rows[[length(eval_rows) + 1]] <- tibble(
         gse_id = ds,
+        dataset_type = NA_character_,
         dataset_id = NA_character_,
         split_id = split_id,
         split_path = sf,
@@ -348,6 +383,7 @@ for (ds in calibration_dataset_ids) {
     if (length(miss_split) > 0) {
       eval_rows[[length(eval_rows) + 1]] <- tibble(
         gse_id = ds,
+        dataset_type = NA_character_,
         dataset_id = NA_character_,
         split_id = split_id,
         split_path = sf,
@@ -386,6 +422,7 @@ for (ds in calibration_dataset_ids) {
     if (n_scored_samples == 0) {
       eval_rows[[length(eval_rows) + 1]] <- tibble(
         gse_id = ds,
+        dataset_type = NA_character_,
         dataset_id = dataset_id_out,
         split_id = split_id,
         split_path = sf,
@@ -400,6 +437,7 @@ for (ds in calibration_dataset_ids) {
     if (n_ctrl < 1 || n_del < 1) {
       eval_rows[[length(eval_rows) + 1]] <- tibble(
         gse_id = ds,
+        dataset_type = NA_character_,
         dataset_id = dataset_id_out,
         split_id = split_id,
         split_path = sf,
@@ -447,9 +485,11 @@ for (ds in calibration_dataset_ids) {
     }
 
     eval_time_h <- compute_eval_time_h(sf, merged)
+    dataset_type_here <- assign_dataset_type(ds, eval_time_h)
 
     eval_rows[[length(eval_rows) + 1]] <- tibble(
       gse_id = ds,
+      dataset_type = dataset_type_here,
       dataset_id = dataset_id_out,
       split_id = split_id,
       split_path = sf,
@@ -491,11 +531,13 @@ for (ds in calibration_dataset_ids) {
     sample_level_rows[[length(sample_level_rows) + 1]] <- merged %>%
       mutate(
         gse_id = ds,
+        dataset_type = dataset_type_here,
         dataset_id = sample_id,
         eval_time_h = eval_time_h
       ) %>%
       transmute(
         gse_id = gse_id,
+        dataset_type = dataset_type,
         dataset_id = dataset_id,
         split_id = split_id,
         contrast_label = contrast_label,
@@ -520,7 +562,7 @@ if (nrow(eval_tbl) == 0) {
 
 summary_tbl <- eval_tbl %>%
   filter(pass) %>%
-  group_by(gse_id, tissue) %>%
+  group_by(dataset_type, gse_id, tissue) %>%
   summarise(
     n_contrasts = n(),
     mean_delta_mean_imrs_z = safe_mean(delta_mean_imrs_z),
@@ -549,26 +591,28 @@ sample_plot_df <- sample_tbl %>% filter(is.finite(imrs_z))
 if (nrow(plot_df) > 0) {
 
   # 1. Delta distribution
-  p1 <- ggplot(plot_df, aes(x = delta_mean_imrs_z)) +
-    geom_histogram(bins = 40) +
+  p1 <- ggplot(plot_df, aes(x = delta_mean_imrs_z, fill = dataset_type)) +
+    geom_histogram(bins = 40, alpha = 0.7, position = "identity") +
     geom_vline(xintercept = 0, linetype = "dashed") +
     theme_bw() +
     labs(
       title = "IMRS calibration delta distribution",
       x = "Delta mean IMRS_z (DELIVERY - CONTROL)",
-      y = "Number of contrasts"
+      y = "Number of contrasts",
+      fill = "Dataset type"
     )
   save_plot_both(p1, file.path(fig_dir, "01_delta_distribution"), 8, 6)
 
   # 2. Delta by tissue
-  p2 <- ggplot(plot_df, aes(x = tissue, y = delta_mean_imrs_z)) +
+  p2 <- ggplot(plot_df, aes(x = tissue, y = delta_mean_imrs_z, fill = dataset_type)) +
     geom_boxplot() +
     geom_hline(yintercept = 0, linetype = "dashed") +
     theme_bw() +
     labs(
       title = "IMRS calibration delta by tissue",
       x = "Tissue",
-      y = "Delta mean IMRS_z"
+      y = "Delta mean IMRS_z",
+      fill = "Dataset type"
     ) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
   save_plot_both(p2, file.path(fig_dir, "02_delta_by_tissue"), 9, 6)
@@ -576,14 +620,15 @@ if (nrow(plot_df) > 0) {
   # 3. AUC distribution
   auc_plot_df <- plot_df %>% filter(is.finite(auc_imrs_z))
   if (nrow(auc_plot_df) > 0) {
-    p3 <- ggplot(auc_plot_df, aes(x = auc_imrs_z)) +
-      geom_histogram(bins = 30) +
+    p3 <- ggplot(auc_plot_df, aes(x = auc_imrs_z, fill = dataset_type)) +
+      geom_histogram(bins = 30, alpha = 0.7, position = "identity") +
       geom_vline(xintercept = 0.5, linetype = "dashed") +
       theme_bw() +
       labs(
         title = "IMRS calibration AUC distribution",
         x = "AUC",
-        y = "Number of contrasts"
+        y = "Number of contrasts",
+        fill = "Dataset type"
       )
     save_plot_both(p3, file.path(fig_dir, "03_auc_distribution"), 8, 6)
   }
@@ -593,17 +638,17 @@ if (nrow(plot_df) > 0) {
     filter(is.finite(time_h), is.finite(delta_mean_imrs_z))
 
   if (nrow(time_plot_df) > 0) {
-    p4 <- ggplot(time_plot_df, aes(x = time_h, y = delta_mean_imrs_z)) +
+    p4 <- ggplot(time_plot_df, aes(x = time_h, y = delta_mean_imrs_z, color = dataset_type)) +
       geom_point() +
       geom_hline(yintercept = 0, linetype = "dashed") +
       theme_bw() +
       labs(
         title = "IMRS response over time",
         x = "Hours post delivery",
-        y = "Delta mean IMRS_z"
+        y = "Delta mean IMRS_z",
+        color = "Dataset type"
       )
 
-    # add smooth only when enough x diversity exists
     if (length(unique(time_plot_df$time_h)) >= 3) {
       p4 <- p4 + geom_smooth(method = "loess", se = TRUE)
     }
@@ -617,27 +662,29 @@ if (nrow(plot_df) > 0) {
     filter(is.finite(delta_mean_imrs_z), is.finite(neg_log10_p))
 
   if (nrow(volcano_df) > 0) {
-    p5 <- ggplot(volcano_df, aes(x = delta_mean_imrs_z, y = neg_log10_p)) +
+    p5 <- ggplot(volcano_df, aes(x = delta_mean_imrs_z, y = neg_log10_p, color = dataset_type)) +
       geom_point() +
       geom_vline(xintercept = 0, linetype = "dashed") +
       theme_bw() +
       labs(
         title = "Calibration volcano-style plot",
         x = "Delta mean IMRS_z",
-        y = "-log10(t-test p)"
+        y = "-log10(t-test p)",
+        color = "Dataset type"
       )
     save_plot_both(p5, file.path(fig_dir, "05_volcano_delta_vs_p"), 8, 6)
   }
 
   # 6. IMRS_z by condition
   if (nrow(sample_plot_df) > 0) {
-    p6 <- ggplot(sample_plot_df, aes(x = condition_simple, y = imrs_z)) +
+    p6 <- ggplot(sample_plot_df, aes(x = condition_simple, y = imrs_z, fill = dataset_type)) +
       geom_boxplot() +
       theme_bw() +
       labs(
         title = "IMRS_z by condition across passing contrasts",
         x = "Condition",
-        y = "IMRS_z"
+        y = "IMRS_z",
+        fill = "Dataset type"
       )
     save_plot_both(p6, file.path(fig_dir, "06_imrsz_by_condition"), 7, 6)
   }
@@ -650,7 +697,7 @@ if (nrow(plot_df) > 0) {
   if (nrow(top_df) > 0) {
     p7 <- ggplot(
       top_df,
-      aes(x = reorder(split_id, delta_mean_imrs_z), y = delta_mean_imrs_z)
+      aes(x = reorder(split_id, delta_mean_imrs_z), y = delta_mean_imrs_z, fill = dataset_type)
     ) +
       geom_col() +
       coord_flip() +
@@ -658,20 +705,22 @@ if (nrow(plot_df) > 0) {
       labs(
         title = "Top calibration contrasts by delta IMRS_z",
         x = "Split contrast",
-        y = "Delta mean IMRS_z"
+        y = "Delta mean IMRS_z",
+        fill = "Dataset type"
       )
     save_plot_both(p7, file.path(fig_dir, "07_top_contrasts_delta"), 10, 8)
   }
 
   # 8. Delta by GSE
-  p8 <- ggplot(plot_df, aes(x = gse_id, y = delta_mean_imrs_z)) +
+  p8 <- ggplot(plot_df, aes(x = gse_id, y = delta_mean_imrs_z, fill = dataset_type)) +
     geom_boxplot() +
     geom_hline(yintercept = 0, linetype = "dashed") +
     theme_bw() +
     labs(
       title = "Delta mean IMRS_z by GSE",
       x = "GSE",
-      y = "Delta mean IMRS_z"
+      y = "Delta mean IMRS_z",
+      fill = "Dataset type"
     )
   save_plot_both(p8, file.path(fig_dir, "08_delta_by_gse"), 8, 6)
 
@@ -680,16 +729,46 @@ if (nrow(plot_df) > 0) {
     filter(is.finite(cohens_d_imrs_z), is.finite(delta_mean_imrs_z))
 
   if (nrow(effect_df) > 0) {
-    p9 <- ggplot(effect_df, aes(x = delta_mean_imrs_z, y = cohens_d_imrs_z)) +
+    p9 <- ggplot(effect_df, aes(x = delta_mean_imrs_z, y = cohens_d_imrs_z, color = dataset_type)) +
       geom_point() +
       geom_vline(xintercept = 0, linetype = "dashed") +
       theme_bw() +
       labs(
         title = "Effect size versus delta",
         x = "Delta mean IMRS_z",
-        y = "Cohen's d"
+        y = "Cohen's d",
+        color = "Dataset type"
       )
     save_plot_both(p9, file.path(fig_dir, "09_effect_size_vs_delta"), 8, 6)
+  }
+
+  # 10. Delta by dataset type
+  p10 <- ggplot(plot_df, aes(x = dataset_type, y = delta_mean_imrs_z, fill = dataset_type)) +
+    geom_boxplot() +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    theme_bw() +
+    labs(
+      title = "Delta mean IMRS_z by dataset type",
+      x = "Dataset type",
+      y = "Delta mean IMRS_z",
+      fill = "Dataset type"
+    )
+  save_plot_both(p10, file.path(fig_dir, "10_delta_by_dataset_type"), 7, 6)
+
+  # 11. AUC by dataset type
+  auc_type_df <- plot_df %>% filter(is.finite(auc_imrs_z))
+  if (nrow(auc_type_df) > 0) {
+    p11 <- ggplot(auc_type_df, aes(x = dataset_type, y = auc_imrs_z, fill = dataset_type)) +
+      geom_boxplot() +
+      geom_hline(yintercept = 0.5, linetype = "dashed") +
+      theme_bw() +
+      labs(
+        title = "AUC by dataset type",
+        x = "Dataset type",
+        y = "AUC",
+        fill = "Dataset type"
+      )
+    save_plot_both(p11, file.path(fig_dir, "11_auc_by_dataset_type"), 7, 6)
   }
 }
 
@@ -707,7 +786,7 @@ print(
   eval_tbl %>%
     filter(pass) %>%
     arrange(desc(delta_mean_imrs_z)) %>%
-    select(gse_id, split_id, tissue, time_h, n_controls, n_delivery,
+    select(dataset_type, gse_id, split_id, tissue, time_h, n_controls, n_delivery,
            delta_mean_imrs_z, auc_imrs_z) %>%
     head(20)
 )

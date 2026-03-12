@@ -24,7 +24,7 @@ suppressPackageStartupMessages({
 # ============================
 # USER SETTINGS (Windows)
 # ============================
-in_dir  <- "C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata"
+in_dir  <- "D:/IMRS_Project/00_metadata/verified_metadata"
 out_dir <- file.path(in_dir, "splited")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 
