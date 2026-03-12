@@ -223,12 +223,28 @@ Consistent increases in both metrics indicate stable biological signal.
 # 8.\ Top contrasts by performance
 
 ```{r top-contrasts}
+# Select the single best-performing contrast from each dataset
 top_contrasts <- pass_eval %>%
-  distinct(dataset_type, gse_id, split_id, tissue, time_h,
-           n_controls, n_delivery,
-           delta_mean_imrs_z, auc_imrs_z) %>%
+  group_by(gse_id) %>%
+  slice_max(
+    order_by = delta_mean_imrs_z,
+    n = 1,
+    with_ties = FALSE
+  ) %>%
+  ungroup() %>%
   arrange(desc(delta_mean_imrs_z)) %>%
-  slice_head(n=15)
+  select(
+    dataset_type,
+    gse_id,
+    split_id,
+    tissue,
+    time_h,
+    n_controls,
+    n_delivery,
+    delta_mean_imrs_z,
+    auc_imrs_z
+  ) %>%
+  slice_head(n = 15)
 
 top_contrasts
 ```
@@ -236,29 +252,125 @@ top_contrasts
 # 9.\ Top weighted genes in IMRS
 
 ```{r top-genes-prepare}
-if("gene_symbol" %in% names(weights_tbl)){
+# install/load biomaRt only if needed
+if (!requireNamespace("biomaRt", quietly = TRUE)) {
+  if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+  }
+  BiocManager::install("biomaRt", ask = FALSE, update = FALSE)
+}
+
+library(biomaRt)
+
+mapping_file <- file.path(project_root, "05_score/anchors/gene_symbol_mapping.tsv")
+
+# determine gene column
+if ("gene_symbol" %in% names(weights_tbl)) {
   gene_col <- "gene_symbol"
   note <- "Gene symbols"
-} else if("gene_id" %in% names(weights_tbl)){
+} else if ("gene_id" %in% names(weights_tbl)) {
   gene_col <- "gene_id"
-  note <- "Ensembl IDs"
-} else if("gene" %in% names(weights_tbl)){
+  note <- "Mapped from Ensembl IDs"
+} else if ("gene" %in% names(weights_tbl)) {
   gene_col <- "gene"
   note <- "Generic gene column"
-} else{
+} else {
   stop("weights file missing gene column")
 }
 
-if(!"beta_meta" %in% names(weights_tbl)){
+if (!"beta_meta" %in% names(weights_tbl)) {
   stop("weights file missing beta_meta")
 }
 
 top_genes <- weights_tbl %>%
-  mutate(gene_label = .data[[gene_col]]) %>%
-  arrange(desc(abs(beta_meta))) %>%
-  slice_head(n=25)
+  dplyr::mutate(
+    gene_id_raw = as.character(.data[[gene_col]]),
+    gene_id_clean = sub("\\..*$", "", gene_id_raw)
+  ) %>%
+  dplyr::arrange(desc(abs(beta_meta))) %>%
+  dplyr::slice_head(n = 25)
 
-top_genes %>% select(gene_label, beta_meta)
+download_mouse_mapping <- function(gene_ids) {
+  mart <- useEnsembl(
+    biomart = "genes",
+    dataset = "mmusculus_gene_ensembl"
+  )
+
+  mapping <- getBM(
+    attributes = c("ensembl_gene_id", "mgi_symbol"),
+    filters = "ensembl_gene_id",
+    values = unique(gene_ids),
+    mart = mart
+  )
+
+  mapping %>%
+    dplyr::mutate(
+      ensembl_gene_id = as.character(ensembl_gene_id),
+      mgi_symbol = as.character(mgi_symbol)
+    )
+}
+
+is_ensembl <- any(grepl("^ENS", top_genes$gene_id_clean))
+
+if (is_ensembl) {
+
+  need_redownload <- TRUE
+
+  if (file.exists(mapping_file)) {
+    mapping_try <- tryCatch(
+      read_tsv(mapping_file, show_col_types = FALSE),
+      error = function(e) NULL
+    )
+
+    if (!is.null(mapping_try) &&
+        all(c("ensembl_gene_id", "mgi_symbol") %in% names(mapping_try))) {
+
+      mapping_try <- mapping_try %>%
+        dplyr::mutate(
+          ensembl_gene_id = as.character(ensembl_gene_id),
+          mgi_symbol = as.character(mgi_symbol)
+        )
+
+      if (nrow(mapping_try) > 0 &&
+          any(!is.na(mapping_try$ensembl_gene_id)) &&
+          any(mapping_try$ensembl_gene_id != "")) {
+        mapping <- mapping_try
+        need_redownload <- FALSE
+      }
+    }
+  }
+
+  if (need_redownload) {
+    all_gene_ids_clean <- weights_tbl[[gene_col]] %>%
+      as.character() %>%
+      sub("\\..*$", "", .)
+
+    mapping <- download_mouse_mapping(all_gene_ids_clean)
+    dir.create(dirname(mapping_file), recursive = TRUE, showWarnings = FALSE)
+    write_tsv(mapping, mapping_file)
+  }
+
+  top_genes <- top_genes %>%
+    dplyr::left_join(
+      mapping,
+      by = c("gene_id_clean" = "ensembl_gene_id")
+    ) %>%
+    dplyr::mutate(
+      gene_label = ifelse(
+        is.na(mgi_symbol) | mgi_symbol == "",
+        gene_id_clean,
+        mgi_symbol
+      )
+    )
+
+} else {
+
+  top_genes <- top_genes %>%
+    dplyr::mutate(gene_label = gene_id_raw)
+}
+
+top_genes %>%
+  dplyr::select(gene_id_raw, gene_id_clean, gene_label, beta_meta)
 ```
 
 ```{r top-genes-plot, fig.width=8, fig.height=7}
@@ -270,14 +382,14 @@ ggplot(
   coord_flip() +
   theme_classic() +
   labs(
-    title="Top weighted IMRS genes",
-    subtitle=note,
-    x="Gene",
-    y="Meta-weight"
+    title = "Top weighted IMRS genes",
+    subtitle = note,
+    x = "Gene",
+    y = "Meta-weight"
   )
 ```
 
-Mapping these IDs to gene symbols is required to confirm enrichment of canonical interferon and innate immune genes.
+The highest-weighted IMRS genes include canonical interferon-stimulated and inflammatory response genes such as *Ifit1, Ifit3, Mx2, Cxcl10, Cxcl11, Ccl2, Ccl7, Gbp10, Gbp11,* and *Acod1*. This strongly supports the biological interpretation that IMRS captures delivery-associated innate immune activation rather than an arbitrary technical signal.
 
 # 10.\ Mean performance by dataset
 
