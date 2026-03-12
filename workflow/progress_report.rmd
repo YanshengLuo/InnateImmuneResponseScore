@@ -18,6 +18,85 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(tidyr)
+
+# ------------------------------
+# Global plotting style
+# ------------------------------
+
+# Professional color palette
+imrs_palette <- c(
+  anchor = "#4C78A8",
+  external = "#F58518"
+)
+
+condition_palette <- c(
+  CONTROL = "#9AA0A6",
+  DELIVERY = "#D64D4D"
+)
+
+# Global ggplot theme
+theme_set(
+  theme_classic(base_size = 12) +
+    theme(
+      plot.title = element_text(
+        size = 14,
+        face = "bold",
+        hjust = 0
+      ),
+      plot.subtitle = element_text(
+        size = 11
+      ),
+      axis.title = element_text(
+        size = 12,
+        face = "bold"
+      ),
+      axis.text = element_text(
+        size = 10
+      ),
+      legend.title = element_text(
+        size = 11,
+        face = "bold"
+      ),
+      legend.text = element_text(
+        size = 10
+      ),
+      legend.position = "right",
+      panel.border = element_blank(),
+      axis.line = element_line(linewidth = 0.6),
+      plot.margin = margin(10, 12, 10, 10)
+    )
+)
+
+# Make reference lines look cleaner
+update_geom_defaults(
+  "vline",
+  list(color = "grey40", linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "hline",
+  list(color = "grey40", linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "point",
+  list(size = 2.4)
+)
+
+update_geom_defaults(
+  "line",
+  list(linewidth = 1)
+)
+
+update_geom_defaults(
+  "errorbarh",
+  list(linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "col",
+  list(fill = "#4C78A8")
+)
 ```
 
 # 1.\ Overview
@@ -127,6 +206,31 @@ ggplot(
 ```
 
 A right-shifted distribution supports the hypothesis that delivery activates innate immune pathways captured by IMRS.
+
+# 3B. Contrast-level effects by dataset
+
+This plot shows each DELIVERY–CONTROL contrast individually.  
+Large vertical spread within a dataset indicates heterogeneous biological responses.
+
+```{r contrast-scatter, fig.width=8, fig.height=6}
+ggplot(
+  pass_eval,
+  aes(
+    x = delta_mean_imrs_z,
+    y = reorder(gse_id, delta_mean_imrs_z, FUN = median),
+    color = dataset_type
+  )
+) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    title = "Contrast-level IMRS activation across datasets",
+    x = expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
+    y = "Dataset (GSE ID)",
+    color = "Dataset type"
+  )
+```
 
 # 4.\ Anchor versus external datasets
 
