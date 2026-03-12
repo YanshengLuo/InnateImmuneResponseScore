@@ -1,0 +1,452 @@
+---
+title: "IMRS Step 09 Evaluation Report"
+author: "Yansheng Luo"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  tidy = TRUE,
+  tidy.opts = list(width.cutoff = 70),
+  warning = FALSE,
+  message = FALSE
+)
+
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(stringr)
+library(tidyr)
+```
+
+# 1.\ Overview
+
+This report summarizes the biological and cross-dataset performance of the Innate Immune Response Score (IMRS) using the Step 09 split-contrast evaluation outputs.
+
+Main questions:
+
+1. Does IMRS separate DELIVERY from CONTROL samples?
+2. Does the score generalize beyond anchor datasets?
+3. Are the frozen score weights biologically plausible?
+
+The analysis below uses Step 09 evaluation tables and the frozen anchor gene weights.
+
+```{r load-data}
+project_root <- "D:/IMRS_Project"
+
+eval_tbl <- read_tsv(file.path(project_root, "05_score/transfer/eval/step09_split_eval.tsv"))
+summary_tbl <- read_tsv(file.path(project_root, "05_score/transfer/eval/step09_split_summary.tsv"))
+sample_tbl <- read_tsv(file.path(project_root, "05_score/transfer/eval/step09_split_sample_level.tsv"))
+weights_tbl <- read_tsv(file.path(project_root, "05_score/anchors/gene_weights.tsv"))
+```
+
+```{r checks}
+required_eval_cols <- c(
+  "pass","dataset_type","gse_id","split_id",
+  "delta_mean_imrs_z","auc_imrs_z"
+)
+
+missing_eval <- setdiff(required_eval_cols, names(eval_tbl))
+
+if(length(missing_eval) > 0){
+  stop("eval_tbl missing columns: ", paste(missing_eval, collapse=", "))
+}
+
+if(!"imrs_z" %in% names(sample_tbl)){
+  stop("sample_tbl must contain imrs_z")
+}
+
+if(!"condition_simple" %in% names(sample_tbl)){
+  stop("sample_tbl must contain condition_simple")
+}
+```
+
+```{r derive-passing-data}
+pass_eval <- eval_tbl %>%
+  filter(pass)
+
+join_keys <- intersect(c("gse_id","split_id","dataset_type"), names(sample_tbl))
+
+if(length(join_keys) >= 2){
+  pass_sample_tbl <- sample_tbl %>%
+    inner_join(
+      pass_eval %>% select(all_of(join_keys)) %>% distinct(),
+      by = join_keys
+    )
+} else {
+  pass_sample_tbl <- sample_tbl
+}
+```
+
+# 2.\ Basic summary statistics
+
+We summarize overall Step 09 performance across passing contrasts.
+
+```{r overall-summary}
+overall_stats <- pass_eval %>%
+  summarise(
+    n_contrasts = n(),
+    mean_delta = mean(delta_mean_imrs_z, na.rm=TRUE),
+    median_delta = median(delta_mean_imrs_z, na.rm=TRUE),
+    prop_positive_delta = mean(delta_mean_imrs_z > 0, na.rm=TRUE),
+    mean_auc = mean(auc_imrs_z, na.rm=TRUE),
+    median_auc = median(auc_imrs_z, na.rm=TRUE)
+  )
+
+overall_stats
+```
+
+Positive `delta_mean_imrs_z` indicates DELIVERY samples have higher IMRS scores than CONTROL samples.  
+AUC values above 0.5 indicate separation ability.
+
+# 3.\ Distribution of effect size across contrasts
+
+Primary metric:
+
+\[
+\Delta IMRS_z =
+\overline{IMRS_z(DELIVERY)} -
+\overline{IMRS_z(CONTROL)}
+\]
+
+```{r delta-distribution, fig.width=8, fig.height=5}
+ggplot(
+  pass_eval,
+  aes(x = delta_mean_imrs_z, fill = dataset_type)
+) +
+  geom_histogram(bins = 30, alpha = 0.7, position="identity") +
+  geom_vline(xintercept = 0, linetype="dashed") +
+  theme_classic() +
+  labs(
+    title="Distribution of IMRS activation effect size",
+    x=expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
+    y="Number of contrasts",
+    fill="Dataset type"
+  )
+```
+
+A right-shifted distribution supports the hypothesis that delivery activates innate immune pathways captured by IMRS.
+
+# 4.\ Anchor versus external datasets
+
+```{r anchor-summary}
+anchor_external_stats <- pass_eval %>%
+  group_by(dataset_type) %>%
+  summarise(
+    n_contrasts = n(),
+    mean_delta = mean(delta_mean_imrs_z, na.rm=TRUE),
+    median_delta = median(delta_mean_imrs_z, na.rm=TRUE),
+    prop_positive_delta = mean(delta_mean_imrs_z > 0, na.rm=TRUE),
+    mean_auc = mean(auc_imrs_z, na.rm=TRUE),
+    median_auc = median(auc_imrs_z, na.rm=TRUE),
+    .groups="drop"
+  )
+
+anchor_external_stats
+```
+
+```{r anchor-vs-external, fig.width=7, fig.height=5}
+ggplot(
+  pass_eval,
+  aes(x = dataset_type, y = delta_mean_imrs_z, fill = dataset_type)
+) +
+  geom_boxplot(alpha=0.8) +
+  geom_hline(yintercept = 0, linetype="dashed") +
+  theme_classic() +
+  labs(
+    title="IMRS activation in anchor versus external datasets",
+    x="Dataset type",
+    y=expression(Delta*" mean IMRS"[z])
+  )
+```
+
+Anchors are expected to show stronger effects because they contributed to score construction.
+
+# 5.\ Classification performance across contrasts
+
+```{r auc-distribution, fig.width=8, fig.height=5}
+ggplot(
+  pass_eval %>% filter(is.finite(auc_imrs_z)),
+  aes(x = auc_imrs_z, fill = dataset_type)
+) +
+  geom_histogram(bins=30, alpha=0.7, position="identity") +
+  geom_vline(xintercept=0.5, linetype="dashed") +
+  theme_classic() +
+  labs(
+    title="AUC distribution across contrasts",
+    x="AUC",
+    y="Number of contrasts",
+    fill="Dataset type"
+  )
+```
+
+High AUC indicates strong classification ability. However, small sample sizes may inflate AUC values.
+
+# 6.\ Sample-level score separation
+
+```{r sample-level-separation, fig.width=7, fig.height=5}
+ggplot(
+  pass_sample_tbl %>% filter(condition_simple %in% c("CONTROL","DELIVERY")),
+  aes(x = condition_simple, y = imrs_z, fill = condition_simple)
+) +
+  geom_boxplot(alpha=0.8) +
+  theme_classic() +
+  labs(
+    title="Sample-level IMRS separation",
+    x="Condition",
+    y=expression("IMRS "*z*"-score")
+  )
+```
+
+This shows whether DELIVERY samples tend to have higher IMRS scores than CONTROL samples across the evaluation cohort.
+
+# 7.\ Effect size versus classification strength
+
+```{r delta-vs-auc, fig.width=7, fig.height=5}
+ggplot(
+  pass_eval %>% filter(is.finite(delta_mean_imrs_z), is.finite(auc_imrs_z)),
+  aes(x = delta_mean_imrs_z, y = auc_imrs_z, color = dataset_type)
+) +
+  geom_point(size=2, alpha=0.8) +
+  theme_classic() +
+  labs(
+    title="Effect size vs classification accuracy",
+    x=expression(Delta*" mean IMRS"[z]),
+    y="AUC",
+    color="Dataset type"
+  )
+```
+
+Consistent increases in both metrics indicate stable biological signal.
+
+# 8.\ Top contrasts by performance
+
+```{r top-contrasts}
+top_contrasts <- pass_eval %>%
+  distinct(dataset_type, gse_id, split_id, tissue, time_h,
+           n_controls, n_delivery,
+           delta_mean_imrs_z, auc_imrs_z) %>%
+  arrange(desc(delta_mean_imrs_z)) %>%
+  slice_head(n=15)
+
+top_contrasts
+```
+
+# 9.\ Top weighted genes in IMRS
+
+```{r top-genes-prepare}
+if("gene_symbol" %in% names(weights_tbl)){
+  gene_col <- "gene_symbol"
+  note <- "Gene symbols"
+} else if("gene_id" %in% names(weights_tbl)){
+  gene_col <- "gene_id"
+  note <- "Ensembl IDs"
+} else if("gene" %in% names(weights_tbl)){
+  gene_col <- "gene"
+  note <- "Generic gene column"
+} else{
+  stop("weights file missing gene column")
+}
+
+if(!"beta_meta" %in% names(weights_tbl)){
+  stop("weights file missing beta_meta")
+}
+
+top_genes <- weights_tbl %>%
+  mutate(gene_label = .data[[gene_col]]) %>%
+  arrange(desc(abs(beta_meta))) %>%
+  slice_head(n=25)
+
+top_genes %>% select(gene_label, beta_meta)
+```
+
+```{r top-genes-plot, fig.width=8, fig.height=7}
+ggplot(
+  top_genes,
+  aes(x = reorder(gene_label, beta_meta), y = beta_meta)
+) +
+  geom_col() +
+  coord_flip() +
+  theme_classic() +
+  labs(
+    title="Top weighted IMRS genes",
+    subtitle=note,
+    x="Gene",
+    y="Meta-weight"
+  )
+```
+
+Mapping these IDs to gene symbols is required to confirm enrichment of canonical interferon and innate immune genes.
+
+# 10.\ Mean performance by dataset
+
+```{r dataset-summary}
+dataset_summary <- summary_tbl %>%
+  arrange(desc(mean_delta_mean_imrs_z))
+
+dataset_summary
+```
+
+Datasets with weaker or negative signal should be examined individually.
+
+# 11.\ Forest-style summary by dataset
+
+This plot summarizes average effect size by dataset with approximate 95% confidence intervals across passing contrasts.
+
+```{r forest-dataset-plot, fig.width=8, fig.height=6}
+dataset_forest <- pass_eval %>%
+  group_by(gse_id, dataset_type) %>%
+  summarise(
+    n_contrasts = n(),
+    mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE),
+    sd_delta = sd(delta_mean_imrs_z, na.rm = TRUE),
+    se_delta = sd_delta / sqrt(n_contrasts),
+    lower = mean_delta - 1.96 * se_delta,
+    upper = mean_delta + 1.96 * se_delta,
+    .groups = "drop"
+  ) %>%
+  arrange(mean_delta)
+
+dataset_forest$gse_id <- factor(
+  dataset_forest$gse_id,
+  levels = unique(dataset_forest$gse_id)
+)
+
+ggplot(
+  dataset_forest,
+  aes(x = mean_delta, y = gse_id, color = dataset_type)
+) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_errorbarh(aes(xmin = lower, xmax = upper), height = 0.2) +
+  geom_point(size = 2.5) +
+  theme_classic() +
+  labs(
+    title = "Mean IMRS effect size by dataset",
+    x = expression("Mean " * Delta * " IMRS"[z] * " with 95% CI"),
+    y = "Dataset",
+    color = "Dataset type"
+  )
+```
+
+This plot makes it easier to see which datasets consistently support the score and which datasets are closer to zero.
+
+# 12.\ Distribution of gene weights
+
+This plot shows the global distribution of frozen IMRS weights.
+
+```{r gene-weight-distribution, fig.width=8, fig.height=5}
+ggplot(
+  weights_tbl,
+  aes(x = beta_meta)
+) +
+  geom_histogram(bins = 40, alpha = 0.8) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    title = "Distribution of frozen IMRS gene weights",
+    x = "Meta-weight",
+    y = "Number of genes"
+  )
+```
+
+A roughly centered distribution with tails in both directions is expected for a weighted score, while very extreme skew could indicate instability or over-dominance by a small number of genes.
+
+# 13.\ Example ROC curve
+
+If sample-level truth labels are available, we can plot one example ROC curve for the best-performing passing contrast.
+
+```{r roc-example-prepare}
+roc_ready <- all(c("gse_id","split_id","condition_simple","imrs_z") %in% names(pass_sample_tbl))
+
+if(roc_ready){
+  best_row <- pass_eval %>%
+    filter(is.finite(auc_imrs_z)) %>%
+    arrange(desc(auc_imrs_z), desc(delta_mean_imrs_z)) %>%
+    slice(1)
+
+  roc_df <- pass_sample_tbl %>%
+    filter(
+      gse_id == best_row$gse_id,
+      split_id == best_row$split_id,
+      condition_simple %in% c("CONTROL","DELIVERY")
+    ) %>%
+    mutate(
+      truth = ifelse(condition_simple == "DELIVERY", 1, 0)
+    ) %>%
+    filter(is.finite(imrs_z))
+}
+```
+
+```{r roc-example-plot, fig.width=6, fig.height=6}
+if(roc_ready && exists("roc_df") && nrow(roc_df) > 2 && length(unique(roc_df$truth)) == 2){
+
+  thresholds <- sort(unique(roc_df$imrs_z), decreasing = TRUE)
+
+  roc_curve <- lapply(thresholds, function(thr){
+    pred <- ifelse(roc_df$imrs_z >= thr, 1, 0)
+    tp <- sum(pred == 1 & roc_df$truth == 1)
+    fp <- sum(pred == 1 & roc_df$truth == 0)
+    tn <- sum(pred == 0 & roc_df$truth == 0)
+    fn <- sum(pred == 0 & roc_df$truth == 1)
+
+    tibble(
+      threshold = thr,
+      tpr = ifelse((tp + fn) > 0, tp / (tp + fn), NA_real_),
+      fpr = ifelse((fp + tn) > 0, fp / (fp + tn), NA_real_)
+    )
+  }) %>%
+    bind_rows() %>%
+    distinct(fpr, tpr, .keep_all = TRUE) %>%
+    arrange(fpr, tpr)
+
+  roc_curve <- bind_rows(
+    tibble(threshold = Inf, fpr = 0, tpr = 0),
+    roc_curve,
+    tibble(threshold = -Inf, fpr = 1, tpr = 1)
+  ) %>%
+    distinct(fpr, tpr, .keep_all = TRUE) %>%
+    arrange(fpr, tpr)
+
+  ggplot(roc_curve, aes(x = fpr, y = tpr)) +
+    geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+    geom_line(linewidth = 1) +
+    geom_point(size = 1.5) +
+    coord_equal() +
+    theme_classic() +
+    labs(
+      title = paste0("Example ROC curve: ", best_row$gse_id, " / ", best_row$split_id),
+      x = "False positive rate",
+      y = "True positive rate"
+    )
+
+} else {
+  plot.new()
+  text(0.5, 0.5, "ROC example unavailable:\nrequired sample-level columns or class balance missing.")
+}
+```
+
+This example provides a visual demonstration of classification behavior for one of the strongest passing contrasts.
+
+# 14.\ Caveats
+
+Key limitations:
+
+1. Some contrasts have small sample sizes.
+2. AUC can be unstable with small N.
+3. External datasets may vary in delivery method and tissue context.
+4. Gene identifiers in the weights table require mapping to symbols for biological interpretation.
+
+# 15.\ Conclusion
+
+The Step 09 evaluation suggests that IMRS captures delivery-associated innate immune activation across multiple studies.
+
+Supporting evidence includes:
+
+1. Most contrasts show positive effect size.
+2. Many contrasts show AUC above 0.5.
+3. DELIVERY samples tend to have higher IMRS scores than CONTROL samples.
+4. External datasets retain detectable signal.
+
+Overall, IMRS appears technically functional and shows promising transferability across datasets, although further biological validation is required.
+```
