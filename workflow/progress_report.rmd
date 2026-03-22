@@ -234,6 +234,31 @@ ggplot(
   )
 ```
 
+# 3B. Contrast-level effects by dataset
+
+This plot shows each DELIVERY–CONTROL contrast individually.  
+Large vertical spread within a dataset indicates heterogeneous biological responses.
+
+```{r contrast-scatter, fig.width=8, fig.height=6}
+ggplot(
+  pass_eval,
+  aes(
+    x = delta_mean_imrs_z,
+    y = reorder(gse_id, delta_mean_imrs_z, FUN = median),
+    color = dataset_type
+  )
+) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    title = "Contrast-level IMRS activation across datasets",
+    x = expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
+    y = "Dataset (GSE ID)",
+    color = "Dataset type"
+  )
+```
+
 # 4.\ Anchor versus external datasets
 
 ```{r anchor-summary}
