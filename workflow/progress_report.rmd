@@ -18,6 +18,85 @@ library(dplyr)
 library(ggplot2)
 library(stringr)
 library(tidyr)
+
+# ------------------------------
+# Global plotting style
+# ------------------------------
+
+# Professional color palette
+imrs_palette <- c(
+  anchor = "#4C78A8",
+  external = "#F58518"
+)
+
+condition_palette <- c(
+  CONTROL = "#9AA0A6",
+  DELIVERY = "#D64D4D"
+)
+
+# Global ggplot theme
+theme_set(
+  theme_classic(base_size = 12) +
+    theme(
+      plot.title = element_text(
+        size = 14,
+        face = "bold",
+        hjust = 0
+      ),
+      plot.subtitle = element_text(
+        size = 11
+      ),
+      axis.title = element_text(
+        size = 12,
+        face = "bold"
+      ),
+      axis.text = element_text(
+        size = 10
+      ),
+      legend.title = element_text(
+        size = 11,
+        face = "bold"
+      ),
+      legend.text = element_text(
+        size = 10
+      ),
+      legend.position = "right",
+      panel.border = element_blank(),
+      axis.line = element_line(linewidth = 0.6),
+      plot.margin = margin(10, 12, 10, 10)
+    )
+)
+
+# Make reference lines look cleaner
+update_geom_defaults(
+  "vline",
+  list(color = "grey40", linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "hline",
+  list(color = "grey40", linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "point",
+  list(size = 2.4)
+)
+
+update_geom_defaults(
+  "line",
+  list(linewidth = 1)
+)
+
+update_geom_defaults(
+  "errorbarh",
+  list(linewidth = 0.7)
+)
+
+update_geom_defaults(
+  "col",
+  list(fill = "#4C78A8")
+)
 ```
 
 # 1.\ Overview
@@ -64,14 +143,14 @@ if(!"condition_simple" %in% names(sample_tbl)){
 
 ```{r derive-passing-data}
 pass_eval <- eval_tbl %>%
-  filter(pass)
+  dplyr::filter(pass)
 
 join_keys <- intersect(c("gse_id","split_id","dataset_type"), names(sample_tbl))
 
 if(length(join_keys) >= 2){
   pass_sample_tbl <- sample_tbl %>%
-    inner_join(
-      pass_eval %>% select(all_of(join_keys)) %>% distinct(),
+    dplyr::inner_join(
+      pass_eval %>% dplyr::select(all_of(join_keys)) %>% dplyr::distinct(),
       by = join_keys
     )
 } else {
@@ -111,22 +190,49 @@ Primary metric:
 \]
 
 ```{r delta-distribution, fig.width=8, fig.height=5}
+
 ggplot(
   pass_eval,
   aes(x = delta_mean_imrs_z, fill = dataset_type)
 ) +
-  geom_histogram(bins = 30, alpha = 0.7, position="identity") +
-  geom_vline(xintercept = 0, linetype="dashed") +
-  theme_classic() +
+  geom_histogram(bins = 30, alpha = 0.8, color = "black") +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  facet_wrap(~ dataset_type, scales = "free_y") +
+  scale_fill_manual(values = imrs_palette) +
   labs(
-    title="Distribution of IMRS activation effect size",
-    x=expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
-    y="Number of contrasts",
-    fill="Dataset type"
+    title = "Distribution of IMRS activation effect size",
+    subtitle = "Anchor and external datasets shown separately",
+    x = expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
+    y = "Number of contrasts"
   )
 ```
 
-A right-shifted distribution supports the hypothesis that delivery activates innate immune pathways captured by IMRS.
+Anchor datasets contributed to construction of the IMRS score and therefore represent in-sample behavior. External datasets provide a more stringent test of score transferability. Separating the two groups avoids overstating generalization performance and makes differences between training and validation datasets easier to interpret.
+
+# 3B. Contrast-level effects by dataset
+
+This plot shows each DELIVERY–CONTROL contrast individually.  
+Large vertical spread within a dataset indicates heterogeneous biological responses.
+
+```{r contrast-scatter, fig.width=8, fig.height=6}
+ggplot(
+  pass_eval,
+  aes(
+    x = delta_mean_imrs_z,
+    y = reorder(gse_id, delta_mean_imrs_z, FUN = median),
+    color = dataset_type
+  )
+) +
+  geom_point(alpha = 0.7, size = 2) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  theme_classic() +
+  labs(
+    title = "Contrast-level IMRS activation across datasets",
+    x = expression(Delta*" mean IMRS"[z]*" (DELIVERY - CONTROL)"),
+    y = "Dataset (GSE ID)",
+    color = "Dataset type"
+  )
+```
 
 # 4.\ Anchor versus external datasets
 
@@ -170,7 +276,7 @@ ggplot(
   pass_eval %>% filter(is.finite(auc_imrs_z)),
   aes(x = auc_imrs_z, fill = dataset_type)
 ) +
-  geom_histogram(bins=30, alpha=0.7, position="identity") +
+  geom_histogram(bins=30, alpha=0.7, position="dodge") +
   geom_vline(xintercept=0.5, linetype="dashed") +
   theme_classic() +
   labs(
@@ -183,42 +289,68 @@ ggplot(
 
 High AUC indicates strong classification ability. However, small sample sizes may inflate AUC values.
 
-# 6.\ Sample-level score separation
+# 6.\ dataset-level score separation
 
-```{r sample-level-separation, fig.width=7, fig.height=5}
+```{r dataset-level-separation, fig.width=8, fig.height=6}
+
+
+dataset_sep <- pass_eval %>%
+  dplyr::group_by(gse_id, dataset_type) %>%
+  dplyr::summarise(
+    mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE),
+    .groups = "drop"
+  )
+
 ggplot(
-  pass_sample_tbl %>% filter(condition_simple %in% c("CONTROL","DELIVERY")),
-  aes(x = condition_simple, y = imrs_z, fill = condition_simple)
+  dataset_sep,
+  aes(x = mean_delta, y = reorder(gse_id, mean_delta), fill = dataset_type)
 ) +
-  geom_boxplot(alpha=0.8) +
+  geom_col(width = 0.7, color = "black", linewidth = 0.2) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  scale_fill_manual(values = imrs_palette) +
   theme_classic() +
   labs(
-    title="Sample-level IMRS separation",
-    x="Condition",
-    y=expression("IMRS "*z*"-score")
+    title = "Dataset-level IMRS separation",
+    subtitle = "Average DELIVERY minus CONTROL score difference per dataset",
+    x = expression("Mean " * Delta * " IMRS"[z]),
+    y = "Dataset",
+    fill = "Dataset type"
   )
 ```
 
-This shows whether DELIVERY samples tend to have higher IMRS scores than CONTROL samples across the evaluation cohort.
+Because IMRS values are standardized within each dataset using dataset-specific control samples, absolute sample-level values are not directly comparable across studies. For this reason, pooled sample-level boxplots were replaced with a dataset-level summary of DELIVERY–CONTROL separation. Positive values indicate higher IMRS activation in DELIVERY samples within the same dataset.
 
 # 7.\ Effect size versus classification strength
 
 ```{r delta-vs-auc, fig.width=7, fig.height=5}
+scatter_df <- pass_eval %>%
+  filter(is.finite(delta_mean_imrs_z), is.finite(auc_imrs_z)) %>%
+  mutate(sample_size = n_controls + n_delivery)
+
 ggplot(
-  pass_eval %>% filter(is.finite(delta_mean_imrs_z), is.finite(auc_imrs_z)),
-  aes(x = delta_mean_imrs_z, y = auc_imrs_z, color = dataset_type)
+  scatter_df,
+  aes(
+    x = delta_mean_imrs_z,
+    y = auc_imrs_z,
+    color = dataset_type,
+    size = sqrt(sample_size)
+  )
 ) +
-  geom_point(size=2, alpha=0.8) +
-  theme_classic() +
+  geom_point(alpha = 0.85) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  facet_wrap(~ dataset_type) +
+  scale_color_manual(values = imrs_palette) +
   labs(
-    title="Effect size vs classification accuracy",
-    x=expression(Delta*" mean IMRS"[z]),
-    y="AUC",
-    color="Dataset type"
+    title = "Effect size vs classification accuracy",
+    subtitle = "Anchor and external datasets shown separately",
+    x = expression(Delta*" mean IMRS"[z]),
+    y = "AUC",
+    size = "sqrt(sample size)"
   )
 ```
 
-Consistent increases in both metrics indicate stable biological signal.
+Both effect size ($\Delta \mathrm{IMRS}_z$) and AUC measure separation between DELIVERY and CONTROL samples. Faceting by dataset type allows direct comparison between anchor datasets used during score construction and independent external datasets used for validation. Point size reflects total sample size, highlighting contrasts supported by larger datasets.
 
 # 8.\ Top contrasts by performance
 
