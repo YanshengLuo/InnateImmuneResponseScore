@@ -1,0 +1,13 @@
+dataset_id	dataset_class	organism	tissue	assay_type	time_hr	treatment_type	grouping_variable	include_in_analysis	notes
+GSE139529	external	mouse	blood	bulk_rnaseq	24	vaccine	group	TRUE	external dataset
+GSE166655	external	mouse	Tibialis anterior	bulk_rnaseq	672	LNP	group	TRUE	external dataset
+GSE167521	anchor	mouse	skin	bulk_rnaseq	24	LNP	group	TRUE	skin LNP anchor
+GSE178313	external	mouse	Liver	bulk_rnaseq	48	unknown	group	TRUE	external dataset
+GSE190850	transfer	human	BALF	bulk_rnaseq	NA	adenovirus	group	TRUE	human transfer dataset
+GSE237068	external	mouse	NA	bulk_rnaseq	NA	unknown	group	TRUE	external dataset
+GSE262515	external	mouse	mixed	bulk_rnaseq	72	LNP	group	TRUE	secondary liver LNP dataset
+GSE264344	anchor	mouse	mixed	bulk_rnaseq	NA	adenovirus	group	TRUE	adenovirus anchor
+GSE279372	external	mouse	draining lymph nodes	bulk_rnaseq	24	LNP	group	TRUE	external validation dataset
+GSE279743	external	mouse	Lymph Node	bulk_rnaseq	6	LNP	group	TRUE	external dataset
+GSE279744	calibration	mouse	lymph node	bulk_rnaseq	6	LNP	group	TRUE	LNP formulation calibration
+GSE39129	anchor	mouse	liver	bulk_rnaseq	4	lentivirus	group	TRUE	liver lentiviral anchor

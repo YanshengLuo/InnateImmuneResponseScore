@@ -1,0 +1,13 @@
+[2026-04-03 14:32:51] Design dir:  D:/IMRS_Project/00_metadata/verified_metadata/scoring
+[2026-04-03 14:32:51] Raw metadata dir:  D:/IMRS_Project/00_metadata/raw_metadata
+[2026-04-03 14:32:51] Found design files:  11
+[2026-04-03 14:32:51] Found raw metadata files:  0
+[2026-04-03 14:32:51] Example design files:
+[2026-04-03 14:32:51]    D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE139529/GSE139529_design.tsv
+[2026-04-03 14:32:51]    D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE166655/GSE166655_design.tsv
+[2026-04-03 14:32:51]    D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE167521/GSE167521_design.tsv
+[2026-04-03 14:32:51]    D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE178313/GSE178313_design.tsv
+[2026-04-03 14:32:51]    D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE190850_HUMAN/GSE190850_HUMAN_design.tsv
+[2026-04-03 14:32:51] Raw metadata sample lookup rows:  0
+[2026-04-03 14:32:51] Saved sample metadata:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/inputs/02_sample_metadata.tsv
+[2026-04-03 14:32:51] Rows written:  398
