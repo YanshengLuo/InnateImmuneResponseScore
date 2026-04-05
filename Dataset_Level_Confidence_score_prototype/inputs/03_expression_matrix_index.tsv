@@ -1,0 +1,11 @@
+dataset_id	expression_matrix_file	value_type	gene_id_type	n_genes	n_samples
+GSE139529	inputs/expression_matrices/GSE139529_expression_matrix.tsv	raw_counts	as_is	78334	65
+GSE166655	inputs/expression_matrices/GSE166655_expression_matrix.tsv	raw_counts	as_is	78334	9
+GSE167521	inputs/expression_matrices/GSE167521_expression_matrix.tsv	raw_counts	as_is	78334	8
+GSE178313	inputs/expression_matrices/GSE178313_expression_matrix.tsv	raw_counts	as_is	78334	8
+GSE262515	inputs/expression_matrices/GSE262515_expression_matrix.tsv	raw_counts	as_is	78334	21
+GSE264344	inputs/expression_matrices/GSE264344_expression_matrix.tsv	raw_counts	as_is	78334	195
+GSE279372	inputs/expression_matrices/GSE279372_expression_matrix.tsv	raw_counts	as_is	78334	28
+GSE279743	inputs/expression_matrices/GSE279743_expression_matrix.tsv	raw_counts	as_is	78334	9
+GSE279744	inputs/expression_matrices/GSE279744_expression_matrix.tsv	raw_counts	as_is	78334	9
+GSE39129	inputs/expression_matrices/GSE39129_expression_matrix.tsv	raw_counts	as_is	78334	6

@@ -1,0 +1,23 @@
+[2026-04-04 13:59:09] DE root:  D:/IMRS_Project/04_de/comparison
+[2026-04-04 13:59:09] Datasets to scan:  12
+[2026-04-04 13:59:09] Missing DE directory for  GSE139529 :  D:/IMRS_Project/04_de/comparison/GSE139529
+[2026-04-04 13:59:09] Missing DE directory for  GSE166655 :  D:/IMRS_Project/04_de/comparison/GSE166655
+[2026-04-04 13:59:09] Selected DE file for  GSE167521 :  D:/IMRS_Project/04_de/comparison/GSE167521/deseq2_contrasts/anchor/GSE167521__GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE167521 :  25734
+[2026-04-04 13:59:09] Missing DE directory for  GSE178313 :  D:/IMRS_Project/04_de/comparison/GSE178313
+[2026-04-04 13:59:09] Missing DE directory for  GSE190850 :  D:/IMRS_Project/04_de/comparison/GSE190850
+[2026-04-04 13:59:09] Missing DE directory for  GSE237068 :  D:/IMRS_Project/04_de/comparison/GSE237068
+[2026-04-04 13:59:09] Selected DE file for  GSE262515 :  D:/IMRS_Project/04_de/comparison/GSE262515/deseq2_contrasts/calibration/GSE262515__GSE262515_design__T=cell_line__H=72__B=NA__G=delivery_tlnp_sihbv_50nm__VS=baseline_0__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE262515 :  6168
+[2026-04-04 13:59:09] Selected DE file for  GSE264344 :  D:/IMRS_Project/04_de/comparison/GSE264344/deseq2_contrasts/anchor/GSE264344__GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad26__VS=baseline_0__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE264344 :  23532
+[2026-04-04 13:59:09] Selected DE file for  GSE279372 :  D:/IMRS_Project/04_de/comparison/GSE279372/deseq2_contrasts/anchor/GSE279372__GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_1000_g_lnps_injected__VS=baseline_0__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE279372 :  26139
+[2026-04-04 13:59:09] Missing DE directory for  GSE279743 :  D:/IMRS_Project/04_de/comparison/GSE279743
+[2026-04-04 13:59:09] Selected DE file for  GSE279744 :  D:/IMRS_Project/04_de/comparison/GSE279744/deseq2_contrasts/anchor/GSE279744__GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE279744 :  18764
+[2026-04-04 13:59:09] Selected DE file for  GSE39129 :  D:/IMRS_Project/04_de/comparison/GSE39129/deseq2_contrasts/anchor/GSE39129__GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none__DE_workflow.tsv
+[2026-04-04 13:59:09] Rows kept for  GSE39129 :  20283
+[2026-04-04 13:59:10] Saved gene effects:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/inputs/05_gene_effects.tsv
+[2026-04-04 13:59:10] Rows written:  120620
+[2026-04-04 13:59:10] Datasets represented:  6

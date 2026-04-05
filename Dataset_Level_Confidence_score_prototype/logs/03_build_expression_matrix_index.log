@@ -1,0 +1,25 @@
+[2026-04-04 13:47:16] Counts root:  D:/IMRS_Project/03_counts
+[2026-04-04 13:47:16] Datasets in sample metadata:  11
+[2026-04-04 13:47:16] Reading counts for  GSE139529 :  D:/IMRS_Project/03_counts/GSE139529/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:17] Saved standardized matrix for  GSE139529  with  78334  genes and  65  samples
+[2026-04-04 13:47:17] Reading counts for  GSE166655 :  D:/IMRS_Project/03_counts/GSE166655/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:17] Saved standardized matrix for  GSE166655  with  78334  genes and  9  samples
+[2026-04-04 13:47:17] Reading counts for  GSE167521 :  D:/IMRS_Project/03_counts/GSE167521/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:17] Saved standardized matrix for  GSE167521  with  78334  genes and  8  samples
+[2026-04-04 13:47:17] Reading counts for  GSE178313 :  D:/IMRS_Project/03_counts/GSE178313/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:18] Saved standardized matrix for  GSE178313  with  78334  genes and  8  samples
+[2026-04-04 13:47:18] Missing counts file for  GSE190850 :  D:/IMRS_Project/03_counts/GSE190850/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:18] Reading counts for  GSE262515 :  D:/IMRS_Project/03_counts/GSE262515/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:18] Saved standardized matrix for  GSE262515  with  78334  genes and  21  samples
+[2026-04-04 13:47:18] Reading counts for  GSE264344 :  D:/IMRS_Project/03_counts/GSE264344/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:19] Saved standardized matrix for  GSE264344  with  78334  genes and  195  samples
+[2026-04-04 13:47:19] Reading counts for  GSE279372 :  D:/IMRS_Project/03_counts/GSE279372/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:20] Saved standardized matrix for  GSE279372  with  78334  genes and  28  samples
+[2026-04-04 13:47:20] Reading counts for  GSE279743 :  D:/IMRS_Project/03_counts/GSE279743/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:20] Saved standardized matrix for  GSE279743  with  78334  genes and  9  samples
+[2026-04-04 13:47:20] Reading counts for  GSE279744 :  D:/IMRS_Project/03_counts/GSE279744/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:20] Saved standardized matrix for  GSE279744  with  78334  genes and  9  samples
+[2026-04-04 13:47:20] Reading counts for  GSE39129 :  D:/IMRS_Project/03_counts/GSE39129/featurecounts/validation/gene_counts_clean.tsv
+[2026-04-04 13:47:20] Saved standardized matrix for  GSE39129  with  78334  genes and  6  samples
+[2026-04-04 13:47:20] Saved expression matrix index:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/inputs/03_expression_matrix_index.tsv
+[2026-04-04 13:47:20] Datasets written:  10
