@@ -1,31 +1,31 @@
-[2026-04-06 11:07:17] Datasets to process:  12
-[2026-04-06 11:07:17] Processing dataset:  GSE139529
-[2026-04-06 11:07:22] Finished raw metrics for  GSE139529  | rwithin= 0.187  spread= 32.438  out_frac= 0.046  sep_ratio= 1.074  sil= 0.008
-[2026-04-06 11:07:22] Processing dataset:  GSE166655
-[2026-04-06 11:07:23] Finished raw metrics for  GSE166655  | rwithin= 0.052  spread= 7.622  out_frac= 0.333  sep_ratio= 8.94  sil= 0.246
-[2026-04-06 11:07:23] Processing dataset:  GSE167521
-[2026-04-06 11:07:25] Finished raw metrics for  GSE167521  | rwithin= 0.656  spread= 3.12  out_frac= 0.125  sep_ratio= 20.048  sil= 0.793
-[2026-04-06 11:07:25] Processing dataset:  GSE178313
-[2026-04-06 11:07:26] Finished raw metrics for  GSE178313  | rwithin= -0.011  spread= 27.503  out_frac= 0  sep_ratio= 0.823  sil= -0.003
-[2026-04-06 11:07:26] Processing dataset:  GSE190850
-[2026-04-06 11:07:26] Skipping  GSE190850  because index/sample metadata missing.
-[2026-04-06 11:07:26] Processing dataset:  GSE237068
-[2026-04-06 11:07:26] Skipping  GSE237068  because index/sample metadata missing.
-[2026-04-06 11:07:26] Processing dataset:  GSE262515
-[2026-04-06 11:07:28] Finished raw metrics for  GSE262515  | rwithin= 0.393  spread= 1.376  out_frac= 0.143  sep_ratio= 43.49  sil= -0.131
-[2026-04-06 11:07:28] Processing dataset:  GSE264344
-[2026-04-06 11:07:43] Finished raw metrics for  GSE264344  | rwithin= -0.114  spread= 38.926  out_frac= 0  sep_ratio= 0.056  sil= -0.037
-[2026-04-06 11:07:43] Processing dataset:  GSE279372
-[2026-04-06 11:07:46] Finished raw metrics for  GSE279372  | rwithin= 0.348  spread= 17.446  out_frac= 0.071  sep_ratio= 2.486  sil= -0.044
-[2026-04-06 11:07:46] Processing dataset:  GSE279743
-[2026-04-06 11:07:48] Finished raw metrics for  GSE279743  | rwithin= 0.192  spread= 16.939  out_frac= 0  sep_ratio= 2.886  sil= 0.236
-[2026-04-06 11:07:48] Processing dataset:  GSE279744
-[2026-04-06 11:07:49] Finished raw metrics for  GSE279744  | rwithin= 0.125  spread= 21.636  out_frac= 0  sep_ratio= 1.989  sil= 0.223
-[2026-04-06 11:07:49] Processing dataset:  GSE39129
-[2026-04-06 11:07:51] Finished raw metrics for  GSE39129  | rwithin= 0.145  spread= 22.445  out_frac= 0  sep_ratio= 2.323  sil= 0.457
-[2026-04-06 11:07:51] Saved raw metrics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_raw_metrics.tsv
-[2026-04-06 11:07:51] Saved calibration bounds:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_calibration_bounds.tsv
-[2026-04-06 11:07:51] Saved component metrics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_component_metrics.tsv
-[2026-04-06 11:07:51] Saved per-sample diagnostics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_per_sample_diagnostics.tsv
-[2026-04-06 11:07:51] Datasets scored:  10
-[2026-04-06 11:07:51] Done.
+[2026-04-09 16:32:23] Datasets to process:  12
+[2026-04-09 16:32:23] Processing dataset:  GSE139529
+[2026-04-09 16:32:28] Finished raw metrics for  GSE139529  | rwithin= 0.187  spread= 32.438  out_frac= 0.046  sep_ratio= 1.074  sil= 0.008
+[2026-04-09 16:32:28] Processing dataset:  GSE166655
+[2026-04-09 16:32:30] Finished raw metrics for  GSE166655  | rwithin= 0.052  spread= 7.622  out_frac= 0.333  sep_ratio= 8.94  sil= 0.246
+[2026-04-09 16:32:30] Processing dataset:  GSE167521
+[2026-04-09 16:32:32] Finished raw metrics for  GSE167521  | rwithin= 0.656  spread= 3.12  out_frac= 0.125  sep_ratio= 20.048  sil= 0.793
+[2026-04-09 16:32:32] Processing dataset:  GSE178313
+[2026-04-09 16:32:33] Finished raw metrics for  GSE178313  | rwithin= -0.011  spread= 27.503  out_frac= 0  sep_ratio= 0.823  sil= -0.003
+[2026-04-09 16:32:33] Processing dataset:  GSE190850
+[2026-04-09 16:32:33] Skipping  GSE190850  because index/sample metadata missing.
+[2026-04-09 16:32:33] Processing dataset:  GSE237068
+[2026-04-09 16:32:33] Skipping  GSE237068  because index/sample metadata missing.
+[2026-04-09 16:32:33] Processing dataset:  GSE262515
+[2026-04-09 16:32:35] Finished raw metrics for  GSE262515  | rwithin= 0.393  spread= 1.376  out_frac= 0.143  sep_ratio= 43.49  sil= -0.131
+[2026-04-09 16:32:35] Processing dataset:  GSE264344
+[2026-04-09 16:32:51] Finished raw metrics for  GSE264344  | rwithin= -0.114  spread= 38.926  out_frac= 0  sep_ratio= 0.056  sil= -0.037
+[2026-04-09 16:32:51] Processing dataset:  GSE279372
+[2026-04-09 16:32:54] Finished raw metrics for  GSE279372  | rwithin= 0.348  spread= 17.446  out_frac= 0.071  sep_ratio= 2.486  sil= -0.044
+[2026-04-09 16:32:54] Processing dataset:  GSE279743
+[2026-04-09 16:32:56] Finished raw metrics for  GSE279743  | rwithin= 0.192  spread= 16.939  out_frac= 0  sep_ratio= 2.886  sil= 0.236
+[2026-04-09 16:32:56] Processing dataset:  GSE279744
+[2026-04-09 16:32:57] Finished raw metrics for  GSE279744  | rwithin= 0.125  spread= 21.636  out_frac= 0  sep_ratio= 1.989  sil= 0.223
+[2026-04-09 16:32:57] Processing dataset:  GSE39129
+[2026-04-09 16:32:59] Finished raw metrics for  GSE39129  | rwithin= 0.145  spread= 22.445  out_frac= 0  sep_ratio= 2.323  sil= 0.457
+[2026-04-09 16:32:59] Saved raw metrics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_raw_metrics.tsv
+[2026-04-09 16:32:59] Saved calibration bounds:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_calibration_bounds.tsv
+[2026-04-09 16:32:59] Saved component metrics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_component_metrics.tsv
+[2026-04-09 16:32:59] Saved per-sample diagnostics:  D:/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/Dataset_Level_Confidence_score_prototype/intermediate/04_drs_per_sample_diagnostics.tsv
+[2026-04-09 16:32:59] Datasets scored:  10
+[2026-04-09 16:32:59] Done.

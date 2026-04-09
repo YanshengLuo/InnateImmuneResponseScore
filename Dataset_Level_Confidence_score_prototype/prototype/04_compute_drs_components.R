@@ -15,6 +15,12 @@ suppressPackageStartupMessages({
 #   Pass 1: compute raw per-dataset metrics
 #   Pass 2: calibrate component scores from empirical distributions
 #
+# Updated:
+#   - replaces min-component failure mode assignment
+#   - uses rule-based decision tree for prototype diagnosis
+#   - adds prototype_bio_label
+#   - optionally merges a manual truth table for comparison
+#
 # Outputs:
 #   intermediate/04_drs_raw_metrics.tsv
 #   intermediate/04_drs_component_metrics.tsv
@@ -46,6 +52,9 @@ sample_out      <- file.path(intermediate_dir, "04_drs_per_sample_diagnostics.ts
 bounds_out      <- file.path(intermediate_dir, "04_drs_calibration_bounds.tsv")
 log_file        <- file.path(logs_dir, "04_compute_drs_components.log")
 
+# OPTIONAL: manually set this to your truth table path
+truth_table_file <- file.path(framework_root, "inputs", "imrs_prototype_truth_table.tsv")
+
 if (file.exists(log_file)) file.remove(log_file)
 
 # prototype defaults
@@ -58,19 +67,28 @@ pca_max_k <- 10
 outlier_z_thresh <- 3
 min_group_n_for_geometry <- 2
 
-# context defaults remain fixed
+# context defaults
 ctx_n0 <- 2
 ctx_n1 <- 6
 ctx_v0 <- 0.20
 ctx_v1 <- 0.80
 
-# outlier penalty defaults remain fixed
-outlier_alpha <- 4
-outlier_beta <- 1
+# softened outlier penalty
+outlier_alpha <- 2
+outlier_beta <- 0.5
 
 # empirical calibration quantiles
 q_low <- 0.10
 q_high <- 0.90
+
+# diagnosis thresholds
+diag_outlier_fraction <- 0.20
+diag_outlier_severity <- 1.0
+diag_low_context_n <- 3
+diag_low_coh <- 0.35
+diag_low_sep <- 0.35
+diag_mid_sep <- 0.45
+diag_mid_coh <- 0.45
 
 # -------------------------
 # LOGGING
@@ -455,14 +473,119 @@ compute_context_sufficiency <- function(sample_meta, manifest_row) {
   )
 }
 
-primary_failure_mode <- function(Ccoh, Cout, Csep, Cctx) {
+# -------------------------
+# INTERNAL COMPONENT DIAGNOSIS
+# -------------------------
+assign_primary_failure_mode <- function(Ccoh, Cout, Csep, Cctx,
+                                        outlier_fraction, outlier_severity,
+                                        coherence_rwithin, coherence_spreadwithin,
+                                        separation_ratio, silhouette_mean,
+                                        min_group_n) {
+
+  if (is.finite(outlier_fraction) &&
+      is.finite(outlier_severity) &&
+      outlier_fraction >= diag_outlier_fraction &&
+      outlier_severity >= diag_outlier_severity) {
+    return("Outlier")
+  }
+
+  if (is.finite(min_group_n) && min_group_n < diag_low_context_n) {
+    return("Context")
+  }
+
+  if (is.finite(Ccoh) && is.finite(Csep) &&
+      Ccoh < diag_low_coh && Csep < diag_mid_sep) {
+    return("Coherence")
+  }
+
+  if (is.finite(Csep) && Csep < diag_low_sep &&
+      is.finite(Ccoh) && Ccoh >= diag_low_coh) {
+    return("Separation")
+  }
+
+  if (is.finite(Ccoh) && is.finite(Csep) &&
+      Ccoh < diag_mid_coh && Csep < diag_low_sep) {
+    return("Coherence")
+  }
+
   vals <- c(
-    Context   = unname(as.numeric(Cctx)[1]),
-    Outlier   = unname(as.numeric(Cout)[1]),
-    Coherence = unname(as.numeric(Ccoh)[1]),
-    Separation= unname(as.numeric(Csep)[1])
+    Context    = unname(as.numeric(Cctx)[1]),
+    Coherence  = unname(as.numeric(Ccoh)[1]),
+    Separation = unname(as.numeric(Csep)[1]),
+    Outlier    = unname(as.numeric(Cout)[1])
   )
   names(vals)[which.min(vals)][1]
+}
+
+# -------------------------
+# FINAL BIOLOGICAL LABEL
+# -------------------------
+assign_prototype_bio_label <- function(Ccoh, Cout, Csep, Cctx,
+                                       outlier_fraction, outlier_severity,
+                                       coherence_rwithin, coherence_spreadwithin,
+                                       separation_ratio, silhouette_mean,
+                                       min_group_n,
+                                       delta_imrs = NA_real_,
+                                       delivery_sd_imrs_z = NA_real_) {
+
+  # 1. technical / outlier issue:
+  # allow either explicit outlier burden OR globally unstable structure
+  if ((is.finite(outlier_fraction) && outlier_fraction >= 0.20 &&
+       is.finite(outlier_severity) && outlier_severity >= 0.8) ||
+      ((is.finite(Ccoh) && Ccoh < 0.25) &&
+       (is.finite(Csep) && Csep < 0.25))) {
+    return("Technical / outlier issue")
+  }
+
+  # 2. strong biology:
+  # primary strong rule made stricter to avoid overcalling
+  if (is.finite(Csep) && Csep >= 0.75 &&
+      is.finite(Ccoh) && Ccoh >= 0.45 &&
+      is.finite(Cout) && Cout >= 0.70) {
+    return("Strong biology")
+  }
+
+  # 3. alternate strong rule:
+  # rescue genuinely strong datasets with excellent separation
+  if (is.finite(Csep) && Csep >= 0.85 &&
+      is.finite(Cout) && Cout >= 0.70) {
+    return("Strong biology")
+  }
+
+  # 4. heterogeneous biology:
+  # loosened to catch distributed variability instead of miscalling weak
+  if (is.finite(Ccoh) && Ccoh < 0.55 &&
+      is.finite(Csep) && Csep >= 0.20 &&
+      is.finite(Cout) && Cout >= 0.55) {
+    return("Heterogeneous biology")
+  }
+
+  # 5. weak biology:
+  # weak separation without strong evidence of technical failure
+  if (is.finite(Csep) && Csep < 0.45 &&
+      is.finite(Cout) && Cout >= 0.50) {
+    return("Weak biology")
+  }
+
+  # fallbacks
+  if (is.finite(Csep) && Csep >= 0.70) return("Strong biology")
+  if (is.finite(Ccoh) && Ccoh < 0.55) return("Heterogeneous biology")
+  if (is.finite(Cout) && Cout < 0.50) return("Technical / outlier issue")
+
+  "Weak biology"
+}
+
+compare_to_truth <- function(prototype_label, truth_label) {
+  case_when(
+    is.na(truth_label) | truth_label == "" ~ NA_character_,
+    is.na(prototype_label) | prototype_label == "" ~ "missing_prototype_label",
+    prototype_label == truth_label ~ "match",
+    prototype_label == "Technical / outlier issue" & truth_label != "Technical / outlier issue" ~ "overcalled_outlier",
+    prototype_label == "Heterogeneous biology" & truth_label == "Weak biology" ~ "heterogeneous_vs_weak",
+    prototype_label == "Weak biology" & truth_label == "Heterogeneous biology" ~ "weak_vs_heterogeneous",
+    prototype_label == "Strong biology" & truth_label != "Strong biology" ~ "overcalled_strong",
+    TRUE ~ paste0("mismatch:", prototype_label, "_vs_", truth_label)
+  )
 }
 
 # -------------------------
@@ -637,9 +760,54 @@ component_tbl <- raw_tbl %>%
     Csep = (separation_ratio_score + separation_silhouette_score) / 2
   ) %>%
   mutate(
-    primary_failure_mode = primary_failure_mode(Ccoh, Cout, Csep, Cctx)
+    primary_failure_mode = pmap_chr(
+      list(Ccoh, Cout, Csep, Cctx,
+           outlier_fraction, outlier_severity,
+           coherence_rwithin, coherence_spreadwithin,
+           separation_ratio, silhouette_mean,
+           min_group_n),
+      assign_primary_failure_mode
+    ),
+    prototype_bio_label = pmap_chr(
+      list(Ccoh, Cout, Csep, Cctx,
+           outlier_fraction, outlier_severity,
+           coherence_rwithin, coherence_spreadwithin,
+           separation_ratio, silhouette_mean,
+           min_group_n),
+      assign_prototype_bio_label
+    )
   ) %>%
   arrange(dataset_class, dataset_id)
+
+# -------------------------
+# OPTIONAL TRUTH TABLE MERGE
+# -------------------------
+if (file.exists(truth_table_file)) {
+  truth_tbl <- read_tsv(truth_table_file, show_col_types = FALSE, progress = FALSE)
+
+  truth_label_col <- NULL
+  candidates <- c("manual_label", "truth_label", "manual_class", "label")
+  hit <- candidates[candidates %in% names(truth_tbl)]
+  if (length(hit) > 0) truth_label_col <- hit[1]
+
+  if (!is.null(truth_label_col) && !is.na(truth_label_col)) {
+    truth_tbl2 <- truth_tbl %>%
+      transmute(
+        dataset_id = as.character(dataset_id),
+        truth_table_label = as.character(.data[[truth_label_col]])
+      )
+
+    component_tbl <- component_tbl %>%
+      left_join(truth_tbl2, by = "dataset_id") %>%
+      mutate(
+        prototype_label_match = compare_to_truth(prototype_bio_label, truth_table_label)
+      )
+  } else {
+    log_message("Truth table found, but no recognized label column.")
+  }
+} else {
+  log_message("No truth table file found. Proceeding without truth-table comparison.")
+}
 
 write_tsv(bounds_tbl, bounds_out, na = "")
 write_tsv(component_tbl, component_out, na = "")
