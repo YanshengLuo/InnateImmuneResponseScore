@@ -520,57 +520,65 @@ assign_primary_failure_mode <- function(Ccoh, Cout, Csep, Cctx,
 # -------------------------
 # FINAL BIOLOGICAL LABEL
 # -------------------------
-assign_prototype_bio_label <- function(Ccoh, Cout, Csep, Cctx,
-                                       outlier_fraction, outlier_severity,
-                                       coherence_rwithin, coherence_spreadwithin,
-                                       separation_ratio, silhouette_mean,
-                                       min_group_n,
-                                       delta_imrs = NA_real_,
-                                       delivery_sd_imrs_z = NA_real_) {
+assign_prototype_bio_label <- function(
+  Ccoh, Cout, Csep, Cctx,
+  outlier_fraction, outlier_severity,
+  coherence_rwithin, coherence_spreadwithin,
+  separation_ratio, silhouette_mean,
+  min_group_n,
+  delta_imrs = NA_real_,
+  delivery_sd_imrs_z = NA_real_
+) {
 
-  # 1. technical / outlier issue:
-  # allow either explicit outlier burden OR globally unstable structure
-  if ((is.finite(outlier_fraction) && outlier_fraction >= 0.20 &&
-       is.finite(outlier_severity) && outlier_severity >= 0.8) ||
-      ((is.finite(Ccoh) && Ccoh < 0.25) &&
-       (is.finite(Csep) && Csep < 0.25))) {
+  # 1. technical / outlier issue
+  # make this harder to trigger so heterogeneous / weak cases are not swallowed
+  if ((is.finite(outlier_fraction) && outlier_fraction >= 0.30 &&
+       is.finite(outlier_severity) && outlier_severity >= 1.0) ||
+      ((is.finite(Ccoh) && Ccoh < 0.15) &&
+       (is.finite(Csep) && Csep < 0.15))) {
     return("Technical / outlier issue")
   }
 
-  # 2. strong biology:
-  # primary strong rule made stricter to avoid overcalling
-  if (is.finite(Csep) && Csep >= 0.75 &&
-      is.finite(Ccoh) && Ccoh >= 0.45 &&
-      is.finite(Cout) && Cout >= 0.70) {
+  # 2. strong biology
+  # make the main strong rule stricter to avoid overcalling GSE167521-like cases
+  if (is.finite(Csep) && Csep >= 0.80 &&
+      is.finite(Ccoh) && Ccoh >= 0.50 &&
+      is.finite(Cout) && Cout >= 0.75) {
     return("Strong biology")
   }
 
-  # 3. alternate strong rule:
-  # rescue genuinely strong datasets with excellent separation
-  if (is.finite(Csep) && Csep >= 0.85 &&
-      is.finite(Cout) && Cout >= 0.70) {
+  # 3. alternate strong rule
+  # rescue truly strong datasets with very strong separation and acceptable outlier profile
+  if (is.finite(Csep) && Csep >= 0.90 &&
+      is.finite(Cout) && Cout >= 0.75 &&
+      is.finite(Ccoh) && Ccoh >= 0.30) {
     return("Strong biology")
   }
 
-  # 4. heterogeneous biology:
-  # loosened to catch distributed variability instead of miscalling weak
-  if (is.finite(Ccoh) && Ccoh < 0.55 &&
-      is.finite(Csep) && Csep >= 0.20 &&
-      is.finite(Cout) && Cout >= 0.55) {
+  # 4. heterogeneous biology
+  # slightly broader so GSE279372 / GSE139529-like cases stop falling into weak
+  if (is.finite(Ccoh) && Ccoh < 0.60 &&
+      is.finite(Csep) && Csep >= 0.18 &&
+      is.finite(Cout) && Cout >= 0.60) {
     return("Heterogeneous biology")
   }
 
-  # 5. weak biology:
-  # weak separation without strong evidence of technical failure
-  if (is.finite(Csep) && Csep < 0.45 &&
-      is.finite(Cout) && Cout >= 0.50) {
+  # 5. weak biology
+  if (is.finite(Csep) && Csep < 0.50 &&
+      is.finite(Cout) && Cout >= 0.55) {
     return("Weak biology")
   }
 
   # fallbacks
-  if (is.finite(Csep) && Csep >= 0.70) return("Strong biology")
-  if (is.finite(Ccoh) && Ccoh < 0.55) return("Heterogeneous biology")
-  if (is.finite(Cout) && Cout < 0.50) return("Technical / outlier issue")
+  if (is.finite(Csep) && Csep >= 0.80 && is.finite(Cout) && Cout >= 0.70) {
+    return("Strong biology")
+  }
+  if (is.finite(Ccoh) && Ccoh < 0.60 && is.finite(Cout) && Cout >= 0.55) {
+    return("Heterogeneous biology")
+  }
+  if (is.finite(Cout) && Cout < 0.45) {
+    return("Technical / outlier issue")
+  }
 
   "Weak biology"
 }
