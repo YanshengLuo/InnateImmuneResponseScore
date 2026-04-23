@@ -22,7 +22,7 @@ if (!exists("dataset_id", inherits = FALSE)) {
 }
 
 project_root <- "D:/IMRS_Project"
-meta_dir <- file.path(project_root, "00_metadata","validations", dataset_id)
+meta_dir <- file.path(project_root, "00_metadata", dataset_id)
 dir.create(meta_dir, recursive = TRUE, showWarnings = FALSE)
 
 runinfo_path <- file.path(meta_dir, "SraRunTable.csv")
@@ -217,7 +217,7 @@ samples <- samples %>%
     condition = case_when(
       str_detect(delivery_lc, "\\bbaseline\\b") ~ "control",
       str_detect(delivery_lc, "\\bpbs\\b|\\bsaline\\b|\\bvehicle\\b|\\bmock\\b|\\bsham\\b") ~ "control",
-      str_detect(delivery_lc, "\\bnothing\\b") ~ "control",
+      str_detect(delivery_lc, "\\bnothing\\b|\\buninfected\\b") ~ "control",
       TRUE ~ "delivery"
     ),
     control_type = if_else(condition == "control", "naive", NA_character_),

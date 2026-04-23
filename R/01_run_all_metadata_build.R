@@ -12,7 +12,7 @@ suppressPackageStartupMessages({
 })
 
 project_root <- "D:/IMRS_Project"
-meta_root <- file.path(project_root, "00_metadata","validations")
+meta_root <- file.path(project_root, "00_metadata")
 
 metadata_build_script <- file.path(
   project_root,
