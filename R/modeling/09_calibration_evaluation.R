@@ -79,7 +79,9 @@ calibration_dataset_ids <- c(
   "GSE178313",
   "GSE279743",
   "GSE166655",
-  "GSE139529"
+  "GSE139529",
+  "GSE119119",
+  "GSE314070"
 )
 
 all_eval_datasets <- union(anchor_dataset_ids, calibration_dataset_ids)
