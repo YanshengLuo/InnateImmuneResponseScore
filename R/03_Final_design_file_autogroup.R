@@ -12,6 +12,11 @@
 # controls within the same tissue + batch (configurable).
 #
 # Windows-safe short paths/filenames to avoid "Filename too long".
+#
+# Dataset-specific scope filter:
+#   GSE139529 contains viral-vector vaccine groups and protein/subunit
+#   vaccine groups. Protein/subunit groups are excluded from strict IMRS
+#   split designs here. They can still be analyzed separately as exploratory.
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -40,6 +45,7 @@ norm_label <- function(x) {
   x %>%
     tolower() %>%
     str_replace_all("[^a-z0-9]+", "_") %>%
+    str_replace_all("_+", "_") %>%
     str_replace_all("^_+|_+$", "")
 }
 
@@ -94,11 +100,33 @@ control_keywords <- c(
   "naive", "untreated", "uninfected",
   "unstimulated", "none", "no_treatment", "pre"
 )
-control_regex <- paste0("(", paste(unique(norm_label(control_keywords)), collapse = "|"), ")")
+
+control_regex <- paste0(
+  "(",
+  paste(unique(norm_label(control_keywords)), collapse = "|"),
+  ")"
+)
 
 detect_controls <- function(df, file_base) {
   groups <- unique(as.character(df$group))
   controls <- character(0)
+
+  # ------------------------------------------------------------
+  # Dataset-specific control override
+  # GSE139529:
+  #   "none" is the true no-vaccine/no-delivery control.
+  #   "ad_empty" and "ad_pref" are adenoviral/vector-related groups,
+  #   so they must NOT be treated as controls even though they contain
+  #   the word "empty" or look control-like.
+  # ------------------------------------------------------------
+  if (file_base == "GSE139529_design.tsv") {
+    if ("none" %in% groups) {
+      return("none")
+    } else {
+      warning("GSE139529 expected control group 'none' was not found.")
+      return(character(0))
+    }
+  }
 
   # Priority 1: baseline_0 if present
   if ("baseline_0" %in% groups) controls <- c(controls, "baseline_0")
@@ -120,13 +148,16 @@ detect_controls <- function(df, file_base) {
 # MAIN LOOP
 # ============================
 tsv_files <- list.files(in_dir, pattern = "\\.tsv$", full.names = TRUE)
+
 tsv_files <- tsv_files[!str_detect(basename(tsv_files), "__split_index\\.tsv$")]
 tsv_files <- tsv_files[!str_detect(basename(tsv_files), "__contrast_index\\.tsv$")]
 tsv_files <- tsv_files[!str_detect(basename(tsv_files), "__group_map\\.tsv$")]
 tsv_files <- tsv_files[!str_detect(basename(tsv_files), "^control_report\\.tsv$")]
 tsv_files <- tsv_files[!str_detect(basename(tsv_files), "split_design")]
 
-if (length(tsv_files) == 0) stop("No TSV files found in: ", in_dir)
+if (length(tsv_files) == 0) {
+  stop("No TSV files found in: ", in_dir)
+}
 
 message("Found ", length(tsv_files), " TSV files in: ", in_dir)
 message("Output to: ", out_dir)
@@ -137,12 +168,14 @@ control_report <- list()
 for (f in tsv_files) {
   file_base <- basename(f)
   stem <- tools::file_path_sans_ext(file_base)
+
   message("\n=== Processing: ", file_base, " ===")
 
   df <- read_tsv(f, show_col_types = FALSE)
 
   req <- c("sample_id", "group", "tissue", "timepoint_hr", "batch")
   miss <- setdiff(req, names(df))
+
   if (length(miss) > 0) {
     message("SKIP (missing columns): ", paste(miss, collapse = ", "))
     next
@@ -162,6 +195,42 @@ for (f in tsv_files) {
       batch_raw  = as.character(batch),
       batch_raw  = ifelse(is.na(batch_raw) | batch_raw == "", "NA", batch_raw)
     )
+
+  # ------------------------------------------------------------
+  # GSE139529 strict-scope filter
+  # Exclude protein/subunit vaccine groups from strict IMRS split designs.
+  # These groups can be analyzed separately as exploratory/boundary cases.
+  #
+  # Excluded:
+  #   bexsero, bex.bex / bex_bex, trumenba, tru.tru / tru_tru
+  #
+  # Kept:
+  #   ad_fhbp, mva_fhbp, ad.mva / ad_mva, mva.ad / mva_ad,
+  #   plus controls and any vector-control groups.
+  # ------------------------------------------------------------
+  if (file_base == "GSE139529_design.tsv") {
+    protein_groups <- c(
+      "bexsero",
+      "bex_bex",
+      "trumenba",
+      "tru_tru"
+    )
+
+    n_before <- nrow(df2)
+
+    df2 <- df2 %>%
+      mutate(
+        group_scope_clean = norm_label(group_raw)
+      ) %>%
+      filter(!group_scope_clean %in% protein_groups) %>%
+      select(-group_scope_clean)
+
+    message(
+      "GSE139529 strict-scope filter applied: removed ",
+      n_before - nrow(df2),
+      " protein-vaccine samples before split-design generation."
+    )
+  }
 
   control_labels <- detect_controls(df2, file_base)
   control_report[[file_base]] <- list(control_labels = control_labels)
@@ -183,7 +252,8 @@ for (f in tsv_files) {
   written <- character(0)
   group_map_rows <- list()
 
-  # Strata: tissue + time + batch (we write one contrast file per delivery group within each stratum)
+  # Strata: tissue + time + batch
+  # We write one contrast file per delivery group within each stratum.
   strata <- df2 %>%
     distinct(tissue_raw, time_label, batch_raw) %>%
     arrange(tissue_raw, time_label, batch_raw)
@@ -194,13 +264,19 @@ for (f in tsv_files) {
     batch_s  <- strata$batch_raw[s]
 
     block <- df2 %>%
-      filter(tissue_raw == tissue_s, time_label == time_s, batch_raw == batch_s)
+      filter(
+        tissue_raw == tissue_s,
+        time_label == time_s,
+        batch_raw == batch_s
+      )
 
     # Controls matched to this stratum
-    ctrl_block <- block %>% filter(is_control)
+    ctrl_block <- block %>%
+      filter(is_control)
 
     # FALLBACK: if no controls at this timepoint, use time=0 controls within same tissue+batch
     control_time_policy <- "matched_time"
+
     if (nrow(ctrl_block) == 0 && CONTROL_FALLBACK_MODE == "time0") {
       ctrl_block <- df2 %>%
         filter(
@@ -210,7 +286,10 @@ for (f in tsv_files) {
           !is.na(time_h),
           time_h == 0
         )
-      if (nrow(ctrl_block) > 0) control_time_policy <- "fallback_time0"
+
+      if (nrow(ctrl_block) > 0) {
+        control_time_policy <- "fallback_time0"
+      }
     }
 
     if (nrow(ctrl_block) == 0) next
@@ -226,23 +305,27 @@ for (f in tsv_files) {
 
     # Create ONE file per delivery group (full contrast)
     for (g in delivery_groups) {
-      deliv_block <- block %>% filter(!is_control, group_raw == g)
+      deliv_block <- block %>%
+        filter(!is_control, group_raw == g)
+
       if (nrow(deliv_block) == 0) next
 
       # Full contrast design: all controls + all delivery reps
       sub <- bind_rows(ctrl_block, deliv_block) %>%
         mutate(
           condition_simple = ifelse(is_control, "CONTROL", "DELIVERY"),
-          control_label    = control_labels[1],
-          contrast_label   = paste0(g, "__vs__", control_labels[1]),
+          control_label = control_labels[1],
+          contrast_label = paste0(g, "__vs__", control_labels[1]),
           control_time_policy = control_time_policy
         )
 
       # Tokens for naming
       tissue_tok <- safe_token(tissue_s)
+
       # store hours as number if possible to shorten
       time_tok_num <- to_hours(time_s)
       time_tok <- ifelse(!is.na(time_tok_num), as.character(time_tok_num), safe_token(time_s))
+
       batch_tok <- safe_token(batch_s)
 
       g_tok <- short_group_token(g)
@@ -260,8 +343,14 @@ for (f in tsv_files) {
       # SHORT filename
       out_name <- sprintf(
         "%s__T=%s__H=%s__B=%s__G=%s__VS=%s.tsv",
-        safe_token(stem), tissue_tok, time_tok, batch_tok, g_tok, ctrl_tok
+        safe_token(stem),
+        tissue_tok,
+        time_tok,
+        batch_tok,
+        g_tok,
+        ctrl_tok
       )
+
       out_path <- file.path(dataset_folder, out_name)
 
       write_tsv(sub, out_path)
@@ -280,15 +369,19 @@ for (f in tsv_files) {
     idx <- tibble(design_file = written) %>%
       mutate(
         file_base = basename(design_file),
-        tissue = str_match(file_base, "__T=([^_]+)__H=")[,2],
-        time_h = str_match(file_base, "__H=([^_]+)__B=")[,2],
-        batch = str_match(file_base, "__B=([^_]+)__G=")[,2],
-        group_token = str_match(file_base, "__G=([^_]+)__VS=")[,2],
-        control_token = str_match(file_base, "__VS=([^\\.]+)\\.tsv$")[,2]
+        tissue = str_match(file_base, "__T=([^_]+)__H=")[, 2],
+        time_h = str_match(file_base, "__H=([^_]+)__B=")[, 2],
+        batch = str_match(file_base, "__B=([^_]+)__G=")[, 2],
+        group_token = str_match(file_base, "__G=([^_]+)__VS=")[, 2],
+        control_token = str_match(file_base, "__VS=([^\\.]+)\\.tsv$")[, 2]
       ) %>%
-      left_join(gm %>% select(group_token, group_raw),
-                by = c("group_token" = "group_token")) %>%
-      mutate(group_raw = ifelse(is.na(group_raw), group_token, group_raw))
+      left_join(
+        gm %>% select(group_token, group_raw),
+        by = c("group_token" = "group_token")
+      ) %>%
+      mutate(
+        group_raw = ifelse(is.na(group_raw), group_token, group_raw)
+      )
 
     write_tsv(idx, idx_path)
     write_tsv(gm, map_path)
@@ -297,17 +390,25 @@ for (f in tsv_files) {
     message("Index: ", idx_path)
     message("Group map: ", map_path)
   } else {
-    message("No contrast files written for: ", file_base,
-            " (controls exist but no delivery groups within strata or no eligible fallback controls).")
+    message(
+      "No contrast files written for: ", file_base,
+      " (controls exist but no delivery groups within strata or no eligible fallback controls)."
+    )
   }
 }
 
 # Control report across all datasets
 report_path <- file.path(out_dir, "control_report.tsv")
+
 tibble(
   file = names(control_report),
-  controls = vapply(control_report, function(x) paste(x$control_labels, collapse = ";"), character(1))
-) %>% write_tsv(report_path)
+  controls = vapply(
+    control_report,
+    function(x) paste(x$control_labels, collapse = ";"),
+    character(1)
+  )
+) %>%
+  write_tsv(report_path)
 
 message("\nAll done.")
 message("Control report: ", report_path)

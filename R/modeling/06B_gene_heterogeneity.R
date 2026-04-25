@@ -139,12 +139,16 @@ if (nrow(meta) == 0) {
 }
 
 # Audit contrast counts (helpful for debugging dominance)
+meta <- meta %>%
+  mutate(dataset_id = as.character(dataset_id))
+
 by_ds <- meta %>%
-  count(dataset_id, name = "n_contrasts") %>%
-  arrange(desc(n_contrasts), dataset_id)
+  dplyr::count(dataset_id, name = "n_contrasts") %>%
+  dplyr::arrange(dplyr::desc(n_contrasts), dataset_id)
+
 write_tsv(by_ds, file.path(out_root, "contrast_counts_by_dataset_6B.tsv"))
 
-datasets_present <- sort(unique(meta$dataset_id))
+datasets_present <- sort(unique(as.character(meta$dataset_id)))
 K_present <- length(datasets_present)
 if (K_present < 3) {
   stop("[6B] PHASE=", PHASE, ": need >=3 datasets for stable heterogeneity screening.\nPresent: ",

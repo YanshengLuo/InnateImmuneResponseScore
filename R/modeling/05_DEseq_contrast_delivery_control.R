@@ -21,11 +21,10 @@
 # Inputs:
 #   RAW counts:
 #     <project_root>/03_counts/<DATASET>/featurecounts/validation/gene_counts_clean.tsv
-#   Full design:
-#     <project_root>/00_metadata/<DATASET>/<DATASET>_design.tsv
+#   FFull design:
+#     <project_root>/00_metadata/verified_metadata/<DATASET>_design.tsv
 #   Split designs:
-#     <project_root>/Hypergator_scripts/InnateImmuneResponseScore/
-#       verified_metadata/splited/<DATASET>_design/*.tsv
+#     <project_root>/00_metadata/verified_metadata/splited/<DATASET>_design/*.tsv
 #
 # Outputs:
 #   Normalized (phase-specific):
@@ -67,8 +66,7 @@ de_root <- file.path(project_root, "04_de")
 
 split_design_root <- file.path(
   project_root,
-  "Hypergator_scripts", "InnateImmuneResponseScore",
-  "verified_metadata", "splited"
+  "00_metadata", "verified_metadata", "splited"
 )
 
 out_base <- file.path(project_root, "04_de", "comparison")
@@ -628,7 +626,7 @@ run_one_dataset <- function(dataset_id) {
   }
 
   full_design_path <- file.path(
-    project_root, "00_metadata", dataset_id,
+    project_root, "00_metadata", "verified_metadata",
     paste0(dataset_id, "_design.tsv")
   )
 
