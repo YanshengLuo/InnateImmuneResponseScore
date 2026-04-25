@@ -75,7 +75,8 @@ anchor_dataset_ids <- c(
 
 calibration_dataset_ids <- c(
   "GSE264344",
-  "GSE262515",
+  "GSE262515_tissue",
+  "GSE262515_cell_line",
   "GSE178313",
   "GSE279743",
   "GSE166655",
