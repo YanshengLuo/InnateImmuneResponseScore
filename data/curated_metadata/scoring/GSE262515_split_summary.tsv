@@ -1,0 +1,4 @@
+﻿dataset_id	parent_dataset_id	tissue_value	n_samples	n_control	n_delivery	design_file	counts_file
+GSE262515_tissue	GSE262515	tissue	12	3	9	<local_project_root>/00_metadata/verified_metadata/scoring/GSE262515_tissue/GSE262515_tissue_design.tsv	<local_project_root>/03_counts/GSE262515_tissue/featurecounts/validation/gene_counts_clean.tsv
+GSE262515_cell_line	GSE262515	cell line	9	3	6	<local_project_root>/00_metadata/verified_metadata/scoring/GSE262515_cell_line/GSE262515_cell_line_design.tsv	<local_project_root>/03_counts/GSE262515_cell_line/featurecounts/validation/gene_counts_clean.tsv
+

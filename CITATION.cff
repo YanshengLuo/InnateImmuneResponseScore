@@ -1,0 +1,18 @@
+﻿cff-version: 1.2.0
+message: "If you use this software, please cite the associated manuscript and repository."
+title: "IMRS: a frozen transcriptomic scoring framework for acute delivery-associated innate transcriptional responses"
+authors:
+  - family-names: "Luo"
+    given-names: "Yansheng"
+type: software
+repository-code: "TO_BE_ADDED_GITHUB_REPOSITORY_URL"
+abstract: "Repository for the IMRS frozen, transfer-oriented transcriptomic scoring framework and reviewer-facing manuscript-output reproduction materials."
+keywords:
+  - transcriptomics
+  - innate immune response
+  - delivery-associated response
+  - reproducibility
+  - RNA-seq
+license: "TO_BE_DECIDED"
+version: "v0.1.0-submission-candidate"
+date-released: "TO_BE_ADDED"

@@ -1,0 +1,10 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
+SRR31032957	DELIVERY	FALSE	delivery_vaccination_with_ssop	Lymph Node	6	6	NA
+SRR31032958	DELIVERY	FALSE	delivery_vaccination_with_ssop	Lymph Node	6	6	NA
+SRR31032959	DELIVERY	FALSE	delivery_vaccination_with_ssop	Lymph Node	6	6	NA
+SRR31032960	DELIVERY	FALSE	delivery_vaccination_with_sm102	Lymph Node	6	6	NA
+SRR31032961	DELIVERY	FALSE	delivery_vaccination_with_sm102	Lymph Node	6	6	NA
+SRR31032962	DELIVERY	FALSE	delivery_vaccination_with_sm102	Lymph Node	6	6	NA
+SRR31032963	CONTROL	TRUE	baseline_0	Lymph Node	6	6	NA
+SRR31032964	CONTROL	TRUE	baseline_0	Lymph Node	6	6	NA
+SRR31032965	CONTROL	TRUE	baseline_0	Lymph Node	6	6	NA

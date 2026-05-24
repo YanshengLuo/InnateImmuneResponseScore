@@ -1,0 +1,3 @@
+﻿design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+<local_project_root>/00_metadata/verified_metadata/splited/GSE178313_design/GSE178313_design__T=Liver__H=48__B=NA__G=mouse_repopulated_lnp__VS=mouse_repopulated_pbs.tsv	GSE178313_design__T=Liver__H=48__B=NA__G=mouse_repopulated_lnp__VS=mouse_repopulated_pbs.tsv	Liver	48	NA	NA	mouse_repopulated_pbs	NA
+

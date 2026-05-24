@@ -1,0 +1,9 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
+SRR13783173	CONTROL	TRUE	baseline_0	skin	24	24	NA
+SRR13783174	DELIVERY	FALSE	delivery_lnp	skin	24	24	NA
+SRR13783175	CONTROL	TRUE	baseline_0	skin	24	24	NA
+SRR13783176	DELIVERY	FALSE	delivery_lnp	skin	24	24	NA
+SRR13783177	CONTROL	TRUE	baseline_0	skin	24	24	NA
+SRR13783178	DELIVERY	FALSE	delivery_lnp	skin	24	24	NA
+SRR13783179	CONTROL	TRUE	baseline_0	skin	24	24	NA
+SRR13783180	DELIVERY	FALSE	delivery_lnp	skin	24	24	NA

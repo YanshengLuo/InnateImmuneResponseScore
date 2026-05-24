@@ -1,0 +1,10 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	dataset_id	parent_dataset_id	scoring_unit
+SRR28462975	DELIVERY	FALSE	delivery_tlnp_sihbv_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462976	DELIVERY	FALSE	delivery_tlnp_sihbv_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462977	DELIVERY	FALSE	delivery_tlnp_sihbv_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462978	DELIVERY	FALSE	delivery_tlnp_sinc_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462979	DELIVERY	FALSE	delivery_tlnp_sinc_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462980	DELIVERY	FALSE	delivery_tlnp_sinc_50nm	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462981	CONTROL	TRUE	baseline_0	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462982	CONTROL	TRUE	baseline_0	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line
+SRR28462983	CONTROL	TRUE	baseline_0	cell line	72	72	NA	GSE262515_cell_line	GSE262515	cell_line

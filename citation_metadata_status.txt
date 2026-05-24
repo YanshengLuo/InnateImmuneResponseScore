@@ -1,0 +1,13 @@
+﻿Citation metadata status
+
+A root-level CITATION.cff has been created as a conservative submission-candidate placeholder.
+
+Fields still requiring manual update before final public release:
+- repository-code: replace TO_BE_ADDED_GITHUB_REPOSITORY_URL with the final GitHub URL.
+- DOI: add the Zenodo/archive DOI if/when an archival release is created.
+- manuscript citation: add manuscript DOI/citation information when available.
+- final author list: confirm and update all repository/software authors.
+- license: replace TO_BE_DECIDED after PI/institution/project approval.
+- date-released: replace TO_BE_ADDED with the actual release date.
+
+The legacy CITATION_PLACEHOLDER.cff has been copied to docs/reproducibility/placeholder_archive for traceability.
