@@ -1,61 +1,225 @@
-﻿# IMRS Repository Release Candidate
+# Innate Immune Response Score
+This is a project contains python and shell script for processing bulk-RNA data and R codes for data analysis and modeling.
 
-IMRS is a frozen, transfer-oriented transcriptomic scoring framework for acute delivery-associated innate transcriptional responses.
+# Step 1: Download cDNA files using srr_download script
+```bash
+sbatch SRR_download_database_as_input.slurm <database>[start end]
+```
+# Step 2: Run sequence alignment and featurecounts to generate gene expression table
 
-IMRS is not a mechanistic pathway model, clinical reactogenicity predictor, or delivery-platform safety ranking tool.
+### HOW TO RUN: STAR (array) + featureCounts (merge)
 
-## Reproducibility Levels
+Goal:
+- Build STAR index once (mm39/GRCm39 + GENCODE M38)
+- Align samples in parallel using a Slurm array (capped to 20 CPUs total)
+- Run featureCounts once after all alignments finish
 
-This release candidate separates reproducibility into three levels.
+You must set these 3 variables for your environment:
+- ACCOUNT      : Slurm account to charge (e.g., qsong1)
+- PROJECT_ROOT : where your project lives under /orange/<ACCOUNT>/...
+- FASTQ_DIR    : directory that contains *.fastq.gz for one dataset (e.g., .../GSE264344)
 
-Level 1 is the default reviewer-facing manuscript-output reproduction path. It starts from staged derived inputs in `data/derived`, not from raw metadata, FASTQ, BAM, or full count reconstruction. The Level 1 runner regenerates Supplementary Figure S2, Supplementary Tables S1-S5, and NAR G&B readiness materials.
+Expected scripts (already created earlier):
+- 00_prep_star_index.slurm
+- 01_star_align_array.slurm
+- 02_featurecounts_merge.slurm
 
-Level 2 is analytic reconstruction from gene count matrices, verified metadata, split definitions, and locked-anchor inputs. It documents how count-level inputs feed into locked-anchor differential expression, retained gene selection, frozen IMRS gene coefficients, sample-level scoring, delivery-minus-control &Delta;IMRSz, validation, and robustness outputs.
+------------------------------------------------
+COPY/PASTE COMMANDS
+------------------------------------------------
 
-Level 3 is raw-data/HPC reconstruction from public GEO/SRA accessions or raw public data through FASTQ/BAM retrieval, alignment/counting, and gene count matrix creation. This path may require HiPerGator/HPC and is documented separately from the default reviewer runner.
-
-## Reviewer-Facing Runner
-
-Use `run_all_manuscript_outputs_v6.R` for Level 1 reviewer-facing reproduction. The active runner regenerates:
-
-- Supplementary Figure S2 retained-gene enrichment outputs
-- Supplementary Tables S1-S5
-- NAR G&B readiness/reproducibility materials
-
-Generated outputs are written to `results_release_templates/` by default and are ignored by Git.
-
-## Configuration
-
-Before running, copy:
-
-```sh
-cp config/config_template.yml config/config.yml
+# Before start, you may need to run : 
+```bash
+dos2unix *.slurm
+```
+# 0) Set variables (EDIT THESE THREE)
+```bash
+ACCOUNT="qsong1"
+PROJECT_ROOT="/orange/qsong1/PROJECT_NAME"      # <-- change PROJECT_NAME to your folder
+SCRIPTS_DIR="$PROJECT_ROOT/Hypergator_scripts"
+FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344" # <-- change dataset folder as needed
+cd "$SCRIPTS_DIR"
+```
+# 1) Build STAR index (run once)
+```bash
+sbatch --account="$ACCOUNT" 00_prep_star_index.slurm 
 ```
 
-Edit `config/config.yml` if needed. Keep `execute_active_scripts: false` for checklist/dry-run mode. Set `execute_active_scripts: true` only for controlled regeneration.
+# 2) STAR alignment array
+ CPU cap = 20 total CPUs:
+   cpus-per-task = 4  (defined inside 01_star_align_array.slurm)
+   concurrency   = 5  (the %5 below)
+ => 4 * 5 = 20 CPUs total
+jid2=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid1 --array=0-999%5 \
+  01_star_align_array.slurm "$FASTQ_DIR" | awk '{print $4}')
+echo "star_align array jobid = $jid2"
 
-The clean-release layout expects staged Level 1 derived inputs under `data/derived`.
+------------------------------------------------
+or just copy:
+```bash
+sbatch --array=0-9%5 01_star_align_array.slurm /orange/qsong1/Yansheng/01_raw/fastq/GSE264344
+```
+------------------------------------------------
 
-## Recommended Reviewer Command
+# 3) featureCounts merge (runs after ALL array tasks succeed)
+```bash
+jid3=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid2 \
+  02_featurecounts_merge.slurm "$FASTQ_DIR" | awk '{print $4}')
+echo "featureCounts jobid = $jid3"
+```
+------------------------------------------------
+MONITORING
+------------------------------------------------
+```bash
+squeue -u "$USER"
+ls -lh "$PROJECT_ROOT/logs" | tail -n 20
 
-```sh
-Rscript run_all_manuscript_outputs_v6.R
+DATASET=$(basename "$FASTQ_DIR")
+echo "Outputs:"
+echo "$PROJECT_ROOT/03_counts/$DATASET/"
+```
+------------------------------------------------
+EXPECTED OUTPUTS (per dataset)
+------------------------------------------------
+
+Counts:
+- $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv
+- $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv.summary
+
+Alignment QC tables:
+- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_stats.tsv
+- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_outliers.tsv
+- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_catastrophic.tsv
+- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_summary.txt
+
+Per-sample STAR outputs:
+- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Log.final.out
+- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Aligned.sortedByCoord.out.bam
+- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Aligned.sortedByCoord.out.bam.bai
+
+------------------------------------------------
+NOTES
+------------------------------------------------
+
+- FASTQ_DIR must contain .fastq.gz files directly under it (no nested subfolders).
+- The alignment script detects PE vs SE by filename patterns (*_1/*_2 or *R1/*R2).
+- If your cluster requires the account to be set ONLY in the script headers,
+  then remove '--account=...' from the sbatch commands above and ensure each
+  slurm script contains:
+    #SBATCH --account=
+
+
+# QC STEPS (MANDATORY) — COPY / PASTE SECTION
+ This pipeline uses three explicit QC stages.
+ Each QC step targets a different failure mode and must be run
+ in order before downstream modeling.
+
+ QC-0 : FASTQ-level QC (raw reads sanity check)
+ QC-1 : Alignment-level QC (STAR output validation)
+ QC-2 : Count-matrix QC (library size & matrix integrity)
+
+
+# QC-0) FASTQ-level QC (qc_all.slurm)
+
+# WHY:
+   - Detect corrupted or incomplete FASTQ downloads
+   - Check read length consistency and gross quality issues
+  - Ensure raw reads are valid BEFORE alignment
+  - Diagnostic only (no trimming or filtering)
+
+# INPUT:
+```bash
+FASTQ_DIR containing *.fastq.gz for ONE dataset
+```
+# OUTPUT:
+```bash
+   /orange/qsong1/Yansheng/02_qc/<DATASET>/fastqc/
+   /orange/qsong1/Yansheng/02_qc/<DATASET>/multiqc/multiqc_report.html
+   /orange/qsong1/Yansheng/02_qc/<DATASET>/summary/
+
+PROJECT_ROOT="/orange/qsong1/Yansheng"
+FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344"
+```
+```bash
+cd "$PROJECT_ROOT/Hypergator_scripts/InnateImmuneResponseScore"
+
+sbatch qc_all.slurm "$FASTQ_DIR"
 ```
 
-## Curated Metadata and Split Definitions
 
-Curated metadata and split-design files are included for transparency under `data/curated_metadata`, `data/split_designs`, and `docs/manual_curation`. They document treatment/control group definitions, tissue/timepoint labels, manuscript role assignments, boundary categories, and publication-context mapping. The Level 1 runner does not directly rebuild all metadata/split definitions from raw public metadata; it consumes staged derived manuscript inputs that already encode these decisions. Level 2 reconstruction documents how metadata and raw/public data feed into scoring and validation.
+# QC-1) Alignment-level QC (02_featurecounts_merge.slurm)
 
-Manual curation does not manually alter delivery-minus-control &Delta;IMRSz values.
+ WHY:
+   - Verify STAR alignment completed successfully
+   - Detect samples with pathological mapping rates
+   - Catch silent alignment failures BEFORE quantification
+   - Prevent broken samples from contaminating gene counts
+------------------------------------------------------------
 
-## Full Framework and Raw-Data Reconstruction
+# INPUT:
+```bash
+   FASTQ_DIR (same as above)
+```
+```bash
+# OUTPUT:
+   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_summary.txt
+   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_outliers.tsv
+   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_catastrophic.tsv
+   $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv
+```
+```bash   
+sbatch 02_featurecounts_merge.slurm "$FASTQ_DIR"
+```
 
-Full count-to-score reconstruction and raw-data/HPC reconstruction are documented separately. The reviewer-facing runner does not run raw-data retrieval, alignment/counting, frozen-gene reconstruction, HiPerGator/SLURM scripts, archive/legacy scripts, or executable `full_pipeline` scripts.
 
-## Main Figure Outputs
+# QC-2) Count-matrix QC (10_validate_counts.slurm)
 
-Main figure regeneration is optional and legacy-dependent in this release. Submitted main figure outputs should be provided as release artifacts. The active runner currently focuses on regenerating Supplementary Figure S2, Supplementary Tables S1-S5, and readiness materials.
+# WHY:
+   - Validate integrity of gene-level count matrix
+   - Detect extremely low-depth samples
+   - Ensure matrix is safe for normalization and DE analysis
+   - Enforce traceable sample exclusion rules
 
-## Release Notes
+ INPUT:
+ ```bash
+   gene_counts.tsv generated by featureCounts
+```
+ OUTPUT:
+ ```bash
+   $OUTDIR/library_sizes.tsv
+   $OUTDIR/qc_report.txt
+   $OUTDIR/gene_counts_clean.tsv
 
-Before public release, replace placeholder repository/Zenodo links, choose a real license, and add `renv.lock` or `environment.yml` for software environment capture. Raw public sequencing data should generally be referenced by accession rather than redistributed unless redistribution is allowed and practical.
+DATASET=$(basename "$FASTQ_DIR")
+COUNTS="$PROJECT_ROOT/03_counts/${DATASET}/featurecounts/gene_counts.tsv"
+OUTDIR="$PROJECT_ROOT/03_counts/${DATASET}/featurecounts/validation"
+```
+```bash
+sbatch 10_validate_counts.slurm "$COUNTS" "$OUTDIR"
+```
+
+
+# QC DECISION RULES (SUMMARY)
+
+ - FASTQ QC (QC-0):
+     Re-download only if reads are clearly broken or truncated
+
+ - Alignment QC (QC-1):
+    alignment_catastrophic.tsv  -> DROP sample
+    alignment_outliers.tsv      -> FLAG for review
+
+ - Count QC (QC-2):
+     Extreme low-depth samples   -> DROP or reprocess
+
+## All QC actions occur BEFORE normalization or modeling.
+ #QC philosophy (important)
+
+- QC is pre-analysis only
+
+- No batch correction or biological tuning is performed
+
+- Each QC step targets a different failure mode
+
+- All exclusions are traceable and reviewer-defensible
+============================================================
+

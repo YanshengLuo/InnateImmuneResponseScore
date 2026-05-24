@@ -1,0 +1,13 @@
+dataset_id	dataset_class	organism	assay_type	treatment_type	include_in_analysis	notes
+GSE39129	anchor	mouse	bulk_rnaseq	lentivirus	TRUE	liver lentiviral anchor
+GSE167521	anchor	mouse	bulk_rnaseq	LNP	TRUE	skin LNP anchor
+GSE264344	anchor	mouse	bulk_rnaseq	adenovirus	TRUE	adenovirus anchor
+GSE279744	calibration	mouse	bulk_rnaseq	LNP	TRUE	LNP formulation calibration
+GSE190850	transfer	human	bulk_rnaseq	adenovirus	TRUE	human transfer dataset
+GSE262515	external	mouse	bulk_rnaseq	LNP	TRUE	secondary liver LNP dataset
+GSE279372	external	mouse	bulk_rnaseq	LNP	TRUE	external validation dataset
+GSE178313	external	mouse	bulk_rnaseq	unknown	TRUE	external dataset
+GSE279743	external	mouse	bulk_rnaseq	LNP	TRUE	external dataset
+GSE139529	external	mouse	bulk_rnaseq	vaccine	TRUE	external dataset
+GSE166655	external	mouse	bulk_rnaseq	LNP	TRUE	external dataset
+GSE237068	external	mouse	bulk_rnaseq	unknown	TRUE	external dataset
