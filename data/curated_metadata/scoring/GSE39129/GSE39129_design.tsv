@@ -1,0 +1,7 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
+SRR518631	DELIVERY	FALSE	delivery_lentiviral_vector_lv_	liver	4	4	NA
+SRR518632	DELIVERY	FALSE	delivery_lentiviral_vector_lv_	liver	4	4	NA
+SRR518633	DELIVERY	FALSE	delivery_lentiviral_vector_lv_	liver	4	4	NA
+SRR518634	CONTROL	TRUE	delivery_none	liver	4	4	NA
+SRR518635	CONTROL	TRUE	delivery_none	liver	4	4	NA
+SRR518636	CONTROL	TRUE	delivery_none	liver	4	4	NA

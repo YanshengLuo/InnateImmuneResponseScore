@@ -1,0 +1,4 @@
+﻿design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+<local_project_root>/00_metadata/verified_metadata/splited/GSE279743_design/GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0.tsv	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0.tsv	NA	6	NA	NA	baseline_0	NA
+<local_project_root>/00_metadata/verified_metadata/splited/GSE279743_design/GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0.tsv	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0.tsv	NA	6	NA	NA	baseline_0	NA
+

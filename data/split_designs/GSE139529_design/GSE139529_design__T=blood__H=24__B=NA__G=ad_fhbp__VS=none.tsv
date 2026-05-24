@@ -1,0 +1,13 @@
+sample_id	tissue	timepoint_hr	batch	condition_simple	group	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
+SRR10358645	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358646	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358647	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358648	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358649	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358650	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_fhbp__vs__none	matched_time
+SRR10358615	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time
+SRR10358616	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time
+SRR10358617	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time
+SRR10358618	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time
+SRR10358619	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time
+SRR10358620	blood	24	NA	DELIVERY	ad_fhbp	ad_fhbp	blood	24	24	24h	NA	FALSE	none	ad_fhbp__vs__none	matched_time

@@ -1,0 +1,15 @@
+﻿dataset_id	file	out_path	n_samples	n_controls	n_delivery	controls	status
+GSE119119	GSE119119_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE119119/GSE119119_design.tsv	32	8	24	WT_uninfected_whole_liver;TRIM21_KO_uninfected_whole_liver	OK
+GSE139529	GSE139529_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE139529/GSE139529_design.tsv	65	6	59	none	OK
+GSE166655	GSE166655_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE166655/GSE166655_design.tsv	9	3	6	delivery_untreated	OK
+GSE167521	GSE167521_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE167521/GSE167521_design.tsv	8	4	4	baseline_0	OK
+GSE178313	GSE178313_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE178313/GSE178313_design.tsv	8	4	4	mouse_repopulated_pbs	OK
+GSE190850_HUMAN	GSE190850_HUMAN_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE190850_HUMAN/GSE190850_HUMAN_design.tsv	40	20	20	delivery_unstimulated	OK
+GSE237068	GSE237068_design.tsv	NA	8	0	NA		SKIP_no_controls
+GSE262515	GSE262515_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE262515/GSE262515_design.tsv	21	6	15	baseline_0	OK
+GSE264344	GSE264344_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE264344/GSE264344_design.tsv	195	15	180	baseline_0	OK
+GSE279372	GSE279372_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE279372/GSE279372_design.tsv	28	4	24	baseline_0	OK
+GSE279743	GSE279743_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE279743/GSE279743_design.tsv	9	3	6	baseline_0	OK
+GSE279744	GSE279744_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE279744/GSE279744_design.tsv	9	3	6	baseline_0	OK
+GSE39129	GSE39129_design.tsv	<local_project_root>/00_metadata/verified_metadata/scoring/GSE39129/GSE39129_design.tsv	6	3	3	delivery_none	OK
+

@@ -1,0 +1,7 @@
+tissue_raw	time_label	batch_raw	group_raw	group_token
+blood	24h	NA	ad.mva	ad.mva
+blood	24h	NA	ad_empty	ad_empty
+blood	24h	NA	ad_fhbp	ad_fhbp
+blood	24h	NA	ad_pref	ad_pref
+blood	24h	NA	mva.ad	mva.ad
+blood	24h	NA	mva_fhbp	mva_fhbp

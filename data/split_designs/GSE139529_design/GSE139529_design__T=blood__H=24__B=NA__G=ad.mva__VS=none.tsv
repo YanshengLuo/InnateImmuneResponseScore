@@ -1,0 +1,13 @@
+sample_id	tissue	timepoint_hr	batch	condition_simple	group	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
+SRR10358645	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358646	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358647	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358648	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358649	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358650	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad.mva__vs__none	matched_time
+SRR10358651	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time
+SRR10358652	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time
+SRR10358653	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time
+SRR10358654	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time
+SRR10358655	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time
+SRR10358656	blood	24	NA	DELIVERY	ad.mva	ad.mva	blood	24	24	24h	NA	FALSE	none	ad.mva__vs__none	matched_time

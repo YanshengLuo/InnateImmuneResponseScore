@@ -1,0 +1,8 @@
+﻿design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=ad.mva__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=ad.mva__VS=none.tsv	blood	24	NA	ad.mva	none	ad.mva
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=ad_empty__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=ad_empty__VS=none.tsv	blood	24	NA	NA	none	NA
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=ad_fhbp__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=ad_fhbp__VS=none.tsv	blood	24	NA	NA	none	NA
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=ad_pref__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=ad_pref__VS=none.tsv	blood	24	NA	NA	none	NA
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=mva.ad__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=mva.ad__VS=none.tsv	blood	24	NA	mva.ad	none	mva.ad
+<local_project_root>/00_metadata/verified_metadata/splited/GSE139529_design/GSE139529_design__T=blood__H=24__B=NA__G=mva_fhbp__VS=none.tsv	GSE139529_design__T=blood__H=24__B=NA__G=mva_fhbp__VS=none.tsv	blood	24	NA	NA	none	NA
+

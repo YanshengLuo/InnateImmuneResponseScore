@@ -1,0 +1,37 @@
+﻿Final reproducibility equivalence summary
+Generated: 2026-05-23 22:16:37 -04:00
+
+Supplementary Figure S2 regenerated successfully: yes
+Supplementary Tables S1-S5 regenerated successfully: yes
+NAR G&B readiness files regenerated successfully: yes
+Files compared: 38
+Matching/nonzero structural matches: 29
+Expected differences: 9
+Unexpected differences: 0
+
+Row counts match original v6 manuscript-result TSV outputs: yes
+Key numeric summaries match for comparable rows/tables: yes
+- S1, S2, S3, S4, and S5 supplementary TSV row counts, column counts, and numeric/key summary values match original v6 outputs.
+- S4 now has 7 rows, including Comparator benchmarking and Coefficient sensitivity; all S4 non-source_file columns and key result summaries match original v6.
+- Supplementary Figure S2 enrichment TSV matches original v6 exactly for term IDs, database labels, gene counts, and adjusted p-values.
+
+Expected differences:
+- Figure PNG/PDF/SVG and XLSX outputs were checked for expected filenames and nonzero size, not binary identity, because rendering metadata and Excel workbook metadata may differ.
+- TSV hashes can differ where regenerated repository paths, source_file columns, timestamps, notes, or package/session text differ; row/column structure and numeric/key values were used as the equivalence criterion for manuscript-result TSVs.
+- NAR G&B readiness text/manifest files are present and nonzero; row counts may differ because repository-local paths, package scope, timestamps, and session details differ from original v6.
+
+Unexpected differences: none
+
+Reviewer-facing reproduction layer acceptable: yes
+
+Remaining manual actions before public release:
+- Fill repository URL, reviewer-access link, and Zenodo/archive DOI placeholders.
+- Decide raw-data redistribution policy versus accession-only retrieval instructions.
+- Optionally stage missing non-blocking role/script-inventory/Step09 source files if they should appear in readiness manifests.
+- Consider adding renv.lock or environment.yml for a versioned software environment.
+
+Validation:
+- No main figures, Supplementary Figure S2, NAR readiness, full_pipeline, hpc_hypergator, archive_legacy, raw-data reconstruction, or frozen-gene reconstruction were run for the S4 fix.
+- Only the active supplementary table packager was rerun after staging the missing optional S4 source files.
+- No original v6 files were modified.
+- No IMRS scoring, validation, robustness, enrichment statistics, figure-data values, supplementary-table source values, or manuscript results were changed.

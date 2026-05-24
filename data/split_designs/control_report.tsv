@@ -1,0 +1,14 @@
+file	controls
+GSE119119_design.tsv	WT_uninfected_whole_liver;TRIM21_KO_uninfected_whole_liver
+GSE139529_design.tsv	none
+GSE166655_design.tsv	delivery_untreated
+GSE167521_design.tsv	baseline_0
+GSE178313_design.tsv	mouse_repopulated_pbs
+GSE190850_HUMAN_design.tsv	delivery_unstimulated
+GSE237068_design.tsv	
+GSE262515_design.tsv	baseline_0
+GSE264344_design.tsv	baseline_0
+GSE279372_design.tsv	baseline_0
+GSE279743_design.tsv	baseline_0
+GSE279744_design.tsv	baseline_0
+GSE39129_design.tsv	delivery_none

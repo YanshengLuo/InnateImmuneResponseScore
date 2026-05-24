@@ -1,0 +1,13 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	dataset_id	parent_dataset_id	scoring_unit
+SRR28462963	DELIVERY	FALSE	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462964	DELIVERY	FALSE	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462965	DELIVERY	FALSE	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462966	DELIVERY	FALSE	delivery_tlnp_sihbv_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462967	DELIVERY	FALSE	delivery_tlnp_sihbv_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462968	DELIVERY	FALSE	delivery_tlnp_sihbv_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462969	DELIVERY	FALSE	delivery_tlnp_sinc_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462970	DELIVERY	FALSE	delivery_tlnp_sinc_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462971	DELIVERY	FALSE	delivery_tlnp_sinc_1mg_kg	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462972	CONTROL	TRUE	baseline_0	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462973	CONTROL	TRUE	baseline_0	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue
+SRR28462974	CONTROL	TRUE	baseline_0	tissue	72	72	NA	GSE262515_tissue	GSE262515	tissue

@@ -1,0 +1,10 @@
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
+SRR13694562	DELIVERY	FALSE	delivery_aav9_ar45	Tibialis anterior	672	672	NA
+SRR13694563	DELIVERY	FALSE	delivery_aav9_ar45	Tibialis anterior	672	672	NA
+SRR13694564	DELIVERY	FALSE	delivery_aav9_ar45	Tibialis anterior	672	672	NA
+SRR13694565	DELIVERY	FALSE	delivery_aav9_gfp	Tibialis anterior	672	672	NA
+SRR13694566	DELIVERY	FALSE	delivery_aav9_gfp	Tibialis anterior	672	672	NA
+SRR13694567	DELIVERY	FALSE	delivery_aav9_gfp	Tibialis anterior	672	672	NA
+SRR13694568	CONTROL	TRUE	delivery_untreated	Tibialis anterior	672	672	NA
+SRR13694569	CONTROL	TRUE	delivery_untreated	Tibialis anterior	672	672	NA
+SRR13694570	CONTROL	TRUE	delivery_untreated	Tibialis anterior	672	672	NA
