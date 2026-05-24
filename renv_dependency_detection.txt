@@ -1,3 +1,0 @@
-detected_packages=renv, AnnotationDbi, BiocManager, clusterProfiler, DESeq2, dplyr, forcats, ggplot2, msigdbr, org.Mm.eg.db, patchwork, png, pROC, purrr, ReactomePA, readr, scales, stringr, svglite, tibble, tidyr, writexl
-snapshotted_installed_packages=renv, AnnotationDbi, BiocManager, clusterProfiler, DESeq2, dplyr, forcats, ggplot2, msigdbr, org.Mm.eg.db, patchwork, png, pROC, purrr, ReactomePA, readr, scales, stringr, svglite, tibble, tidyr, writexl
-missing_detected_packages=none

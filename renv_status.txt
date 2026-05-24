@@ -1,8 +1,0 @@
-renv.lock created yes/no: yes
-R version: R version 4.3.3 (2024-02-29 ucrt)
-renv version: 1.1.5
-reason if not created: not_applicable
-next command to create/restore environment: Rscript -e "install.packages('renv'); renv::init(bare = TRUE); renv::snapshot(prompt = FALSE)"
-restore command after clone: Rscript -e "renv::restore(prompt = FALSE)"
-
-snapshot note: renv.lock was created from detected repository dependencies without installing packages or running analysis scripts. The snapshot console warned that transitive packages fansi and plogr were not installed in the local library; run renv::restore(prompt = FALSE) in a clean clone to restore the full environment from the lockfile.
