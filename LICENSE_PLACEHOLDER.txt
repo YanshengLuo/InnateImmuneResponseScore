@@ -1,1 +1,0 @@
-Choose an open-source license before public release, such as MIT, BSD-3-Clause, or GPL-3.0, depending on project and institutional requirements.
