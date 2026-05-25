@@ -29,6 +29,6 @@ Upstream reconstruction inputs are staged under:
 
 Upstream reconstruction scripts are staged under:
 
-- `scripts/full_pipeline/frozen_gene_reconstruction/`
+- `scripts/full_pipeline/provenance_legacy/frozen_gene_reconstruction/`
 
-These files document the reconstruction path. They are not called by `run_all_manuscript_outputs_v6.R` and are not part of the default reviewer-facing active manuscript run.
+These historical provenance copies document the reconstruction path, may retain original workflow assumptions, and are not intended to run as-is from a fresh clone. They are not called by `run_all_manuscript_outputs_v6.R` and are not part of the default reviewer-facing active manuscript run.

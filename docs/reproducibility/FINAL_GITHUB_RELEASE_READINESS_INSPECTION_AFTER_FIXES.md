@@ -38,7 +38,7 @@ No IMRS scoring values, validation values, robustness statistics, enrichment sta
 
 ## Remaining Non-Blocking Findings
 
-- Layer 1 provenance scripts under `scripts/full_pipeline/` retain historical local-root defaults. Their README and inventory explicitly state that they are documentation-first and are not the default reviewer run.
+- Historical Layer 1 executables are isolated under `scripts/full_pipeline/provenance_legacy/` because they retain original local-root defaults. The Layer 1 README and inventory state that they are documentation/provenance and are not intended to run as-is from a fresh clone.
 - Two non-default utility scripts with historical local-root assumptions (`scripts/utilities/project_tree.R` and `scripts/utilities/temporal_code.R`) were excluded from the public branch because they are not invoked by the Layer 2 runner.
 - The prior pre-fix inspection report intentionally describes findings that have since been addressed; it is marked as superseded.
 - Local `results_release_templates/` and `local_test_logs/` still contain generated execution traces from validation. They are ignored and are not recommended for the public source commit.
@@ -95,7 +95,7 @@ Ignored and not recommended for commit:
 - `config/config_template.yml` and `config/README_config.md`.
 - `run_all_manuscript_outputs_v6.R` and `run_full_pipeline_from_public_data_TEMPLATE.R`.
 - `scripts/active_manuscript/` and its repository-contained helpers.
-- `scripts/full_pipeline/` as documented Layer 1 provenance.
+- `scripts/full_pipeline/`, with historical executables grouped under `provenance_legacy/`, as documented Layer 1 provenance.
 - Reviewed `scripts/utilities/` and `scripts/optional_internal/` with their stated non-default roles.
 - `data/accessions/`, `data/curated_metadata/`, `data/split_designs/`, and the sanitized `data/derived/` Layer 2 release inputs.
 - Public-facing documentation beneath `docs/`.

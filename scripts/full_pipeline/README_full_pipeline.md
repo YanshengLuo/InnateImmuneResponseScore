@@ -8,6 +8,14 @@ Layer 1 provides provenance for the frozen, transfer-oriented IMRS scoring frame
 
 No script in this folder is called by the default Layer 2 runner.
 
+## Public Packaging Status
+
+Layer 1 is provided for documentation and computational provenance, not as the default reviewer run.
+
+Historical Layer 1 R scripts are preserved under `provenance_legacy/`. They retain the original count-to-score workflow logic, including metadata processing, contrast generation, locked-anchor retained-gene construction, frozen scoring, and Step09 evaluation. These historical scripts may retain original path assumptions and workflow conventions; they are not intended to be run as-is from a fresh public clone.
+
+The validated reviewer-facing executable route is Layer 2 via the repository-root `run_all_manuscript_outputs_v6.R` runner. It uses released derived inputs and does not call `scripts/full_pipeline/provenance_legacy/`.
+
 ## Scope
 
 The intended Layer 1 computation is:
@@ -36,21 +44,21 @@ Layer 1 expects the following input classes after any public-data retrieval/coun
 | Treatment/control and split definitions | `00_metadata/verified_metadata/scoring/` and `00_metadata/verified_metadata/splited/` | `data/split_designs/` and curation documentation |
 | Locked-anchor dataset definition | Embedded in Step06 scripts and documented curation tables | Documentation and released derived/audit tables |
 
-Some scripts preserve historical local project paths as provenance copies. Their current packaging status is documented in `full_pipeline_script_inventory.tsv`; path cleanup and an explicit environment configuration are required before a portable Layer 1 execution attempt.
+The historical scripts under `provenance_legacy/` preserve original local project paths and workflow assumptions as provenance copies. Their status is documented in `full_pipeline_script_inventory.tsv`; path cleanup and an explicit environment configuration are required before any portable Layer 1 execution attempt.
 
 ## Pipeline Sequence
 
 ### 1. Metadata preparation and design definition
 
-`METADATA_BUILD.R` reads per-dataset SRA metadata tables and derives dataset-level sample/design tables with `condition_simple` assignments. `01_run_all_metadata_build.R` is a wrapper for applying that build across datasets.
+`provenance_legacy/METADATA_BUILD.R` reads per-dataset SRA metadata tables and derives dataset-level sample/design tables with `condition_simple` assignments. `provenance_legacy/01_run_all_metadata_build.R` is a wrapper for applying that build across datasets.
 
-`02_adding_control_to_design.R` constructs dataset-level scoring designs, including `CONTROL` and `DELIVERY` labels used by frozen scoring. `03_Final_design_file_autogroup.R` constructs DESeq2-ready delivery-versus-control split designs stratified by tissue, timepoint, batch, and delivery group, including its documented time-zero control fallback behavior.
+`provenance_legacy/02_adding_control_to_design.R` constructs dataset-level scoring designs, including `CONTROL` and `DELIVERY` labels used by frozen scoring. `provenance_legacy/03_Final_design_file_autogroup.R` constructs DESeq2-ready delivery-versus-control split designs stratified by tissue, timepoint, batch, and delivery group, including its documented time-zero control fallback behavior.
 
 These steps encode metadata and contrast definitions. Manual curation documentation is released separately because public datasets do not express every group, tissue/timepoint, manuscript role, or boundary-context label in a uniform machine-readable form.
 
 ### 2. Delivery-versus-control differential expression
 
-`05_DEseq_contrast_delivery_control.R` starts from raw integer gene counts and verified/split design files. It performs phase-aware DESeq2 normalization and delivery-versus-control contrasts, writing normalized count artifacts and DE result tables for anchor and calibration contexts.
+`provenance_legacy/05_DEseq_contrast_delivery_control.R` starts from raw integer gene counts and verified/split design files. It performs phase-aware DESeq2 normalization and delivery-versus-control contrasts, writing normalized count artifacts and DE result tables for anchor and calibration contexts.
 
 This stage supplies differential-expression tables to the locked-anchor coefficient construction steps. It is a count-level analysis step and is not rerun during reviewer-facing manuscript-output reproduction.
 
@@ -60,24 +68,24 @@ The core retained-gene reconstruction sequence is:
 
 | Script | Function | Principal output |
 | --- | --- | --- |
-| `06A_core_gene_set.R` | Builds locked-anchor support/core gene sets from Step05 DE outputs | `05_score/anchors/core_gene_set.tsv`, support and contrast-count tables |
-| `06B_gene_heterogeneity.R` | Summarizes cross-anchor effect estimates and heterogeneity | `05_score/anchors/gene_heterogeneity.tsv` |
-| `06C_Power_analysis.R` | Calculates information/power annotation from anchor estimates | `05_score/anchors/gene_power.tsv` |
-| `07_weight_estimation.R` | Applies the existing frozen coefficient estimation rule | `05_score/anchors/gene_weights.tsv` |
+| `provenance_legacy/06A_core_gene_set.R` | Builds locked-anchor support/core gene sets from Step05 DE outputs | `05_score/anchors/core_gene_set.tsv`, support and contrast-count tables |
+| `provenance_legacy/06B_gene_heterogeneity.R` | Summarizes cross-anchor effect estimates and heterogeneity | `05_score/anchors/gene_heterogeneity.tsv` |
+| `provenance_legacy/06C_Power_analysis.R` | Calculates information/power annotation from anchor estimates | `05_score/anchors/gene_power.tsv` |
+| `provenance_legacy/07_weight_estimation.R` | Applies the existing frozen coefficient estimation rule | `05_score/anchors/gene_weights.tsv` |
 
 The release-facing canonical coefficient table is `data/derived/frozen_gene_weights.tsv`, which corresponds to the frozen `gene_weights.tsv` used for manuscript scoring and interpretation. It is not edited manually in the workflow.
 
-The `frozen_gene_reconstruction/` subfolder retains a focused copy of Steps 06A-07 plus an optional comparison template. `check_frozen_gene_weights_reproducibility_TEMPLATE.R` is intended to compare a future regenerated coefficient table against the released canonical file. It is never called by the default reviewer runner.
+The `provenance_legacy/frozen_gene_reconstruction/` subfolder retains a focused copy of Steps 06A-07 plus an optional comparison template. `check_frozen_gene_weights_reproducibility_TEMPLATE.R` is intended to compare a future regenerated coefficient table against the released canonical file. It is never called by the default reviewer runner.
 
 ### 4. Frozen sample-level scoring
 
-`08_score_samples.R` applies frozen anchor weights to datasets without refitting coefficients. It reads count matrices, scoring designs, and `gene_weights.tsv`; performs dataset-internal normalization and control-referenced standardization; and writes sample-level IMRS score and QC/contributor tables under the original `05_score/transfer/` workflow location.
+`provenance_legacy/08_score_samples.R` applies frozen anchor weights to datasets without refitting coefficients. It reads count matrices, scoring designs, and `gene_weights.tsv`; performs dataset-internal normalization and control-referenced standardization; and writes sample-level IMRS score and QC/contributor tables under the original `05_score/transfer/` workflow location.
 
 The relevant framework concept is frozen scoring: validation or transfer-evaluation datasets do not update the retained gene list or frozen coefficients.
 
 ### 5. Step09 split-level evaluation
 
-`09_calibration_evaluation.R` combines Step08 sample-level scores with verified split designs and writes:
+`provenance_legacy/09_calibration_evaluation.R` combines Step08 sample-level scores with verified split designs and writes:
 
 - `step09_split_eval.tsv`
 - `step09_split_summary.tsv`
@@ -91,10 +99,10 @@ Released Step09-derived and supporting tables are the bridge from Layer 1 into L
 
 The following scripts preserve analyses or checks useful for provenance, but they are not required to derive the canonical frozen coefficient table or Step09 tables:
 
-- `Post-09_Check.R`: post-evaluation summaries/pass-check outputs.
-- `audit_gse264344.R`: dataset-specific stratified audit.
-- `compare_imrs_to_literature.R`: historical literature-context comparison.
-- `post_09A_flag_low_imrs_datasets.R`, `post_09B_diagnose_weak_datasets.R`, `post_09C_Noise_Rescore.R`: historical diagnostic/sensitivity materials.
+- `provenance_legacy/Post-09_Check.R`: post-evaluation summaries/pass-check outputs.
+- `provenance_legacy/audit_gse264344.R`: dataset-specific stratified audit.
+- `provenance_legacy/compare_imrs_to_literature.R`: historical literature-context comparison.
+- `provenance_legacy/post_09A_flag_low_imrs_datasets.R`, `provenance_legacy/post_09B_diagnose_weak_datasets.R`, `provenance_legacy/post_09C_Noise_Rescore.R`: historical diagnostic/sensitivity materials.
 
 Several of these scripts use historical wording that is not preferred for manuscript-facing text. They are retained as provenance material and should be terminology-reviewed before public interpretation or execution.
 
@@ -120,14 +128,14 @@ These released tables support manuscript-output reproduction without changing th
 
 ## Execution Status and Portability
 
-This folder is documentation-first. The scripts are included to preserve the computational path, but full execution has not been performed as part of release packaging.
+This folder is documentation-first. Executable provenance copies are isolated under `provenance_legacy/` to preserve the computational path, but full execution has not been performed as part of release packaging.
 
 Known portability issues include:
 
-- Several scripts retain the historical default `D:/IMRS_Project` path or other original workflow directory assumptions.
-- `03_Final_design_file_autogroup.R` has a directly assigned absolute metadata input path.
-- `01_run_all_metadata_build.R` sources metadata code from the historical script-tree layout.
-- `Post-09_Check.R` attempts package installation during execution.
+- Several `provenance_legacy/` scripts retain the historical default `D:/IMRS_Project` path or other original workflow directory assumptions.
+- `provenance_legacy/03_Final_design_file_autogroup.R` has a directly assigned absolute metadata input path.
+- `provenance_legacy/01_run_all_metadata_build.R` sources metadata code from the historical script-tree layout.
+- `provenance_legacy/Post-09_Check.R` attempts package installation during execution.
 - The frozen-weight comparison template still contains historical staged-path defaults that should be aligned with `data/derived/` before future use.
 - `.Rhistory` is a local-state artifact and should not be committed as pipeline code.
 
