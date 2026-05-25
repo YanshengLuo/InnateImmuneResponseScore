@@ -1,0 +1,25 @@
+file	role_in_figure_generation	upstream_result_class	notes
+manuscript_dataset_role_table.tsv	Manuscript analysis-group and split context display	Role curation/audit result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+dataset_classification_authoritative.tsv	Anchor/dataset classification display	Locked-anchor dataset classification	Released derived table; read-only during figure regeneration.
+support_by_dataset.tsv	Cross-anchor gene-support panels	Anchor support result	Released derived table; read-only during figure regeneration.
+contrast_counts_by_dataset.tsv	Anchor contrast counts	Anchor differential-expression summary	Released derived table; read-only during figure regeneration.
+contrast_counts_by_dataset_6B.tsv	Heterogeneity-stage contrast counts	Anchor differential-expression summary	Released derived table; read-only during figure regeneration.
+gene_weights.tsv	Frozen coefficient figure input	Frozen gene weights	Equivalent released coefficient input for figure code; not refit.
+gene_symbol_mapping.tsv	Gene-symbol annotation	Gene mapping table	Released derived annotation table.
+gene_heterogeneity.tsv	Gene QC annotation panel	Anchor QC result	Released derived table; read-only during figure regeneration.
+gene_power.tsv	Gene QC/background annotation	Anchor eligibility/power result	Released derived table; read-only during figure regeneration.
+leave_one_gene_out_summary.tsv	Leave-one-gene-out robustness panels	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+gene_dominance_summary.tsv	Gene dominance robustness panels	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+threshold_sensitivity_summary.tsv	Threshold robustness panel	Robustness result	Released derived table; read-only during figure regeneration.
+threshold_sensitivity_contrast_deltas.tsv	Threshold robustness contrast detail	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+five_anchor_leave_one_anchor_out_summary.tsv	Leave-one-anchor-out panel	Robustness result	Released derived table; read-only during figure regeneration.
+five_anchor_leave_one_anchor_out_contrast_details.tsv	Leave-one-anchor-out contrast detail	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+weak_dataset_paper_context_audit.tsv	Boundary-context supplementary panels	Boundary-context audit result	Late or context-shifted settings are retained as boundary-setting evidence.
+step09_split_eval.tsv	Split-level transfer-evaluation panels	Frozen scoring/evaluation result	Contains delivery-minus-control delta IMRSz summaries; read-only. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+step09_split_sample_level.tsv	Sample-level plot panels	Frozen scoring result	Released derived table; read-only during figure regeneration.
+label_permutation_null_summary.tsv	Permutation-null panels	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+baseline_signature_contrast_long.tsv	Comparator panels	Comparator benchmarking result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.
+baseline_signature_paired_contrast_comparison.tsv	Comparator paired panels	Comparator benchmarking result	Released derived table; read-only during figure regeneration.
+baseline_signature_summary_by_group.tsv	Comparator summary panels	Comparator benchmarking result	Released derived table; read-only during figure regeneration.
+baseline_signature_scores_sample_level.tsv	Comparator sample-level panel	Comparator benchmarking result	Released derived table; read-only during figure regeneration.
+coefficient_sensitivity_summary.tsv	Coefficient sensitivity panel	Robustness result	Released derived table; read-only during figure regeneration. Historical local source-path strings were portabilized to <upstream_project_root> for public release hygiene; result values unchanged.

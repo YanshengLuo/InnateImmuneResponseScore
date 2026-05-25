@@ -1,0 +1,211 @@
+gse_id	split_id	signature_id	signature_label	baseline_delta_score	baseline_auc_secondary	imrs_delta_score	imrs_auc_secondary
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_1000_g_lnps_injected__VS=baseline_0	ISG	Interferon-stimulated genes	24.029826838023588	1	28.281184954437517	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_1000_g_lnps_injected__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	7.208868288989276	1	28.281184954437517	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_1000_g_lnps_injected__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	23.854366831749807	1	28.281184954437517	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_250_g_alum_injected__VS=baseline_0	ISG	Interferon-stimulated genes	-1.1175226361946933	0.1875	-0.521111432394882	0.3125
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_250_g_alum_injected__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	-0.6691069174407047	0.25	-0.521111432394882	0.3125
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_250_g_alum_injected__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.5693140135416469	0.6875	-0.521111432394882	0.3125
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_5_g_gi_1_gii_4_vlp__VS=baseline_0	ISG	Interferon-stimulated genes	2.8903279925309353	1	2.562748652650221	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_5_g_gi_1_gii_4_vlp__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	-0.07408961226487339	0.375	2.562748652650221	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=delivery_5_g_gi_1_gii_4_vlp__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	3.6693545186707732	1	2.562748652650221	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110503__VS=baseline_0	ISG	Interferon-stimulated genes	0.2582689416089718	0.5625	0.4684414966881426	0.6875
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110503__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	-0.41778091245419485	0.25	0.4684414966881426	0.6875
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110503__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.9740560626566577	1	0.4684414966881426	0.6875
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110754__VS=baseline_0	ISG	Interferon-stimulated genes	20.494435436730406	1	22.534933511125143	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110754__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.7629088580025947	1	22.534933511125143	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00110754__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	19.872955522504697	1	22.534933511125143	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00114748__VS=baseline_0	ISG	Interferon-stimulated genes	23.388793253777646	1	28.73023370273408	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00114748__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	7.9421366246895255	1	28.73023370273408	1
+GSE279372	GSE279372_design__T=draining_lymph_nodes__H=24__B=NA__G=GID00114748__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	24.755569045123025	1	28.73023370273408	1
+GSE39129	GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none	ISG	Interferon-stimulated genes	27.63584094321775	1	34.722530908038976	1
+GSE39129	GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	46.29974468234871	1	34.722530908038976	1
+GSE39129	GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none	GENERIC_INNATE	Generic innate immune genes	29.046151071450208	1	34.722530908038976	1
+GSE167521	GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0	ISG	Interferon-stimulated genes	4.159493814654784	1	8.690306696957737	1
+GSE167521	GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	19.296991538896116	1	8.690306696957737	1
+GSE167521	GSE167521_design__T=skin__H=24__B=NA__G=delivery_lnp__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	10.466305005597262	1	8.690306696957737	1
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	-0.1454161521561571	0.36	0.0779068941903649	0.68
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.5946727442169631	1	0.0779068941903649	0.68
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.28252921078049587	0.92	0.0779068941903649	0.68
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	-0.027185787425987762	0.48	0.22131834935303651	0.88
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.5710462394111254	1	0.22131834935303651	0.88
+GSE264344	GSE264344_design__T=Blood__H=1__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.18959804942227	0.92	0.22131834935303651	0.88
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	4.766955459125013	1	4.557142380026869	1
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.8286278144106123	1	4.557142380026869	1
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.4538398341193046	1	4.557142380026869	1
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	3.12818821912565	1	2.7728375923214097	1
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.2026590249648734	1	2.7728375923214097	1
+GSE264344	GSE264344_design__T=Blood__H=12__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.8428392818679006	0.92	2.7728375923214097	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	3.1259985370382357	1	2.7381119047981937	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.5645947347453002	1	2.7381119047981937	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.0602616806749552	1	2.7381119047981937	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	1.915357342383984	1	1.4094733289679715	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.49650419218433206	0.96	1.4094733289679715	1
+GSE264344	GSE264344_design__T=Blood__H=24__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.5230918568927917	1	1.4094733289679715	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	3.597732432561141	1	3.6646891330381473	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.339140519710911	1	3.6646891330381473	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.2774433540840011	1	3.6646891330381473	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	0.8900697350834623	0.96	0.9366653756632484	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.7697744363451826	1	0.9366653756632484	1
+GSE264344	GSE264344_design__T=Blood__H=3__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.7143737808293086	1	0.9366653756632484	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	3.6204815970690816	1	3.515367759659114	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.022028735071841	1	3.515367759659114	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.2899356881063375	1	3.515367759659114	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	4.465315071507177	1	4.749455631909948	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.7608552128179773	1	4.749455631909948	1
+GSE264344	GSE264344_design__T=Blood__H=6__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.4920617984651239	1	4.749455631909948	1
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	-0.11618591030346248	0.44	0.08713996296972348	0.7200000000000001
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.22655116887837867	0.7200000000000001	0.08713996296972348	0.7200000000000001
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	-0.08006029225706823	0.4	0.08713996296972348	0.7200000000000001
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	0.21464353496710054	0.8	0.26635130536495155	0.96
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.4764663126488036	0.92	0.26635130536495155	0.96
+GSE264344	GSE264344_design__T=Blood__H=72__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.25073862824884785	1	0.26635130536495155	0.96
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	0.21610624928203886	0.7200000000000001	0.3695107717465071	0.8400000000000001
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.3824536165574566	1	0.3695107717465071	0.8400000000000001
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.3013559782921329	0.92	0.3695107717465071	0.8400000000000001
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	-0.13471121504067826	0.6000000000000001	0.3592382013315616	0.8
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.0777585373145016	1	0.3592382013315616	0.8
+GSE264344	GSE264344_design__T=dLN__H=1__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.29963127041816984	0.92	0.3592382013315616	0.8
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	5.192069180974002	1	5.521888634175941	1
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	7.819730875160726	1	5.521888634175941	1
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.6532872243548422	1	5.521888634175941	1
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	4.775935084475342	1	5.006224300092883	1
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.195892172829959	1	5.006224300092883	1
+GSE264344	GSE264344_design__T=dLN__H=12__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.2177149952081843	1	5.006224300092883	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	4.00331386549238	1	3.75024700596753	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.6139587733151313	1	3.75024700596753	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.8074427291662487	1	3.75024700596753	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	3.532600264317266	1	3.164769842555989	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.0124039321451006	1	3.164769842555989	1
+GSE264344	GSE264344_design__T=dLN__H=24__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.5388402338172755	1	3.164769842555989	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	4.43296241957709	1	4.35817929066291	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	6.517889530259669	1	4.35817929066291	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.5269902040914298	1	4.35817929066291	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	3.063023593385321	1	2.7627049595948865	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.529191680506763	1	2.7627049595948865	1
+GSE264344	GSE264344_design__T=dLN__H=3__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.9415725900905154	1	2.7627049595948865	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	5.369708612183541	1	5.703930536988686	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	7.619391463187281	1	5.703930536988686	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.79130043925999	1	5.703930536988686	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	5.1204589494235595	1	5.288429542245774	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	6.069467297314217	1	5.288429542245774	1
+GSE264344	GSE264344_design__T=dLN__H=6__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.4868394437948835	1	5.288429542245774	1
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	0.32047031536763476	0.8	0.3932971804473866	0.8
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.43987456535722935	0.96	0.3932971804473866	0.8
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	-0.1918328997106996	0.04000000000000001	0.3932971804473866	0.8
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	0.34585121227886045	0.8	0.4507210263939263	0.8
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.6301490858748588	1	0.4507210263939263	0.8
+GSE264344	GSE264344_design__T=dLN__H=72__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	-0.09188944894294782	0.24000000000000002	0.4507210263939263	0.8
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	-0.1843385356595444	0.4	0.5752137463208833	1
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.882393557986337	1	0.5752137463208833	1
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.3625490018566382	1	0.5752137463208833	1
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	-0.3427698260302672	0.24	0.5210164970803043	0.96
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.303212498701978	1	0.5210164970803043	0.96
+GSE264344	GSE264344_design__T=Muscle__H=1__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.5334790654055728	1	0.5210164970803043	0.96
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	4.372935920960205	1	4.379052454232406	1
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.315505880384924	1	4.379052454232406	1
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.3205604996863862	1	4.379052454232406	1
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	4.395950953139963	1	4.561337243094393	1
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.662382893036337	1	4.561337243094393	1
+GSE264344	GSE264344_design__T=Muscle__H=12__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.623111301764696	1	4.561337243094393	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	3.5575867727180737	1	3.5649069751207745	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.385368817596496	1	3.5649069751207745	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.3489116537023782	1	3.5649069751207745	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	3.1718042463504212	1	3.5245362334746155	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.449472458228335	1	3.5245362334746155	1
+GSE264344	GSE264344_design__T=Muscle__H=24__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.4090550034138818	1	3.5245362334746155	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	3.2084517855506376	1	3.166868738099831	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.594677208382652	1	3.166868738099831	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.3971277156217272	1	3.166868738099831	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	1.430469164869328	0.92	1.8285090170879783	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.086553202264228	1	1.8285090170879783	1
+GSE264344	GSE264344_design__T=Muscle__H=3__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.0964135999587503	1	1.8285090170879783	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	4.553614455077108	1	4.409334481944208	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.236206550482925	1	4.409334481944208	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.7312261338840744	1	4.409334481944208	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	4.031820375292204	1	4.115105313956205	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	6.0774442412943825	1	4.115105313956205	1
+GSE264344	GSE264344_design__T=Muscle__H=6__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	1.7620535676417979	1	4.115105313956205	1
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad26__VS=baseline_0	ISG	Interferon-stimulated genes	0.7455732886786893	0.88	1.0550234100660878	0.96
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad26__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.3018437252292998	0.92	1.0550234100660878	0.96
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad26__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.6599101302690485	1	1.0550234100660878	0.96
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad5__VS=baseline_0	ISG	Interferon-stimulated genes	1.135966014606379	0.96	1.441223145245387	1
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad5__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.9231225028673755	1	1.441223145245387	1
+GSE264344	GSE264344_design__T=Muscle__H=72__B=NA__G=delivery_ad5__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.870222725521085	1	1.441223145245387	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	ISG	Interferon-stimulated genes	23.46347502480971	1	56.61527045924109	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	30.41319124111064	1	56.61527045924109	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	14.017904308062377	1	56.61527045924109	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	ISG	Interferon-stimulated genes	8.861447589427941	1	13.680287410826422	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.16625161598970625	0.5555555555555556	13.680287410826422	1
+GSE279744	GSE279744_design__T=lymph_node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	3.4658002622777535	1	13.680287410826422	1
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_1mg_kg__VS=baseline_0	ISG	Interferon-stimulated genes	-0.45932566447308243	0.3333333333333333	1.0413601243524528	0.8888888888888888
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_1mg_kg__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.5075929681173825	1	1.0413601243524528	0.8888888888888888
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_1mg_kg__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.07905847301086695	0.6666666666666666	1.0413601243524528	0.8888888888888888
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_2_5mg_kg__VS=baseline_0	ISG	Interferon-stimulated genes	-0.5078029539409217	0.4444444444444444	0.5621390394308718	0.6666666666666666
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_2_5mg_kg__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.526769099880506	0.8888888888888888	0.5621390394308718	0.6666666666666666
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sihbv_2_5mg_kg__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	-0.2060586923229941	0.5555555555555556	0.5621390394308718	0.6666666666666666
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sinc_1mg_kg__VS=baseline_0	ISG	Interferon-stimulated genes	-0.34287611139013596	0.2222222222222222	0.7571044035156834	0.7777777777777778
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sinc_1mg_kg__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	2.7035919639622374	0.8888888888888888	0.7571044035156834	0.7777777777777778
+GSE262515_tissue	GSE262515_tissue__T=tissue__H=72__B=NA__G=delivery_tlnp_sinc_1mg_kg__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.23918588855645548	0.5555555555555556	0.7571044035156834	0.7777777777777778
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sihbv_50nm__VS=baseline_0	ISG	Interferon-stimulated genes	1.0778433836863048	0.5555555555555556	3.0762415648459083	1
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sihbv_50nm__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.8384678727430289	0.4444444444444444	3.0762415648459083	1
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sihbv_50nm__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	6.61249399371266	1	3.0762415648459083	1
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sinc_50nm__VS=baseline_0	ISG	Interferon-stimulated genes	0.8210728273070096	0.5555555555555556	-0.48131475690837977	0.5555555555555556
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sinc_50nm__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	-1.5151871950096136	0.1111111111111111	-0.48131475690837977	0.5555555555555556
+GSE262515_cell_line	GSE262515_cell_line__T=cell_line__H=72__B=NA__G=delivery_tlnp_sinc_50nm__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	-2.0332182294781433	0.2222222222222222	-0.48131475690837977	0.5555555555555556
+GSE178313	GSE178313_design__T=Liver__H=48__B=NA__G=mouse_repopulated_lnp__VS=mouse_repopulated_pbs	ISG	Interferon-stimulated genes	9.385138539215273	0.875	6.743275601355258	1
+GSE178313	GSE178313_design__T=Liver__H=48__B=NA__G=mouse_repopulated_lnp__VS=mouse_repopulated_pbs	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.422044449333118	0.6875	6.743275601355258	1
+GSE178313	GSE178313_design__T=Liver__H=48__B=NA__G=mouse_repopulated_lnp__VS=mouse_repopulated_pbs	GENERIC_INNATE	Generic innate immune genes	0.961885206044878	0.6875	6.743275601355258	1
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	ISG	Interferon-stimulated genes	6.84361129272771	1	13.946939108182676	1
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	24.425715354175072	1	13.946939108182676	1
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_sm102__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	8.209845313604024	1	13.946939108182676	1
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	ISG	Interferon-stimulated genes	1.794661681903124	0.8888888888888888	2.349508430440869	0.8888888888888888
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.4724343163944555	1	2.349508430440869	0.8888888888888888
+GSE279743	GSE279743_design__T=Lymph_Node__H=6__B=NA__G=delivery_vaccination_with_ssop__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.6832659146787747	0.7777777777777778	2.349508430440869	0.8888888888888888
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated	ISG	Interferon-stimulated genes	1.0057992825063609	0.7777777777777778	2.14949309685498	1
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.5980094939547755	0.7777777777777778	2.14949309685498	1
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated	GENERIC_INNATE	Generic innate immune genes	2.0750251056506412	1	2.14949309685498	1
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated	ISG	Interferon-stimulated genes	0.14264413356644065	0.4444444444444444	-0.05802375536641783	0.4444444444444444
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.21954339684349128	0.5555555555555556	-0.05802375536641783	0.4444444444444444
+GSE166655	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated	GENERIC_INNATE	Generic innate immune genes	1.9888841990974266	1	-0.05802375536641783	0.4444444444444444
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad.mva__VS=none	ISG	Interferon-stimulated genes	28.190555392497817	1	12.68878133451116	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad.mva__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.9477338296681961	0.75	12.68878133451116	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad.mva__VS=none	GENERIC_INNATE	Generic innate immune genes	4.496157001605433	1	12.68878133451116	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_empty__VS=none	ISG	Interferon-stimulated genes	35.298780692927	1	13.17891812194547	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_empty__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	0.6760544089888239	0.6666666666666666	13.17891812194547	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_empty__VS=none	GENERIC_INNATE	Generic innate immune genes	3.4533237168794293	1	13.17891812194547	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_fhbp__VS=none	ISG	Interferon-stimulated genes	36.61263206443783	1	14.328300033552733	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_fhbp__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	4.436534080535139	1	14.328300033552733	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_fhbp__VS=none	GENERIC_INNATE	Generic innate immune genes	3.800286632012742	1	14.328300033552733	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_pref__VS=none	ISG	Interferon-stimulated genes	5.808351059971434	1	1.670093998272992	0.6944444444444444
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_pref__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	-1.556265844208186	0.3333333333333333	1.670093998272992	0.6944444444444444
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=ad_pref__VS=none	GENERIC_INNATE	Generic innate immune genes	2.0103623346299053	0.8055555555555556	1.670093998272992	0.6944444444444444
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva.ad__VS=none	ISG	Interferon-stimulated genes	37.60849079051539	1	15.317256935802664	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva.ad__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.1315050028562377	0.9444444444444444	15.317256935802664	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva.ad__VS=none	GENERIC_INNATE	Generic innate immune genes	3.7664328137783603	1	15.317256935802664	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva_fhbp__VS=none	ISG	Interferon-stimulated genes	33.5672217636031	1	14.336311710882493	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva_fhbp__VS=none	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	3.497265957059328	1	14.336311710882493	1
+GSE139529	GSE139529_design__T=blood__H=24__B=NA__G=mva_fhbp__VS=none	GENERIC_INNATE	Generic innate immune genes	3.426458170787478	1	14.336311710882493	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00069418__VS=WT_uninfected_whole_liver	ISG	Interferon-stimulated genes	9.658719099608575	1	11.160680267451342	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00069418__VS=WT_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	10.461050646091163	1	11.160680267451342	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00069418__VS=WT_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	8.684894651758219	1	11.160680267451342	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00088542__VS=TRIM21_KO_uninfected_whole_liver	ISG	Interferon-stimulated genes	8.793065711700805	1	10.144728497024795	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00088542__VS=TRIM21_KO_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	9.41875046126996	1	10.144728497024795	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00088542__VS=TRIM21_KO_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	7.817731491535349	1	10.144728497024795	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00096342__VS=TRIM21_KO_uninfected_whole_liver	ISG	Interferon-stimulated genes	9.44437442180008	1	9.804251345714937	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00096342__VS=TRIM21_KO_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	7.872285535531951	1	9.804251345714937	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=GID00096342__VS=TRIM21_KO_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	7.1217697531502315	1	9.804251345714937	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=TRIM21_KO_virus_only_whole_liver__VS=TRIM21_KO_uninfected_whole_liver	ISG	Interferon-stimulated genes	7.916206843842888	1	8.694617784859638	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=TRIM21_KO_virus_only_whole_liver__VS=TRIM21_KO_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	5.399417925893275	1	8.694617784859638	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=TRIM21_KO_virus_only_whole_liver__VS=TRIM21_KO_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	5.6729475051290645	1	8.694617784859638	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_only_whole_liver__VS=WT_uninfected_whole_liver	ISG	Interferon-stimulated genes	8.622163860354553	1	9.606681809911851	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_only_whole_liver__VS=WT_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	6.772725024563551	1	9.606681809911851	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_only_whole_liver__VS=WT_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	6.323411180745995	1	9.606681809911851	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_plus_rh9C12_WT_whole_liver__VS=WT_uninfected_whole_liver	ISG	Interferon-stimulated genes	12.83191334138434	1	15.021082164906732	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_plus_rh9C12_WT_whole_liver__VS=WT_uninfected_whole_liver	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	15.39093496692518	1	15.021082164906732	1
+GSE119119	GSE119119_design__T=whole_liver__H=4__B=NA__G=WT_virus_plus_rh9C12_WT_whole_liver__VS=WT_uninfected_whole_liver	GENERIC_INNATE	Generic innate immune genes	13.084068161978564	1	15.021082164906732	1
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0	ISG	Interferon-stimulated genes	-0.32070186068978496	0.4444444444444444	3.7750612954626153	0.6666666666666666
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	15.172405440177366	0.6666666666666666	3.7750612954626153	0.6666666666666666
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	4.264655441834273	0.6666666666666666	3.7750612954626153	0.6666666666666666
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0	ISG	Interferon-stimulated genes	0.21332721708354835	0.6666666666666666	-1.3684435005519688	0.3333333333333333
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0	CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	1.8607172495524822	0.6666666666666666	-1.3684435005519688	0.3333333333333333
+GSE314070	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0	GENERIC_INNATE	Generic innate immune genes	0.42485171444793257	0.5555555555555556	-1.3684435005519688	0.3333333333333333

@@ -1,0 +1,22 @@
+IMRS Layer 2 reviewer-facing runner validation summary
+Date: 2026-05-24
+
+Dry-run/checklist validation: PASS
+- execute_active_scripts was false.
+- manuscript_figures: ready.
+- priority3_gene_program_enrichment: ready.
+- supplementary_tables_s1_s5: ready.
+- internal_readiness: disabled_by_config.
+
+Controlled execution validation: PASS
+- Executed: manuscript_figures, priority3_gene_program_enrichment, supplementary_tables_s1_s5.
+- Skipped: internal_readiness (disabled_by_config).
+- Excluded: raw-data retrieval, HPC/SLURM, full_pipeline, archive/legacy, and frozen-gene reconstruction.
+
+Output checks:
+- Manuscript final/panel outputs were generated beneath results_release_templates/figures and figure validation checks passed.
+- All 12 Supplementary Figure S2 PNG/PDF/SVG outputs were present and nonzero.
+- Supplementary Tables S1-S5 TSV/XLSX outputs and the combined workbook were present and nonzero.
+
+Safety statement:
+Released numeric input tables were read without intentional modification. The refactor changes repository containment, paths, orchestration, and documentation only; it does not refit IMRS or change scoring, validation, robustness, or enrichment statistics.
