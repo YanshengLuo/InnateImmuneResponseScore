@@ -47,6 +47,37 @@ regenerates available manuscript-facing Layer 2 inputs through the ported
 distributed bridge. Validation datasets never enter Steps 06A-07 and never
 refit the model.
 
+### Reviewer count-level validation from cleaned matrices
+
+The reviewer package includes cleaned raw integer count matrices, not
+normalized expression values. These are featureCounts-derived count matrices
+cleaned for a portable rerun under
+`data/counts/{dataset}/featurecounts/validation/gene_counts_clean.tsv`;
+reviewers do not need to rerun FASTQ download, alignment, or featureCounts.
+
+Use `--mode all_scored` for reviewer validation: frozen weights are
+reconstructed only from the five locked anchors, and all configured scored
+validation datasets are then scored with those frozen weights without
+refitting coefficients.
+
+First check the count-level run plan:
+
+```bat
+Rscript scripts\portable_full_pipeline\run_count_to_v6_outputs.R --config config\full_pipeline_config.yml --mode all_scored --dry-run
+```
+
+If the dry-run passes, execute the reconstruction:
+
+```bat
+Rscript scripts\portable_full_pipeline\run_count_to_v6_outputs.R --config config\full_pipeline_config.yml --mode all_scored --force
+```
+
+This count-level route is separate from the Layer 2 reviewer quick run:
+
+```bat
+Rscript run_all_manuscript_outputs_v6.R --config config\config.yml
+```
+
 ## Layer 1 canonical count-level reconstruction
 
 The default reviewer runner regenerates manuscript figures and tables from
