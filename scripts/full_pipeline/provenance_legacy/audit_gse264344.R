@@ -20,11 +20,11 @@ suppressPackageStartupMessages({
 #     3) tissue x timepoint
 #
 # Inputs:
-#   D:/IMRS_Project/05_score/transfer/scores/GSE264344__featurecounts_validation__imrs_scores.tsv
-#   D:/IMRS_Project/00_metadata/verified_metadata/scoring/GSE264344/GSE264344_design.tsv
+#   <project_root>/05_score/transfer/scores/GSE264344__featurecounts_validation__imrs_scores.tsv
+#   <project_root>/00_metadata/verified_metadata/scoring/GSE264344/GSE264344_design.tsv
 #
 # Outputs:
-#   D:/IMRS_Project/05_score/literature_compare/GSE264344_audit/
+#   <project_root>/05_score/literature_compare/GSE264344_audit/
 #     - GSE264344_score_plus_design.tsv
 #     - GSE264344_overall_summary.tsv
 #     - GSE264344_by_tissue_summary.tsv
@@ -35,7 +35,7 @@ suppressPackageStartupMessages({
 # ============================================================
 
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 score_file  <- file.path(project_root, "05_score", "transfer", "scores",
                          "GSE264344__featurecounts_validation__imrs_scores.tsv")

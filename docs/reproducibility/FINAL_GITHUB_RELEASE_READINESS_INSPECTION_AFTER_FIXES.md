@@ -54,7 +54,7 @@ Public-content scanning after fixes found:
 - No repository URL, DOI, license, or release-date placeholder token remains in citation or public availability documents.
 - No password, API-key, client-secret, bearer-token, or private-key credential was detected.
 
-Matches for `token` in data and code refer to split/group token fields or variable names. Historical path defaults in Layer 1/provenance utilities are documented and not required by the default runner.
+Matches for `token` in data and code refer to split/group token fields or variable names. Historical source locations appear only in lineage documentation or the labelled local example configuration; executable defaults are portable.
 
 ## Layer 2 Dry-Run Validation
 

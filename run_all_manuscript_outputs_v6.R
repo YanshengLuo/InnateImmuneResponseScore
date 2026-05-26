@@ -18,7 +18,9 @@ read_simple_yaml <- function(file) {
     key <- trimws(sub(":.*$", "", line))
     value <- trimws(sub("^[^:]+:", "", line))
     value <- trimws(gsub("^['\"]|['\"]$", "", value))
-    if (tolower(value) %in% c("true", "false")) value <- tolower(value) == "true"
+    if (tolower(value) %in% c("true", "false", "yes", "no")) {
+      value <- tolower(value) %in% c("true", "yes")
+    }
     out[[key]] <- value
   }
   out
@@ -39,8 +41,18 @@ if (!dir.exists(file.path(repo_root, "config"))) {
   stop("Run this script from the repository root or retain it at that root.", call. = FALSE)
 }
 
-config_file <- file.path(repo_root, "config", "config.yml")
-if (!file.exists(config_file)) config_file <- file.path(repo_root, "config", "config_template.yml")
+runner_args <- commandArgs(trailingOnly = TRUE)
+config_flag <- match("--config", runner_args)
+if (!is.na(config_flag)) {
+  if (config_flag == length(runner_args)) stop("Missing value after --config.", call. = FALSE)
+  config_arg <- runner_args[[config_flag + 1L]]
+  config_file <- if (grepl("^([A-Za-z]:|/)", config_arg)) config_arg else
+    file.path(repo_root, config_arg)
+  config_file <- normalizePath(config_file, winslash = "/", mustWork = FALSE)
+} else {
+  config_file <- file.path(repo_root, "config", "config.yml")
+  if (!file.exists(config_file)) config_file <- file.path(repo_root, "config", "config_template.yml")
+}
 config <- read_simple_yaml(config_file)
 
 resolve_path <- function(value, default = NULL) {
@@ -153,7 +165,8 @@ write.table(steps, checklist_path, sep = "\t", row.names = FALSE, quote = FALSE)
 
 Sys.setenv(IMRS_REPOSITORY_ROOT = repo_root,
            IMRS_PROJECT_ROOT = repo_root,
-           IMRS_FIGURE_INPUT_DIR = resolve_path(config$figure_input_dir, "data/derived/figure_inputs"))
+           IMRS_FIGURE_INPUT_DIR = resolve_path(config$figure_input_dir, "data/derived/figure_inputs"),
+           IMRS_ACTIVE_CONFIG = normalizePath(config_file, winslash = "/", mustWork = FALSE))
 
 log_msg("IMRS Layer 2 reviewer-facing manuscript-output runner started.")
 log_msg("Repository root: ", repo_root)

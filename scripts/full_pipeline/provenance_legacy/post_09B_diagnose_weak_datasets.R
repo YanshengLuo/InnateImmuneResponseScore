@@ -33,7 +33,7 @@ suppressPackageStartupMessages({
 # CONFIG
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 failure_root <- file.path(project_root, "05_score", "failure_diagnosis")
 low_file     <- file.path(failure_root, "low_imrs_datasets.tsv")

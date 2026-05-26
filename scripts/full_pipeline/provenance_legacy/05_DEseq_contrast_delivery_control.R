@@ -43,7 +43,7 @@
 # Usage:
 #   Rscript 05_IMRS_Step5_Windows_Phased.R [project_root] [dataset_id_optional]
 # Example:
-#   Rscript 05_IMRS_Step5_Windows_Phased.R "D:/IMRS_Project" "GSE167521"
+#   Rscript 05_IMRS_Step5_Windows_Phased.R "." "GSE167521"
 # ============================================================
 
 suppressPackageStartupMessages({
@@ -59,7 +59,7 @@ suppressPackageStartupMessages({
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
 
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 dataset_only <- if (length(args) >= 2) args[2] else NA_character_
 
 de_root <- file.path(project_root, "04_de")

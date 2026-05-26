@@ -48,7 +48,7 @@ suppressPackageStartupMessages({
 # CONFIG (PDF defaults)
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 weights_path <- file.path(project_root, "05_score", "anchors", "gene_weights.tsv")
 

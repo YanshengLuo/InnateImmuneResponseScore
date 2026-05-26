@@ -11,6 +11,7 @@ __pycache__/
 Thumbs.db
 results_release_templates/
 results_release_templates/logs/
+results/full_pipeline_v6/
 Internal_QA_archive/
 local_test_logs/
 /scripts/hpc_hypergator/

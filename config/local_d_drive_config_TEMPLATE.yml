@@ -1,0 +1,69 @@
+# Local example only. The portable scripts do not contain these machine-specific paths.
+project_root: "D:/IMRS_Project/final_manuscripts/IMRS_Public_Release_Candidate/GitHub_clean_repo"
+run_id: "full_pipeline_v6"
+mode: "canonical"
+
+paths:
+  counts_root: "D:/IMRS_Project/03_counts"
+  verified_metadata_dir: "D:/IMRS_Project/00_metadata/verified_metadata"
+  output_root: "D:/IMRS_Project/portable_full_pipeline_v6"
+  released_derived_root: "D:/IMRS_Project/final_manuscripts/IMRS_Public_Release_Candidate/GitHub_clean_repo/data/derived"
+  generated_derived_root: "D:/IMRS_Project/portable_full_pipeline_v6/06_derived_for_figures/data/derived"
+
+datasets:
+  locked_anchors:
+    - GSE167521
+    - GSE264344
+    - GSE279372
+    - GSE279744
+    - GSE39129
+  validation:
+    - GSE119119
+    - GSE139529
+    - GSE166655
+    - GSE167521
+    - GSE178313
+    - GSE262515
+    - GSE264344
+    - GSE279372
+    - GSE279743
+    - GSE279744
+    - GSE314070
+    - GSE39129
+  optional_validation: []
+
+count_file_pattern: "{dataset}/featurecounts/validation/gene_counts_clean.tsv"
+
+metadata:
+  sample_id_candidates: [sample_id, SampleID, sample, run, geo_accession]
+  condition_candidates: [condition_simple, condition, group, treatment]
+  control_labels: [CONTROL, Control, control, vehicle, untreated, PBS, baseline_0, delivery_none]
+  delivery_labels: [DELIVERY, Delivery, delivery, treated, vector, nanoparticle, AAV, LNP]
+  treat_non_control_as_delivery: true
+
+comparison:
+  released_weight_tolerance: 0.00000001
+
+# Locked Step08 defaults are recorded here for transparency; the ported
+# original script remains the authoritative implementation.
+scoring:
+  min_controls: 3
+  gene_sd_floor: 0.10
+  score_sd_floor: 0.10
+  min_gene_coverage: 0.80
+  strip_ensembl_version: true
+
+execution:
+  run_preflight: true
+  run_design_generation: true
+  run_deseq2: true
+  run_weight_reconstruction: true
+  run_scoring: true
+  run_step09: true
+  package_figure_inputs: true
+  run_manuscript_outputs: false
+
+manuscript:
+  runner: "run_all_manuscript_outputs_v6.R"
+  active_scripts_dir: "scripts/active_manuscript"
+  output_root: "D:/IMRS_Project/portable_full_pipeline_v6/manuscript_outputs"

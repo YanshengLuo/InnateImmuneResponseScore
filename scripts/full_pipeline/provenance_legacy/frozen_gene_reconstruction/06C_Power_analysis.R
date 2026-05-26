@@ -19,7 +19,7 @@ suppressPackageStartupMessages({
 })
 
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 # ---- Phase fixed to anchor only (consistent with your plan) ----
 PHASE <- "anchor"

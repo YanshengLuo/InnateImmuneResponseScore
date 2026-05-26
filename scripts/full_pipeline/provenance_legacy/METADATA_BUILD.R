@@ -34,7 +34,10 @@ if (!exists("dataset_id", inherits = FALSE)) {
   stop("dataset_id is not set. Run via wrapper or set dataset_id before sourcing METADATA_BUILD.R.")
 }
 
-project_root <- "D:/IMRS_Project"
+if (!exists("project_root", inherits = FALSE)) {
+  args <- commandArgs(trailingOnly = TRUE)
+  project_root <- if (length(args) >= 1) args[1] else "."
+}
 meta_dir <- file.path(project_root, "00_metadata", dataset_id)
 dir.create(meta_dir, recursive = TRUE, showWarnings = FALSE)
 

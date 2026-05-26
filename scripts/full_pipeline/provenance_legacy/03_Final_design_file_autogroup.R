@@ -29,7 +29,9 @@ suppressPackageStartupMessages({
 # ============================
 # USER SETTINGS (Windows)
 # ============================
-in_dir  <- "D:/IMRS_Project/00_metadata/verified_metadata"
+args <- commandArgs(trailingOnly = TRUE)
+project_root <- if (length(args) >= 1) args[1] else "."
+in_dir  <- file.path(project_root, "00_metadata", "verified_metadata")
 out_dir <- file.path(in_dir, "splited")
 dir.create(out_dir, showWarnings = FALSE, recursive = TRUE)
 

@@ -29,7 +29,7 @@ suppressPackageStartupMessages({
 # USER SETTINGS
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 # NEW: allow threshold sensitivity from command line
 lfc_cutoff <- if (length(args) >= 2) suppressWarnings(as.numeric(args[2])) else 1.0

@@ -11,16 +11,13 @@ suppressPackageStartupMessages({
   library(tibble)
 })
 
-project_root <- "D:/IMRS_Project"
+args <- commandArgs(trailingOnly = TRUE)
+project_root <- if (length(args) >= 1) args[1] else "."
 meta_root <- file.path(project_root, "00_metadata")
 
-metadata_build_script <- file.path(
-  project_root,
-  "Hypergator_scripts",
-  "InnateImmuneResponseScore",
-  "R",
-  "METADATA_BUILD.R"
-)
+this_file <- normalizePath(sub("^--file=", "", grep("^--file=", commandArgs(
+  trailingOnly = FALSE), value = TRUE)[1]), winslash = "/", mustWork = FALSE)
+metadata_build_script <- file.path(dirname(this_file), "METADATA_BUILD.R")
 
 if (!file.exists(metadata_build_script)) {
   stop("METADATA_BUILD.R not found at:\n", metadata_build_script)
@@ -65,6 +62,7 @@ for (d in gse_dirs) {
   # Run metadata build in a clean environment
   run_env <- new.env(parent = globalenv())
   run_env$dataset_id <- dataset_id
+  run_env$project_root <- project_root
 
   warn_msgs <- character(0)
 

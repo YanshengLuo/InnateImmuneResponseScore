@@ -31,7 +31,7 @@ library(pROC)
 # CONFIG
 # -------------------------
 args <- commandArgs(trailingOnly = TRUE)
-project_root <- if (length(args) >= 1) args[1] else "D:/IMRS_Project"
+project_root <- if (length(args) >= 1) args[1] else "."
 
 # TRUE training anchors only
 anchor_ids <- c(

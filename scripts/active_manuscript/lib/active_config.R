@@ -29,8 +29,8 @@ imrs_read_simple_yaml <- function(file) {
     key <- trimws(sub(":.*$", "", line))
     value <- trimws(sub("^[^:]+:", "", line))
     value <- trimws(gsub("^['\"]|['\"]$", "", value))
-    if (tolower(value) %in% c("true", "false")) {
-      value <- tolower(value) == "true"
+    if (tolower(value) %in% c("true", "false", "yes", "no")) {
+      value <- tolower(value) %in% c("true", "yes")
     }
     out[[key]] <- value
   }
@@ -39,9 +39,14 @@ imrs_read_simple_yaml <- function(file) {
 
 imrs_load_active_config <- function(start = getwd()) {
   repo_root <- imrs_repo_root(start)
-  config_file <- file.path(repo_root, "config", "config.yml")
-  if (!file.exists(config_file)) {
-    config_file <- file.path(repo_root, "config", "config_template.yml")
+  config_override <- Sys.getenv("IMRS_ACTIVE_CONFIG", unset = "")
+  if (nzchar(config_override)) {
+    config_file <- normalizePath(config_override, winslash = "/", mustWork = FALSE)
+  } else {
+    config_file <- file.path(repo_root, "config", "config.yml")
+    if (!file.exists(config_file)) {
+      config_file <- file.path(repo_root, "config", "config_template.yml")
+    }
   }
   config <- imrs_read_simple_yaml(config_file)
   config$repo_root <- repo_root
