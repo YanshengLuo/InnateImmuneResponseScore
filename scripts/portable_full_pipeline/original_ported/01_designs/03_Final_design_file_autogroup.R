@@ -316,12 +316,29 @@ for (f in tsv_files) {
 
       if (nrow(deliv_block) == 0) next
 
+      contrast_ctrl_block <- ctrl_block
+      contrast_control_label <- control_labels[1]
+      if (file_base == "GSE119119_design.tsv") {
+        contrast_control_label <- if (str_starts(g, "TRIM21_KO_")) {
+          "TRIM21_KO_uninfected_whole_liver"
+        } else if (str_starts(g, "WT_")) {
+          "WT_uninfected_whole_liver"
+        } else {
+          stop("GSE119119 delivery group has no genotype-specific control rule: ", g)
+        }
+        contrast_ctrl_block <- ctrl_block %>%
+          filter(group_raw == contrast_control_label)
+        if (nrow(contrast_ctrl_block) == 0) {
+          stop("GSE119119 expected control group was not found: ", contrast_control_label)
+        }
+      }
+
       # Full contrast design: all controls + all delivery reps
-      sub <- bind_rows(ctrl_block, deliv_block) %>%
+      sub <- bind_rows(contrast_ctrl_block, deliv_block) %>%
         mutate(
           condition_simple = ifelse(is_control, "CONTROL", "DELIVERY"),
-          control_label = control_labels[1],
-          contrast_label = paste0(g, "__vs__", control_labels[1]),
+          control_label = contrast_control_label,
+          contrast_label = paste0(g, "__vs__", contrast_control_label),
           control_time_policy = control_time_policy
         )
 
@@ -335,7 +352,7 @@ for (f in tsv_files) {
       batch_tok <- safe_token(batch_s)
 
       g_tok <- short_group_token(g)
-      ctrl_tok <- safe_token(control_labels[1])
+      ctrl_tok <- safe_token(contrast_control_label)
 
       # Group mapping
       group_map_rows[[length(group_map_rows) + 1]] <- tibble(

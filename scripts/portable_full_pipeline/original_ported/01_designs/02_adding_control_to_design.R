@@ -85,6 +85,7 @@ to_hours <- function(x) {
 # ----------------------------
 known_controls_by_file <- list(
   "GSE190850_HUMAN_design.tsv" = c("delivery_unstimulated"),
+  "GSE139529_design.tsv"       = c("none"),
   "GSE39129_design.tsv"        = c("delivery_none")
 )
 

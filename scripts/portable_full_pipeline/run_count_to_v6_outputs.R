@@ -215,6 +215,11 @@ verify_exists <- function(paths, stage_id) {
 prepare_gse262515_alias_inputs <- function(datasets) {
   if (!"GSE262515" %in% datasets) return(datasets)
   aliases <- c(GSE262515_cell_line = "cell_line", GSE262515_tissue = "tissue")
+  normalize_alias_label <- function(x) {
+    x <- tolower(trimws(as.character(x)))
+    x <- gsub("[[:space:]-]+", "_", x)
+    gsub("_+", "_", x)
+  }
   scoring_root <- file.path(ctx$paths$output_root, "01_designs", "scoring")
   split_root <- file.path(ctx$paths$output_root, "01_designs", "splited")
   base_design <- file.path(scoring_root, "GSE262515", "GSE262515_design.tsv")
@@ -224,10 +229,20 @@ prepare_gse262515_alias_inputs <- function(datasets) {
   for (alias in names(aliases)) {
     arm <- aliases[[alias]]
     destination <- file.path(scoring_root, alias, paste0(alias, "_design.tsv"))
-    curated_source <- file.path(ctx$paths$verified_metadata_dir, "scoring", alias,
-                                paste0(alias, "_design.tsv"))
+    curated_candidates <- c(
+      file.path(ctx$paths$verified_metadata_dir, "scoring", alias,
+                paste0(alias, "_design.tsv")),
+      file.path(dirname(ctx$paths$verified_metadata_dir), "scoring", alias,
+                paste0(alias, "_design.tsv"))
+    )
+    curated_hits <- unique(curated_candidates[file.exists(curated_candidates)])
+    if (length(curated_hits) > 1) {
+      stop("Ambiguous curated scoring designs found for ", alias, ": ",
+           paste(curated_hits, collapse = "; "), call. = FALSE)
+    }
+    curated_source <- if (length(curated_hits) == 1) curated_hits[[1]] else NA_character_
     dir.create(dirname(destination), recursive = TRUE, showWarnings = FALSE)
-    if (file.exists(curated_source)) {
+    if (!is.na(curated_source)) {
       if (!file.copy(curated_source, destination, overwrite = TRUE)) {
         stop("Could not stage curated scoring design for ", alias, ".", call. = FALSE)
       }
@@ -239,7 +254,8 @@ prepare_gse262515_alias_inputs <- function(datasets) {
         stop("GSE262515 requires curated alias scoring designs or a tissue column to create ",
              "GSE262515_cell_line and GSE262515_tissue staging inputs.", call. = FALSE)
       }
-      subset <- full_design[tolower(as.character(full_design[[tissue_col]])) == arm, ,
+      subset <- full_design[normalize_alias_label(full_design[[tissue_col]]) ==
+                              normalize_alias_label(arm), ,
                             drop = FALSE]
       if (nrow(subset) == 0) {
         stop("No GSE262515 ", arm, " rows found for alias scoring staging.", call. = FALSE)
