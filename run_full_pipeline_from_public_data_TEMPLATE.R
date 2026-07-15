@@ -4,7 +4,8 @@
 # This is not the reviewer manuscript-output runner. It outlines the full workflow and may require HiPerGator/HPC.
 
 # 1. Retrieve public data from accessions.
-# TODO: use data/accessions/public_dataset_accessions.tsv and scripts/hpc_hypergator/SRR_download*.slurm or local equivalents.
+# TODO: use data/accessions/public_dataset_accessions.tsv and locally configured retrieval/alignment scripts.
+# Account-specific HPC submission scripts are intentionally excluded from the public release candidate.
 
 # 2. Prepare metadata.
 # TODO: run metadata processing scripts after config/path cleanup.

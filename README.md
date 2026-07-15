@@ -221,5 +221,4 @@ sbatch 10_validate_counts.slurm "$COUNTS" "$OUTDIR"
 - Each QC step targets a different failure mode
 
 - All exclusions are traceable and reviewer-defensible
-============================================================
 

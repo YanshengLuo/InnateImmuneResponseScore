@@ -2,8 +2,8 @@
 
 The reviewer-facing manuscript reproduction path starts from:
 
-- `data_release_templates/derived/frozen_gene_weights.tsv`
-- `data_release_templates/derived/gene_power.tsv`
+- `data/derived/frozen_gene_weights.tsv`
+- `data/derived/gene_power.tsv`
 
 This is intentional because manuscript-output reproduction should not require rerunning the full anchor model construction. Those frozen derived files are the stable inputs used to regenerate manuscript-facing outputs such as Supplementary Figure S2 and the related supplementary tables.
 
@@ -25,10 +25,10 @@ The released `frozen_gene_weights.tsv` is the canonical frozen coefficient table
 
 Upstream reconstruction inputs are staged under:
 
-- `data_release_templates/derived/frozen_gene_reconstruction_inputs/`
+- `data/derived/frozen_gene_reconstruction_inputs/`
 
 Upstream reconstruction scripts are staged under:
 
-- `scripts/full_pipeline/frozen_gene_reconstruction/`
+- `scripts/full_pipeline/provenance_legacy/frozen_gene_reconstruction/`
 
-These files document the reconstruction path. They are not called by `run_all_manuscript_outputs_v6.R` and are not part of the default reviewer-facing active manuscript run.
+These historical provenance copies document the reconstruction path, may retain original workflow assumptions, and are not intended to run as-is from a fresh clone. They are not called by `run_all_manuscript_outputs_v6.R` and are not part of the default reviewer-facing active manuscript run.

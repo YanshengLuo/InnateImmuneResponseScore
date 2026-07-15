@@ -5,7 +5,7 @@ authors:
   - family-names: "Luo"
     given-names: "Yansheng"
 type: software
-repository-code: "TO_BE_ADDED_GITHUB_REPOSITORY_URL"
+repository-code: "https://github.com/YanshengLuo/InnateImmuneResponseScore"
 abstract: "Repository for the IMRS frozen, transfer-oriented transcriptomic scoring framework and reviewer-facing manuscript-output reproduction materials."
 keywords:
   - transcriptomics
@@ -13,6 +13,5 @@ keywords:
   - delivery-associated response
   - reproducibility
   - RNA-seq
-license: "TO_BE_DECIDED"
+license: "MIT"
 version: "v0.1.0-submission-candidate"
-date-released: "TO_BE_ADDED"

@@ -1,0 +1,71 @@
+function_name	source_file	function_role	called_from
+stop_if_missing_packages_v5	figure_helpers_v6.R	Required plotting package preflight	00_generate_manuscript_figures_v6.R
+newest_file_snapshot_v5	figure_helpers_v6.R	Read-only released-input snapshot check	00_generate_manuscript_figures_v6.R; validate_v5_outputs
+log_msg_v5	figure_helpers_v6.R	Layer 2 figure generation messages	00_generate_manuscript_figures_v6.R; helper renderers
+render_v5_panels	figure_helpers_v6.R	Render panel set from released input tables	00_generate_manuscript_figures_v6.R
+assemble_v5_figures	figure_helpers_v6.R	Assemble final figure panels	00_generate_manuscript_figures_v6.R
+manifest_long_v5	figure_helpers_v6.R	Create long figure-output manifest	00_generate_manuscript_figures_v6.R
+wording_audit_rows_v5	figure_helpers_v6.R	Controlled wording audit rows	00_generate_manuscript_figures_v6.R
+write_tsv_v5	figure_helpers_v6.R	Write figure audit/manifests	00_generate_manuscript_figures_v6.R; helper routines
+validate_v5_outputs	figure_helpers_v6.R	Validate generated outputs and unchanged released inputs	00_generate_manuscript_figures_v6.R
+write_generation_log_v5	figure_helpers_v6.R	Write generation log	00_generate_manuscript_figures_v6.R
+add_warning_v5	figure_helpers_v6.R	Accumulate warning text	helper renderers
+norm_path_v5	figure_helpers_v6.R	Normalize configured paths	helper routines
+replace_text_v5	figure_helpers_v6.R	Apply approved visible-text replacements	load_old_generator_env_v5
+replace_source_text_v5	figure_helpers_v6.R	Apply approved source-level visible-text replacements	load_old_generator_env_v5
+v5_integer_size_breaks	figure_helpers_v6.R	Select point-size legend breaks	render helper overrides
+install_v5_clipping_overrides	figure_helpers_v6.R	Install corrected panel functions in loaded builder environment	load_old_generator_env_v5
+load_old_generator_env_v5	figure_helpers_v6.R	Load repo-contained panel builder definitions	render_v5_panels
+strip_publication_text_v5	figure_helpers_v6.R	Remove duplicated panel titles before assembly	render_v5_panels; render_corrected_figure1b_landscape_v5
+save_plot_all_formats_v5	figure_helpers_v6.R	Write plot PNG/PDF/SVG	render_v5_panels; specialized renderers
+save_grid_device_v5	figure_helpers_v6.R	Write assembled graphics device output	save_grid_all_formats_v5
+save_grid_all_formats_v5	figure_helpers_v6.R	Write grid PNG/PDF/SVG	assemble_v5_figures; render_v5_panels
+draw_png_fit_v5	figure_helpers_v6.R	Draw raster panel into assembly	assembly draw functions
+layout_positions_v5	figure_helpers_v6.R	Panel layout coordinates	assemble_v5_figures
+draw_clean_figure1a_grid_v5	figure_helpers_v6.R	Workflow drawing helper	assembly
+make_v5_panel_plan	figure_helpers_v6.R	Panel plan table	render_v5_panels
+make_v5_figure_plan	figure_helpers_v6.R	Final figure plan table	assemble_v5_figures
+render_figure2_support_split_v5	figure_helpers_v6.R	Render Figure 2 split-support panels	render_v5_panels
+make_figure1b_display_table_v5	figure_helpers_v6.R	Prepare Figure 1B display data	render_corrected_figure1b_landscape_v5
+render_corrected_figure1b_landscape_v5	figure_helpers_v6.R	Render corrected Figure 1B panel	render_v5_panels
+render_figure1a_merged_workflow_v5	figure_helpers_v6.R	Render workflow panel using local workflow script	render_v5_panels
+build_merged_imrs_workflow_v5	merged_workflow_v6.R	Render Figure 1A workflow	render_figure1a_merged_workflow_v5
+folder_path	panel_builders_v6.R	Resolve output panel directory	make_Figure functions
+log_msg	panel_builders_v6.R	Panel-builder logging	panel builder setup and functions
+add_warning	panel_builders_v6.R	Panel-builder warning collection	panel builder functions
+write_log	panel_builders_v6.R	Panel-builder log output	panel builder
+theme_imrs_publication	panel_builders_v6.R	Common plot theme	make_Figure functions
+check_required_paths	panel_builders_v6.R	Validate released table availability	panel builder initialization
+read_required_tsv	panel_builders_v6.R	Read released table	panel builder initialization
+check_required_cols	panel_builders_v6.R	Validate column schema	panel builder functions
+check_not_all_na	panel_builders_v6.R	Validate plotted field	panel builder functions
+safe_num	panel_builders_v6.R	Numeric conversion helper	panel builder functions
+safe_chr	panel_builders_v6.R	Text conversion helper	panel builder functions
+logic_col	panel_builders_v6.R	Boolean conversion helper	panel builder functions
+strip_ens	panel_builders_v6.R	Gene ID normalization	panel builder functions
+first_present	panel_builders_v6.R	Column selection helper	panel builder functions
+display_text	panel_builders_v6.R	Display-label helper	panel builder functions
+short_text	panel_builders_v6.R	Label truncation helper	panel builder functions
+collapse_paths	panel_builders_v6.R	Source path manifest helper	panel builder functions
+ordered_factor	panel_builders_v6.R	Ordering helper	panel builder functions
+format_time_label	panel_builders_v6.R	Time label helper	panel builder functions
+dataset_context_one	panel_builders_v6.R	Context label helper	dataset_context_label
+dataset_context_label	panel_builders_v6.R	Context label vectorization	make_Figure functions
+normalize_manuscript_group	panel_builders_v6.R	Role-label normalization	attach_role_group
+is_excluded_unclear_value	panel_builders_v6.R	Role exclusion detection	clean_dataset_role_for_plot
+count_excluded_unclear_rows	panel_builders_v6.R	Role-exclusion audit	clean_dataset_role_for_plot
+clean_dataset_role_for_plot	panel_builders_v6.R	Plot role filtering	panel builder data preparation
+map_score_label	panel_builders_v6.R	Comparator label mapping	panel builder data preparation
+save_imrs_plot	panel_builders_v6.R	Panel write hook	overridden by render_v5_panels
+save_imrs_grid	panel_builders_v6.R	Grid write hook	overridden by render_v5_panels
+validate_png_outputs	panel_builders_v6.R	Builder output validation	panel builder standalone path
+validate_manifest	panel_builders_v6.R	Builder manifest validation	panel builder standalone path
+attach_role_group	panel_builders_v6.R	Attach manuscript group	panel builder initialization
+make_discovery_palette	panel_builders_v6.R	Anchor palette helper	panel builder initialization
+write_dataset_context_companion	panel_builders_v6.R	Write context companion	table builder standalone path
+prepare_weights	panel_builders_v6.R	Prepare coefficient labels	make_Figure2B; make_Figure2C; make_Figure2D
+validation_tbl	panel_builders_v6.R	Prepare validation table	make_Figure3 functions
+primary_validation_plot	panel_builders_v6.R	Render primary-validation panel	make_Figure3B; make_Figure3C
+join_role_group	panel_builders_v6.R	Attach roles to robustness tables	make_Figure5 functions
+make_Figure1A through make_Figure5I	panel_builders_v6.R	Main manuscript panel constructors	render_v5_panels via loaded builder environment
+make_FigureSA through make_FigureSF	panel_builders_v6.R	Supplementary panel constructors	render_v5_panels via loaded builder environment

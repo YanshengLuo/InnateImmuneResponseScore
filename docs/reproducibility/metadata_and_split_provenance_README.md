@@ -12,6 +12,6 @@ Curated metadata and split-definition files are staged for transparency and audi
 
 These files document how treatment/control groups, tissue and timepoint labels, manuscript analysis roles, and late or context-shifted boundary categories were defined before downstream scoring and manuscript table generation.
 
-Full metadata-to-score reconstruction belongs to the Level 2/full-pipeline path. That path is separate from the Level 1 reviewer-facing reproduction layer and may require public data retrieval, additional configuration, and HiPerGator/HPC resources.
+Full metadata-to-score reconstruction belongs to the Layer 1/full-pipeline provenance path. That path is separate from the Layer 2 reviewer-facing reproduction layer and may require public data retrieval, additional configuration, and HiPerGator/HPC resources.
 
 Manual curation defines metadata, split, role, and interpretation context. It does not manually alter delivery-minus-control ΔIMRSz values.
