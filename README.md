@@ -1,224 +1,215 @@
-# Innate Immune Response Score
-This is a project contains python and shell script for processing bulk-RNA data and R codes for data analysis and modeling.
+# IMRS Reproducibility Release Candidate
 
-# Step 1: Download cDNA files using srr_download script
-```bash
-sbatch SRR_download_database_as_input.slurm <database>[start end]
-```
-# Step 2: Run sequence alignment and featurecounts to generate gene expression table
+IMRS is a frozen, transfer-oriented transcriptomic scoring framework for acute delivery-associated innate transcriptional responses.
 
-### HOW TO RUN: STAR (array) + featureCounts (merge)
+IMRS is not a mechanistic pathway model, clinical reactogenicity predictor, or delivery-platform safety ranking tool.
 
-Goal:
-- Build STAR index once (mm39/GRCm39 + GENCODE M38)
-- Align samples in parallel using a Slurm array (capped to 20 CPUs total)
-- Run featureCounts once after all alignments finish
+## Two-layer reproducibility structure
 
-You must set these 3 variables for your environment:
-- ACCOUNT      : Slurm account to charge (e.g., qsong1)
-- PROJECT_ROOT : where your project lives under /orange/<ACCOUNT>/...
-- FASTQ_DIR    : directory that contains *.fastq.gz for one dataset (e.g., .../GSE264344)
+### Layer 1: Full computational provenance
 
-Expected scripts (already created earlier):
-- 00_prep_star_index.slurm
-- 01_star_align_array.slurm
-- 02_featurecounts_merge.slurm
+This layer documents and scripts the path from public RNA-seq count matrices and verified metadata to frozen gene weights, sample-level IMRS scores, and Step09 split-level evaluation tables. It is not the default reviewer run because it may require large public data files, DESeq2 processing, and longer-running reconstruction steps.
 
-------------------------------------------------
-COPY/PASTE COMMANDS
-------------------------------------------------
+Layer 1 scripts are organized under `scripts/full_pipeline/`. Raw-data retrieval and alignment/counting on HiPerGator/SLURM are upstream provenance operations within this full reconstruction context and are not invoked by the default runner. Account-specific HPC submission scripts are intentionally excluded from this public release candidate and can be distributed later only as sanitized templates.
 
-# Before start, you may need to run : 
-```bash
-dos2unix *.slurm
-```
-# 0) Set variables (EDIT THESE THREE)
-```bash
-ACCOUNT="qsong1"
-PROJECT_ROOT="/orange/qsong1/PROJECT_NAME"      # <-- change PROJECT_NAME to your folder
-SCRIPTS_DIR="$PROJECT_ROOT/Hypergator_scripts"
-FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344" # <-- change dataset folder as needed
-cd "$SCRIPTS_DIR"
-```
-# 1) Build STAR index (run once)
-```bash
-sbatch --account="$ACCOUNT" 00_prep_star_index.slurm 
+## Three Practical Run Routes
+
+### A. Reviewer quick run from released derived inputs
+
+```sh
+Rscript run_all_manuscript_outputs_v6.R
 ```
 
-# 2) STAR alignment array
- CPU cap = 20 total CPUs:
-   cpus-per-task = 4  (defined inside 01_star_align_array.slurm)
-   concurrency   = 5  (the %5 below)
- => 4 * 5 = 20 CPUs total
-jid2=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid1 --array=0-999%5 \
-  01_star_align_array.slurm "$FASTQ_DIR" | awk '{print $4}')
-echo "star_align array jobid = $jid2"
+This default route checks or regenerates manuscript outputs from the released,
+read-only `data/derived/` bundle according to the Layer 2 config.
 
-------------------------------------------------
-or just copy:
-```bash
-sbatch --array=0-9%5 01_star_align_array.slurm /orange/qsong1/Yansheng/01_raw/fastq/GSE264344
-```
-------------------------------------------------
+### B. Canonical count-level reconstruction
 
-# 3) featureCounts merge (runs after ALL array tasks succeed)
-```bash
-jid3=$(sbatch --account="$ACCOUNT" --dependency=afterok:$jid2 \
-  02_featurecounts_merge.slurm "$FASTQ_DIR" | awk '{print $4}')
-echo "featureCounts jobid = $jid3"
-```
-------------------------------------------------
-MONITORING
-------------------------------------------------
-```bash
-squeue -u "$USER"
-ls -lh "$PROJECT_ROOT/logs" | tail -n 20
-
-DATASET=$(basename "$FASTQ_DIR")
-echo "Outputs:"
-echo "$PROJECT_ROOT/03_counts/$DATASET/"
-```
-------------------------------------------------
-EXPECTED OUTPUTS (per dataset)
-------------------------------------------------
-
-Counts:
-- $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv
-- $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv.summary
-
-Alignment QC tables:
-- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_stats.tsv
-- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_outliers.tsv
-- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_catastrophic.tsv
-- $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_summary.txt
-
-Per-sample STAR outputs:
-- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Log.final.out
-- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Aligned.sortedByCoord.out.bam
-- $PROJECT_ROOT/03_counts/<DATASET>/star/<SAMPLE>/Aligned.sortedByCoord.out.bam.bai
-
-------------------------------------------------
-NOTES
-------------------------------------------------
-
-- FASTQ_DIR must contain .fastq.gz files directly under it (no nested subfolders).
-- The alignment script detects PE vs SE by filename patterns (*_1/*_2 or *R1/*R2).
-- If your cluster requires the account to be set ONLY in the script headers,
-  then remove '--account=...' from the sbatch commands above and ensure each
-  slurm script contains:
-    #SBATCH --account=
-
-
-# QC STEPS (MANDATORY) — COPY / PASTE SECTION
- This pipeline uses three explicit QC stages.
- Each QC step targets a different failure mode and must be run
- in order before downstream modeling.
-
- QC-0 : FASTQ-level QC (raw reads sanity check)
- QC-1 : Alignment-level QC (STAR output validation)
- QC-2 : Count-matrix QC (library size & matrix integrity)
-
-
-# QC-0) FASTQ-level QC (qc_all.slurm)
-
-# WHY:
-   - Detect corrupted or incomplete FASTQ downloads
-   - Check read length consistency and gross quality issues
-  - Ensure raw reads are valid BEFORE alignment
-  - Diagnostic only (no trimming or filtering)
-
-# INPUT:
-```bash
-FASTQ_DIR containing *.fastq.gz for ONE dataset
-```
-# OUTPUT:
-```bash
-   /orange/qsong1/Yansheng/02_qc/<DATASET>/fastqc/
-   /orange/qsong1/Yansheng/02_qc/<DATASET>/multiqc/multiqc_report.html
-   /orange/qsong1/Yansheng/02_qc/<DATASET>/summary/
-
-PROJECT_ROOT="/orange/qsong1/Yansheng"
-FASTQ_DIR="$PROJECT_ROOT/01_raw/fastq/GSE264344"
-```
-```bash
-cd "$PROJECT_ROOT/Hypergator_scripts/InnateImmuneResponseScore"
-
-sbatch qc_all.slurm "$FASTQ_DIR"
+```sh
+Rscript scripts/portable_full_pipeline/run_count_to_v6_outputs.R --config config/full_pipeline_config.yml --mode canonical
 ```
 
+This route reconstructs the frozen IMRS model from the five locked anchors
+and validates the released canonical coefficient table. Its Step08/Step09
+scope is the locked-anchor set.
 
-# QC-1) Alignment-level QC (02_featurecounts_merge.slurm)
+### C. Full generated-input route
 
- WHY:
-   - Verify STAR alignment completed successfully
-   - Detect samples with pathological mapping rates
-   - Catch silent alignment failures BEFORE quantification
-   - Prevent broken samples from contaminating gene counts
-------------------------------------------------------------
-
-# INPUT:
-```bash
-   FASTQ_DIR (same as above)
-```
-```bash
-# OUTPUT:
-   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_summary.txt
-   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_outliers.tsv
-   $PROJECT_ROOT/03_counts/<DATASET>/qc_alignment/alignment_catastrophic.tsv
-   $PROJECT_ROOT/03_counts/<DATASET>/featurecounts/gene_counts.tsv
-```
-```bash   
-sbatch 02_featurecounts_merge.slurm "$FASTQ_DIR"
+```sh
+Rscript scripts/portable_full_pipeline/run_count_to_v6_outputs.R --config config/full_pipeline_config.yml --mode all_scored
+Rscript scripts/portable_full_pipeline/run_step09_to_layer2_inputs.R --config config/full_pipeline_config.yml --mode all_scored
+Rscript run_all_manuscript_outputs_v6.R --config <output_root>/layer2_generated_inputs/layer2_generated_inputs_config.yml
 ```
 
+This route reconstructs weights from the locked anchors only, scores
+available manuscript validation datasets with those frozen coefficients, and
+regenerates available manuscript-facing Layer 2 inputs through the ported
+distributed bridge. Validation datasets never enter Steps 06A-07 and never
+refit the model.
 
-# QC-2) Count-matrix QC (10_validate_counts.slurm)
+### Reviewer count-level validation from cleaned matrices
 
-# WHY:
-   - Validate integrity of gene-level count matrix
-   - Detect extremely low-depth samples
-   - Ensure matrix is safe for normalization and DE analysis
-   - Enforce traceable sample exclusion rules
+The reviewer package includes cleaned raw integer count matrices, not
+normalized expression values. These are featureCounts-derived count matrices
+cleaned for a portable rerun under
+`data/counts/{dataset}/featurecounts/validation/gene_counts_clean.tsv`;
+reviewers do not need to rerun FASTQ download, alignment, or featureCounts.
 
- INPUT:
- ```bash
-   gene_counts.tsv generated by featureCounts
-```
- OUTPUT:
- ```bash
-   $OUTDIR/library_sizes.tsv
-   $OUTDIR/qc_report.txt
-   $OUTDIR/gene_counts_clean.tsv
+Use `--mode all_scored` for reviewer validation: frozen weights are
+reconstructed only from the five locked anchors, and all configured scored
+validation datasets are then scored with those frozen weights without
+refitting coefficients.
 
-DATASET=$(basename "$FASTQ_DIR")
-COUNTS="$PROJECT_ROOT/03_counts/${DATASET}/featurecounts/gene_counts.tsv"
-OUTDIR="$PROJECT_ROOT/03_counts/${DATASET}/featurecounts/validation"
-```
-```bash
-sbatch 10_validate_counts.slurm "$COUNTS" "$OUTDIR"
+First check the count-level run plan:
+
+```bat
+Rscript scripts\portable_full_pipeline\run_count_to_v6_outputs.R --config config\full_pipeline_config.yml --mode all_scored --dry-run
 ```
 
+If the dry-run passes, execute the reconstruction:
 
-# QC DECISION RULES (SUMMARY)
+```bat
+Rscript scripts\portable_full_pipeline\run_count_to_v6_outputs.R --config config\full_pipeline_config.yml --mode all_scored --force
+```
 
- - FASTQ QC (QC-0):
-     Re-download only if reads are clearly broken or truncated
+This count-level route is separate from the Layer 2 reviewer quick run:
 
- - Alignment QC (QC-1):
-    alignment_catastrophic.tsv  -> DROP sample
-    alignment_outliers.tsv      -> FLAG for review
+```bat
+Rscript run_all_manuscript_outputs_v6.R --config config\config.yml
+```
 
- - Count QC (QC-2):
-     Extreme low-depth samples   -> DROP or reprocess
+## Layer 1 canonical count-level reconstruction
 
-## All QC actions occur BEFORE normalization or modeling.
- #QC philosophy (important)
+The default reviewer runner regenerates manuscript figures and tables from
+released derived inputs. The count-level runner at
+`scripts/portable_full_pipeline/run_count_to_v6_outputs.R` starts from
+prepared gene-count matrices and verified metadata. The portable Layer 1
+canonical mode reconstructs the locked-anchor frozen IMRS model from
+configured public count matrices and verified metadata. It ports and connects
+the original design generation, DESeq2 anchor contrasts, Step06/Step07
+frozen-weight reconstruction, Step08 scoring, and Step09 anchor-level split
+evaluation rather than reimplementing those calculations.
 
-- QC is pre-analysis only
+A canonical Layer 1 run for the five locked anchors completed successfully and
+reported: "PASS: regenerated frozen weights match the released canonical table
+within tolerance." Canonical mode is intended to validate the frozen-weight
+construction and regenerate anchor-level scoring/evaluation outputs and
+derived figure-input packages. It does not recompute all primary, extended,
+or secondary manuscript validation score tables from counts. Full manuscript
+figure/table reproduction remains handled by Layer 2 from released derived
+scoring/evaluation tables.
 
-- No batch correction or biological tuning is performed
+This workflow does not retrieve FASTQ/BAM files, align reads, or perform
+feature counting. It never overwrites canonical released tables under
+`data/derived/`; regenerated products are written beneath
+the configured `output_root` (by default `results/full_pipeline_v6/`).
+Canonical reconstruction requires the five locked anchor datasets. A subset
+run under `--mode test` is labelled non-canonical/test-only and does not
+reconstruct frozen weights unless the complete original anchor requirement is
+met; single-anchor modeling stops before Step06A. See
+`docs/count_level_full_pipeline.md` and
+`docs/layer1_canonical_validation_summary.md` for the input contract,
+validated scope, configuration, and exact run commands.
 
-- Each QC step targets a different failure mode
+### Layer 1 all-scored application and generated Layer 2 inputs
 
-- All exclusions are traceable and reviewer-defensible
+`--mode all_scored` reconstructs the same frozen model from the five locked
+anchors and then applies those frozen coefficients to every configured
+manuscript dataset with available prepared counts and scoring designs.
+Validation datasets do not participate in Steps 06A-07 and do not refit or
+alter the frozen model. For `GSE262515`, the portable wrapper stages its
+curated cell-line and tissue manuscript arms for the unmodified Step08/Step09
+scripts.
 
+### Production, strict-3 sensitivity, and scoring coefficient scope
+
+The production frozen model uses exactly five locked acute mouse anchors:
+`GSE39129`, `GSE167521`, `GSE264344`, `GSE279372`, and `GSE279744`.
+Production core-gene selection follows this five-anchor workflow;
+`GSE262515` is validation/secondary support only and does not contribute to
+Steps 06A-07.
+
+The strict-3 set is `GSE39129`, `GSE167521`, and `GSE264344`. Strict-3 and
+strict-3 threshold-sensitivity analyses are supporting sensitivity/ablation
+checks only; they do not define, replace, or refit the production five-anchor
+frozen model.
+
+Step08 applies `beta_meta` whenever that column is present and copies the
+penalized `weight` field into `beta_meta` only when `beta_meta` is absent. The
+released canonical table contains `beta_meta`, so released scores use
+`beta_meta`; `weight` remains an audit/fallback field. Validation datasets do
+not refit or update these coefficients.
+
+After an `all_scored` run, the distributed historical Step09-to-Layer2
+handoff can be regenerated with the portable bridge runner:
+
+```sh
+Rscript scripts/portable_full_pipeline/run_count_to_v6_outputs.R --config config/full_pipeline_config.yml --mode all_scored
+Rscript scripts/portable_full_pipeline/run_step09_to_layer2_inputs.R --config config/full_pipeline_config.yml --mode all_scored
+Rscript run_all_manuscript_outputs_v6.R --config <output_root>/layer2_generated_inputs/layer2_generated_inputs_config.yml
+```
+
+The bridge invokes path-parameterized copies of the original audit and
+publication-extra analysis scripts and writes a separate generated package
+below `<output_root>/layer2_generated_inputs/`. Inputs required by the active
+Layer 2 figures that do not have a directly ported bridge generator are
+identified as released references in its manifest and input contract. The
+default Layer 2 reviewer run continues to use released `data/derived/`
+tables unless it is explicitly configured to use this generated package.
+
+### Layer 2: Reviewer-facing manuscript-output reproduction
+
+This is the default quick run. It regenerates manuscript figures, supplementary tables, and Priority3 gene-program enrichment outputs from released frozen derived inputs and scoring/evaluation tables. It does not rerun raw-data retrieval, HiPerGator/HPC jobs, DESeq2 anchor reconstruction, or full frozen-gene reconstruction.
+
+The current active manuscript figure runner was refactored so that the formerly external `v5_helpers.R` implementation is now included inside the clean release repository under `scripts/active_manuscript/lib/figure_helpers_v6.R`. Its repo-contained panel-builder source and workflow builder are in the same library folder. The data read by this implementation are released under `data/derived/figure_inputs/`.
+
+## Layer 2 Runner
+
+Use `run_all_manuscript_outputs_v6.R` for the reviewer-facing quick run. With active execution enabled it runs:
+
+- `scripts/active_manuscript/00_generate_manuscript_figures_v6.R`
+- `scripts/active_manuscript/02_run_priority3_gene_program_enrichment_v6.R`
+- `scripts/active_manuscript/01_build_supplementary_tables_v6.R`
+
+Generated outputs are written beneath `results_release_templates/` by default:
+
+- `results_release_templates/figures/`: manuscript figure assemblies and figure manifests
+- `results_release_templates/priority3_gene_program_enrichment/`: Supplementary Figure S2 and enrichment tables
+- `results_release_templates/supplementary_tables/`: Supplementary Tables S1-S5
+- `results_release_templates/logs/` and `results_release_templates/manifests/`: run records and preflight checklist
+
+NAR G&B readiness packaging is retained as optional internal documentation under `scripts/optional_internal/`. It is not required by the default reviewer-facing run and runs only when `run_internal_readiness: true` is set explicitly in a local config.
+
+## Configuration
+
+Before running, copy:
+
+```sh
+cp config/config_template.yml config/config.yml
+```
+
+Edit `config/config.yml` only if repository-relative defaults need adjustment. Keep `execute_active_scripts: false` for preflight/checklist mode:
+
+```sh
+Rscript run_all_manuscript_outputs_v6.R
+```
+
+After the checklist confirms all required released inputs are present, set `execute_active_scripts: true` for controlled Layer 2 regeneration. Keep `run_internal_readiness: false` for the default reviewer path.
+
+## Released Inputs
+
+Frozen scoring and enrichment inputs are provided under `data/derived/`, including `frozen_gene_weights.tsv`, `gene_power.tsv`, and the existing robustness/provenance source tables used to package supplementary results.
+
+Figure-generation tables are provided under `data/derived/figure_inputs/`. This explicit bundle includes the released anchor-support, Step09 scoring/evaluation, robustness, comparator, and role/context tables that the repo-contained figure implementation reads. It avoids dependencies on local `revised_plots_v2`, `revised_plots_v3`, or `revised_plots_v4` folders.
+
+Curated metadata and split-design records are included for transparency under `data/curated_metadata/`, `data/split_designs/`, and `docs/manual_curation/`. They define treatment/control group context, tissue/timepoint labels, manuscript roles, and boundary-setting annotations; they do not manually alter delivery-minus-control &Delta;IMRSz values.
+
+## Priority3 Gene-Program Enrichment
+
+Priority3 gene-program enrichment is a required Layer 2 step. It uses the retained frozen IMRS gene set and released background inputs from `data/derived/` and writes Supplementary Figure S2 plus enrichment tables to the configured repository output folder. If an input or R package is unavailable, the step stops or records an explicit diagnostic; it is not silently skipped.
+
+## Scope and Release Notes
+
+The full framework reconstruction path is separate from the reviewer-facing Layer 2 run and may require public-data retrieval, additional storage, and HiPerGator/HPC configuration. Legacy and internal diagnostic material is not part of the active execution path.
+
+Repository code is released under the MIT License; see `LICENSE` and `DATA_LICENSE.md`. Citation metadata identify the public repository without asserting an archival DOI that has not yet been issued. The included `renv.lock` captures the R environment for reproduction. Raw public sequencing data should generally be referenced by accession rather than redistributed unless redistribution is allowed and practical.
