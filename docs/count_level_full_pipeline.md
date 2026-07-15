@@ -90,6 +90,15 @@ GSE279744
 GSE39129
 ```
 
+These five acute mouse datasets are the production retained-gene and frozen-
+coefficient construction set. `GSE262515` is validation/secondary support only
+and does not contribute to Steps 06A-07.
+
+The strict-3 set (`GSE39129`, `GSE167521`, and `GSE264344`) is used only for
+supporting sensitivity or ablation analyses. In particular, threshold-
+sensitivity analyses that use strict-3 inputs are robustness checks; they do
+not define, replace, or refit the production five-anchor frozen model.
+
 In `canonical` mode, missing anchor counts or metadata cause preflight to
 fail. Generated `gene_weights.tsv` is compared with
 `data/derived/frozen_gene_weights.tsv`, when present, and differences are
@@ -124,6 +133,11 @@ gene z-scores with its fixed SD floor, computes weighted sample scores, and
 control-standardizes them to IMRSz. It checks control count and gene coverage
 and writes sample score, QC, and top-contributor files. It does not refit
 weights or modify retained genes using validation labels.
+
+When the coefficient table contains `beta_meta`, Step08 applies `beta_meta`.
+It copies the penalized `weight` field into `beta_meta` only when `beta_meta`
+is absent. The released canonical table contains `beta_meta`, so released
+scores use `beta_meta`; `weight` remains an audit/fallback field.
 
 The ported `09_calibration_evaluation.R` is evaluation only. It computes
 delivery-minus-control IMRSz differences, group counts and means,

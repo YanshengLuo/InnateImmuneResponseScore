@@ -121,6 +121,25 @@ alter the frozen model. For `GSE262515`, the portable wrapper stages its
 curated cell-line and tissue manuscript arms for the unmodified Step08/Step09
 scripts.
 
+### Production, strict-3 sensitivity, and scoring coefficient scope
+
+The production frozen model uses exactly five locked acute mouse anchors:
+`GSE39129`, `GSE167521`, `GSE264344`, `GSE279372`, and `GSE279744`.
+Production core-gene selection follows this five-anchor workflow;
+`GSE262515` is validation/secondary support only and does not contribute to
+Steps 06A-07.
+
+The strict-3 set is `GSE39129`, `GSE167521`, and `GSE264344`. Strict-3 and
+strict-3 threshold-sensitivity analyses are supporting sensitivity/ablation
+checks only; they do not define, replace, or refit the production five-anchor
+frozen model.
+
+Step08 applies `beta_meta` whenever that column is present and copies the
+penalized `weight` field into `beta_meta` only when `beta_meta` is absent. The
+released canonical table contains `beta_meta`, so released scores use
+`beta_meta`; `weight` remains an audit/fallback field. Validation datasets do
+not refit or update these coefficients.
+
 After an `all_scored` run, the distributed historical Step09-to-Layer2
 handoff can be regenerated with the portable bridge runner:
 

@@ -157,13 +157,22 @@ load_frozen_anchor_weights <- function(path) {
     stop("gene_weights.tsv must contain a gene column named 'gene' (spec) or 'gene_id' (internal)")
   }
 
-  # Accept either beta_meta (preferred) or weight (spec)
+  # Production scoring applies beta_meta when it is present. The released
+  # canonical table contains beta_meta, so released scores used beta_meta;
+  # weight is copied into beta_meta only as a fallback when beta_meta is absent.
+  # The penalized weight column remains an audit/fallback output, and validation
+  # datasets never refit or update either coefficient field.
   if (!("beta_meta" %in% names(w)) && !("weight" %in% names(w))) {
     stop("gene_weights.tsv must contain 'beta_meta' (preferred) or 'weight'")
   }
   if (!("beta_meta" %in% names(w))) w$beta_meta <- w$weight
 
-  # Optional flags (if present) can exclude genes
+  # The canonical gene_weights.tsv already represents the retained scoring set;
+  # heterogeneity and power were handled upstream during construction and audit.
+  # Step 08 therefore performs no additional flag-based gene-exclusion stage.
+  # The former non-vectorized isTRUE() expression was inert for the released
+  # table (these columns are absent and initialized FALSE), so omitting it
+  # preserves the released no-exclusion behavior.
   if (!("heterogeneity_flag" %in% names(w))) w$heterogeneity_flag <- FALSE
   if (!("low_power_flag" %in% names(w)))      w$low_power_flag <- FALSE
 
@@ -174,8 +183,7 @@ load_frozen_anchor_weights <- function(path) {
       heterogeneity_flag = as.logical(heterogeneity_flag),
       low_power_flag = as.logical(low_power_flag)
     ) %>%
-    filter(!is.na(beta_meta)) %>%
-    filter(!(isTRUE(heterogeneity_flag) | isTRUE(low_power_flag)))
+    filter(!is.na(beta_meta))
 
   if (strip_ens_ver) {
     w <- w %>% mutate(gene_id = strip_ensembl_version(gene_id))
@@ -294,6 +302,8 @@ score_one_counts_file <- function(dataset_id, counts_path, design_df, weights_df
   z <- sweep(xsub, 1, mu, "-")
   z <- sweep(z, 1, sdv_floor, "/")
 
+  # beta_meta is the applied production coefficient. The released table contains
+  # it, so weight remains audit/fallback-only; validation data do not update wvec.
   wvec <- wsub$beta_meta
   names(wvec) <- wsub$gene_id
   wvec <- wvec[rownames(z)]

@@ -67,13 +67,17 @@ The core retained-gene reconstruction sequence is:
 
 The release-facing canonical coefficient table is `data/derived/frozen_gene_weights.tsv`, which corresponds to the frozen `gene_weights.tsv` used for manuscript scoring and interpretation. It is not edited manually in the workflow.
 
+The production construction set consists of exactly five locked acute mouse anchors: `GSE39129`, `GSE167521`, `GSE264344`, `GSE279372`, and `GSE279744`. Production core-gene selection uses this five-anchor workflow. `GSE262515` is validation/secondary support only and does not contribute to Steps 06A-07.
+
+The strict-3 set (`GSE39129`, `GSE167521`, and `GSE264344`) is reserved for supporting sensitivity or ablation analyses. Threshold-sensitivity analyses using strict-3 inputs are robustness checks and do not define, replace, or refit the production five-anchor frozen model.
+
 The `frozen_gene_reconstruction/` subfolder retains a focused copy of Steps 06A-07 plus an optional comparison template. `check_frozen_gene_weights_reproducibility_TEMPLATE.R` is intended to compare a future regenerated coefficient table against the released canonical file. It is never called by the default reviewer runner.
 
 ### 4. Frozen sample-level scoring
 
 `08_score_samples.R` applies frozen anchor weights to datasets without refitting coefficients. It reads count matrices, scoring designs, and `gene_weights.tsv`; performs dataset-internal normalization and control-referenced standardization; and writes sample-level IMRS score and QC/contributor tables under the original `05_score/transfer/` workflow location.
 
-The relevant framework concept is frozen scoring: validation or transfer-evaluation datasets do not update the retained gene list or frozen coefficients.
+When `beta_meta` is present, Step08 applies `beta_meta`; it copies the penalized `weight` field into `beta_meta` only as a fallback when `beta_meta` is absent. The released canonical table contains `beta_meta`, so the released scores use `beta_meta`, while `weight` remains an audit/fallback output. Validation or transfer-evaluation datasets do not update the retained gene list or either frozen coefficient field.
 
 ### 5. Step09 split-level evaluation
 

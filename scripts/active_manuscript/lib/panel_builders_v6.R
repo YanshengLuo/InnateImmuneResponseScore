@@ -114,6 +114,7 @@ locked_anchor_ids <- c(
   "GSE279372",
   "GSE279744"
 )
+# Strict-3 is a sensitivity/ablation set only, not the production model set.
 strict3_sensitivity_ids <- c("GSE39129", "GSE167521", "GSE264344")
 anchor_palette <- c(
   GSE39129 = "#4E79A7",

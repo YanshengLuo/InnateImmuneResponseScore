@@ -32,6 +32,9 @@ AUDIT_DATASETS_DIR <- file.path(AUDIT_ROOT, "datasets")
 AUDIT_LOG_FILE <- file.path(AUDIT_LOG_DIR, "audit_run_log.txt")
 AUDIT_STATUS_FILE <- file.path(AUDIT_RESULTS_DIR, "audit_section_status.tsv")
 
+# Strict-3 inputs are used only by supporting sensitivity/ablation analyses
+# (including threshold sensitivity and strict-3 leave-one-out checks). They do
+# not define, replace, or refit the production five-anchor frozen model.
 STRICT_ANCHOR_IDS <- c("GSE264344", "GSE39129", "GSE167521")
 KNOWN_CALIBRATION_IDS <- c(
   "GSE279372", "GSE279744", "GSE262515", "GSE262515_tissue",

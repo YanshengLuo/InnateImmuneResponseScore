@@ -40,14 +40,15 @@ if (!is.finite(lfc_cutoff)) lfc_cutoff <- 1.0
 
 de_comp_root <- file.path(project_root, "04_de", "comparison")
 
-# Locked mouse datasets
+# Five production locked anchors. GSE262515 is validation/secondary support only;
+# the portable wrapper also restricts model construction to the locked anchors
+# configured in config/full_pipeline_config.yml.
 LOCKED_DATASETS_MOUSE <- c(
   "GSE39129",
   "GSE167521",
   "GSE264344",
   "GSE279372",
-  "GSE279744",
-  "GSE262515"
+  "GSE279744"
 )
 
 # Thresholds
