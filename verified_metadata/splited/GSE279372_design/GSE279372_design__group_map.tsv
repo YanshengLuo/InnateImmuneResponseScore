@@ -1,0 +1,7 @@
+tissue_raw	time_label	batch_raw	group_raw	group_token
+draining lymph nodes	24h	NA	delivery_250_g_alum_5_g_gi_1_gii_4_vlp_injected	GID00110503
+draining lymph nodes	24h	NA	delivery_125_g_lnps_5_g_gi_1_gii_4_vlp_injected	GID00110754
+draining lymph nodes	24h	NA	delivery_1000_g_lnps_5_g_gi_1_gii_4_vlp_injected	GID00114748
+draining lymph nodes	24h	NA	delivery_1000_g_lnps_injected	delivery_1000_g_lnps_injected
+draining lymph nodes	24h	NA	delivery_250_g_alum_injected	delivery_250_g_alum_injected
+draining lymph nodes	24h	NA	delivery_5_g_gi_1_gii_4_vlp	delivery_5_g_gi_1_gii_4_vlp

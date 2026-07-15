@@ -1,0 +1,2 @@
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+C:/Users/john/Desktop/IMRS_Project/Hypergator_scripts/InnateImmuneResponseScore/verified_metadata/splited/GSE39129_design/GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none.tsv	GSE39129_design__T=liver__H=4__B=NA__G=delivery_lentiviral_vector_lv__VS=delivery_none.tsv	liver	4	NA	NA	delivery_none	NA

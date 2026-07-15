@@ -1,0 +1,11 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR28740119	baseline_0	Muscle	0	NA	baseline_0	Muscle	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740120	baseline_0	Muscle	0	NA	baseline_0	Muscle	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740121	baseline_0	Muscle	0	NA	baseline_0	Muscle	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740122	baseline_0	Muscle	0	NA	baseline_0	Muscle	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740123	baseline_0	Muscle	0	NA	baseline_0	Muscle	0	0	0h	NA	TRUE	CONTROL	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740236	delivery_ad26	Muscle	3	NA	delivery_ad26	Muscle	3	3	3h	NA	FALSE	DELIVERY	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740237	delivery_ad26	Muscle	3	NA	delivery_ad26	Muscle	3	3	3h	NA	FALSE	DELIVERY	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740238	delivery_ad26	Muscle	3	NA	delivery_ad26	Muscle	3	3	3h	NA	FALSE	DELIVERY	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740239	delivery_ad26	Muscle	3	NA	delivery_ad26	Muscle	3	3	3h	NA	FALSE	DELIVERY	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0
+SRR28740240	delivery_ad26	Muscle	3	NA	delivery_ad26	Muscle	3	3	3h	NA	FALSE	DELIVERY	baseline_0	delivery_ad26__vs__baseline_0	fallback_time0

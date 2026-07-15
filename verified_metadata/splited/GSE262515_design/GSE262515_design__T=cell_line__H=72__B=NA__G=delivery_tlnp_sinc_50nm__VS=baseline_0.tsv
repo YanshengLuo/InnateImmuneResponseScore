@@ -1,0 +1,7 @@
+sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
+SRR28462981	baseline_0	cell line	72	NA	baseline_0	cell line	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
+SRR28462982	baseline_0	cell line	72	NA	baseline_0	cell line	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
+SRR28462983	baseline_0	cell line	72	NA	baseline_0	cell line	72	72	72h	NA	TRUE	CONTROL	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
+SRR28462978	delivery_tlnp_sinc_50nm	cell line	72	NA	delivery_tlnp_sinc_50nm	cell line	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
+SRR28462979	delivery_tlnp_sinc_50nm	cell line	72	NA	delivery_tlnp_sinc_50nm	cell line	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
+SRR28462980	delivery_tlnp_sinc_50nm	cell line	72	NA	delivery_tlnp_sinc_50nm	cell line	72	72	72h	NA	FALSE	DELIVERY	baseline_0	delivery_tlnp_sinc_50nm__vs__baseline_0	matched_time
