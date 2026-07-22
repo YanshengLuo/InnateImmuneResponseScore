@@ -1,66 +1,66 @@
-sample_id	tissue	timepoint_hr	batch	condition_simple	group
-SRR10358615	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358616	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358617	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358618	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358619	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358620	blood	24	NA	DELIVERY	ad_fhbp
-SRR10358621	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358622	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358623	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358624	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358625	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358626	blood	24	NA	DELIVERY	mva_fhbp
-SRR10358627	blood	24	NA	DELIVERY	bexsero
-SRR10358628	blood	24	NA	DELIVERY	bexsero
-SRR10358629	blood	24	NA	DELIVERY	bexsero
-SRR10358630	blood	24	NA	DELIVERY	bexsero
-SRR10358631	blood	24	NA	DELIVERY	bexsero
-SRR10358632	blood	24	NA	DELIVERY	bexsero
-SRR10358633	blood	24	NA	DELIVERY	bex.bex
-SRR10358634	blood	24	NA	DELIVERY	bex.bex
-SRR10358635	blood	24	NA	DELIVERY	bex.bex
-SRR10358636	blood	24	NA	DELIVERY	bex.bex
-SRR10358637	blood	24	NA	DELIVERY	bex.bex
-SRR10358638	blood	24	NA	DELIVERY	bex.bex
-SRR10358639	blood	24	NA	DELIVERY	mva.ad
-SRR10358640	blood	24	NA	DELIVERY	mva.ad
-SRR10358641	blood	24	NA	DELIVERY	mva.ad
-SRR10358642	blood	24	NA	DELIVERY	mva.ad
-SRR10358643	blood	24	NA	DELIVERY	mva.ad
-SRR10358644	blood	24	NA	DELIVERY	mva.ad
-SRR10358645	blood	24	NA	CONTROL	none
-SRR10358646	blood	24	NA	CONTROL	none
-SRR10358647	blood	24	NA	CONTROL	none
-SRR10358648	blood	24	NA	CONTROL	none
-SRR10358649	blood	24	NA	CONTROL	none
-SRR10358650	blood	24	NA	CONTROL	none
-SRR10358651	blood	24	NA	DELIVERY	ad.mva
-SRR10358652	blood	24	NA	DELIVERY	ad.mva
-SRR10358653	blood	24	NA	DELIVERY	ad.mva
-SRR10358654	blood	24	NA	DELIVERY	ad.mva
-SRR10358655	blood	24	NA	DELIVERY	ad.mva
-SRR10358656	blood	24	NA	DELIVERY	ad.mva
-SRR10358657	blood	24	NA	DELIVERY	ad_empty
-SRR10358658	blood	24	NA	DELIVERY	ad_empty
-SRR10358659	blood	24	NA	DELIVERY	ad_empty
-SRR10358660	blood	24	NA	DELIVERY	ad_empty
-SRR10358661	blood	24	NA	DELIVERY	ad_empty
-SRR10358662	blood	24	NA	DELIVERY	ad_empty
-SRR10358663	blood	24	NA	DELIVERY	trumenba
-SRR10358664	blood	24	NA	DELIVERY	trumenba
-SRR10358665	blood	24	NA	DELIVERY	trumenba
-SRR10358666	blood	24	NA	DELIVERY	trumenba
-SRR10358667	blood	24	NA	DELIVERY	trumenba
-SRR10358668	blood	24	NA	DELIVERY	trumenba
-SRR10358669	blood	24	NA	DELIVERY	tru.tru
-SRR10358670	blood	24	NA	DELIVERY	tru.tru
-SRR10358671	blood	24	NA	DELIVERY	tru.tru
-SRR10358672	blood	24	NA	DELIVERY	tru.tru
-SRR10358673	blood	24	NA	DELIVERY	tru.tru
-SRR10358674	blood	24	NA	DELIVERY	ad_pref
-SRR10358675	blood	24	NA	DELIVERY	ad_pref
-SRR10358676	blood	24	NA	DELIVERY	ad_pref
-SRR10358677	blood	24	NA	DELIVERY	ad_pref
-SRR10358678	blood	24	NA	DELIVERY	ad_pref
-SRR10358679	blood	24	NA	DELIVERY	ad_pref
+sample_id	tissue	timepoint_hr	batch	condition_simple	group	raw_time_label	time_reference_event
+SRR10358615	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358616	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358617	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358618	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358619	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358620	blood	24	NA	DELIVERY	ad_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358621	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358622	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358623	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358624	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358625	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358626	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358627	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358628	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358629	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358630	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358631	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358632	blood	24	NA	DELIVERY	bexsero	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358633	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358634	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358635	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358636	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358637	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358638	blood	24	NA	DELIVERY	bex.bex	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358639	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358640	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358641	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358642	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358643	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358644	blood	24	NA	DELIVERY	mva.ad	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358645	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358646	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358647	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358648	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358649	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358650	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358651	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358652	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358653	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358654	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358655	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358656	blood	24	NA	DELIVERY	ad.mva	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358657	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358658	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358659	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358660	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358661	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358662	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358663	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358664	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358665	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358666	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358667	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358668	blood	24	NA	DELIVERY	trumenba	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358669	blood	24	NA	DELIVERY	tru.tru	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358670	blood	24	NA	DELIVERY	tru.tru	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358671	blood	24	NA	DELIVERY	tru.tru	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358672	blood	24	NA	DELIVERY	tru.tru	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358673	blood	24	NA	DELIVERY	tru.tru	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358674	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358675	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358676	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358677	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358678	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358679	blood	24	NA	DELIVERY	ad_pref	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups

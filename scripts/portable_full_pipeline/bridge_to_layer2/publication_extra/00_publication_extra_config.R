@@ -50,7 +50,9 @@ INTERPRETATION_ORDER <- c(
 )
 
 INTERPRETATION_LABELS <- c(
-  strict_anchor = "Strict anchor",
+  # Legacy identifier retained for figure compatibility; the role table now
+  # assigns all five production anchors to this principal group.
+  strict_anchor = "Locked anchor (production)",
   primary_acute_validation = "Primary acute validation",
   extended_validation = "Extended validation",
   secondary_support_not_primary = "Secondary support",
@@ -206,10 +208,13 @@ collapse_unique_chr <- function(x, sep = ";") {
 interpretation_from_role <- function(manuscript_role) {
   secondary_role <- paste0("cali", "bration")
   dplyr::case_when(
-    manuscript_role == "strict_anchor" ~ "strict_anchor",
-    manuscript_role == "external_acute" ~ "primary_acute_validation",
-    manuscript_role == "external_extended" ~ "extended_validation",
-    manuscript_role == secondary_role ~ "secondary_support_not_primary",
+    manuscript_role %in% c("strict_anchor", "anchor") ~ "strict_anchor",
+    manuscript_role %in% c("external_acute", "primary_acute_validation") ~
+      "primary_acute_validation",
+    manuscript_role %in% c("external_extended", "extended_validation") ~
+      "extended_validation",
+    manuscript_role %in% c(secondary_role, "secondary_support") ~
+      "secondary_support_not_primary",
     TRUE ~ "excluded_or_unclear"
   )
 }
@@ -226,7 +231,7 @@ load_role_table <- function() {
       manuscript_interpretation_label =
         unname(INTERPRETATION_LABELS[manuscript_interpretation_group])
     ) %>%
-    distinct(split_path, split_id, .keep_all = TRUE)
+    distinct(gse_id, split_id, .keep_all = TRUE)
 }
 
 load_eval_with_roles <- function(required = TRUE) {
@@ -248,11 +253,11 @@ load_eval_with_roles <- function(required = TRUE) {
     eval_tbl <- eval_tbl %>%
       left_join(
         role_tbl %>%
-          select(split_path, manuscript_role, manuscript_claim_group,
+          select(gse_id, split_id, manuscript_role, manuscript_claim_group,
                  manuscript_interpretation_group,
                  manuscript_interpretation_label,
                  inclusion_rationale, limitation),
-        by = "split_path"
+        by = c("gse_id", "split_id")
       )
   }
 

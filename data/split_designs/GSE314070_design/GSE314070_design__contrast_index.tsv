@@ -1,4 +1,3 @@
-﻿design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
-<local_project_root>/00_metadata/verified_metadata/splited/GSE314070_design/GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0.tsv	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0.tsv	NA	336	NA	NA	baseline_0	NA
-<local_project_root>/00_metadata/verified_metadata/splited/GSE314070_design/GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0.tsv	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0.tsv	NA	336	NA	NA	baseline_0	NA
-
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+<upstream_project_root>/00_metadata/verified_metadata/splited/GSE314070_design/GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0.tsv	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_am80_lnp__VS=baseline_0.tsv	NA	336	NA	NA	baseline_0	NA
+<upstream_project_root>/00_metadata/verified_metadata/splited/GSE314070_design/GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0.tsv	GSE314070_design__T=small_intestine__H=336__B=NA__G=delivery_sm102_lnp__VS=baseline_0.tsv	NA	336	NA	NA	baseline_0	NA

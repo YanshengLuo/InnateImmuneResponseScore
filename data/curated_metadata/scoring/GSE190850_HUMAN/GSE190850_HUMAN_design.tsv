@@ -1,41 +1,41 @@
-sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
-SRR17223802	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223804	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223806	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223808	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223810	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223812	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223814	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223818	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223820	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223822	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223824	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223826	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223828	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223830	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223832	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223834	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223836	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223838	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223840	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223803	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223805	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223807	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223809	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223811	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223813	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223816	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223819	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223821	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223823	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223825	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223827	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223829	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223831	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223833	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223835	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223837	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223839	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223841	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA
-SRR17223815	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
-SRR17223817	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	raw_time_label	time_reference_event	ex_vivo_stimulation_h	ex_vivo_stimulation_status	ex_vivo_reference_event	repository_sample_title
+SRR17223802	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination  rep5
+SRR17223804	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination  rep4
+SRR17223806	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airwayvmacrophage -8wk post vaccination  rep3
+SRR17223808	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination rep2
+SRR17223810	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8 wk post vaccination rep1
+SRR17223812	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep5
+SRR17223814	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep4
+SRR17223818	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep2
+SRR17223820	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep1
+SRR17223822	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep5
+SRR17223824	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep4
+SRR17223826	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep3
+SRR17223828	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination rep2
+SRR17223830	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8 wk post vaccination rep1
+SRR17223832	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep5
+SRR17223834	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep4
+SRR17223836	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep3
+SRR17223838	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep2
+SRR17223840	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep1
+SRR17223803	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination  rep5
+SRR17223805	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination  rep4
+SRR17223807	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airwayvmacrophage -8wk post vaccination  rep3
+SRR17223809	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8wk post vaccination rep2
+SRR17223811	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -8 wk post vaccination rep1
+SRR17223813	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep5
+SRR17223816	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep3
+SRR17223819	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep2
+SRR17223821	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep1
+SRR17223823	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep5
+SRR17223825	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep4
+SRR17223827	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination  rep3
+SRR17223829	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8wk post vaccination rep2
+SRR17223831	CONTROL	TRUE	delivery_unstimulated	BALF	1344	1344	NA	8 weeks post vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -8 wk post vaccination rep1
+SRR17223833	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep5
+SRR17223835	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep4
+SRR17223837	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep3
+SRR17223839	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep2
+SRR17223841	CONTROL	TRUE	delivery_unstimulated	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	unstimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	unstimulated airway macrophage -baseline rep1
+SRR17223815	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep4
+SRR17223817	DELIVERY	FALSE	delivery_stimulated_with_m_tb_whole_cell_lysate	BALF	0	0	NA	baseline before vaccination	AdHu5Ag85A aerosol vaccination	12	stimulated	start of ex vivo M. tuberculosis whole-cell-lysate exposure	stimulated airway macrophage -baseline rep3

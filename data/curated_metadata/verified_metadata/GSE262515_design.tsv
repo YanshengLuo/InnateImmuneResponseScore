@@ -1,22 +1,22 @@
-sample_id	group	tissue	timepoint_hr	batch
-SRR28462963	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
-SRR28462964	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
-SRR28462965	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA
-SRR28462966	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
-SRR28462967	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
-SRR28462968	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA
-SRR28462969	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
-SRR28462970	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
-SRR28462971	delivery_tlnp_sinc_1mg_kg	tissue	72	NA
-SRR28462972	baseline_0	tissue	72	NA
-SRR28462973	baseline_0	tissue	72	NA
-SRR28462974	baseline_0	tissue	72	NA
-SRR28462975	delivery_tlnp_sihbv_50nm	cell line	72	NA
-SRR28462976	delivery_tlnp_sihbv_50nm	cell line	72	NA
-SRR28462977	delivery_tlnp_sihbv_50nm	cell line	72	NA
-SRR28462978	delivery_tlnp_sinc_50nm	cell line	72	NA
-SRR28462979	delivery_tlnp_sinc_50nm	cell line	72	NA
-SRR28462980	delivery_tlnp_sinc_50nm	cell line	72	NA
-SRR28462981	baseline_0	cell line	72	NA
-SRR28462982	baseline_0	cell line	72	NA
-SRR28462983	baseline_0	cell line	72	NA
+sample_id	group	tissue	timepoint_hr	batch	raw_time_label	time_reference_event
+SRR28462963	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462964	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462965	delivery_tlnp_sihbv_2_5mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462966	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462967	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462968	delivery_tlnp_sihbv_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462969	delivery_tlnp_sinc_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462970	delivery_tlnp_sinc_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462971	delivery_tlnp_sinc_1mg_kg	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462972	baseline_0	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462973	baseline_0	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462974	baseline_0	tissue	72	NA	72 h after mouse administration (GEO/supplement; main-caption conflict)	mouse test-formulation administration
+SRR28462975	delivery_tlnp_sihbv_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462976	delivery_tlnp_sihbv_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462977	delivery_tlnp_sihbv_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462978	delivery_tlnp_sinc_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462979	delivery_tlnp_sinc_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462980	delivery_tlnp_sinc_50nm	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462981	baseline_0	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462982	baseline_0	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation
+SRR28462983	baseline_0	cell line	16	NA	16 h after HepG2 treatment/transfection	HepG2 treatment/transfection with test formulation

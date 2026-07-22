@@ -1,13 +1,13 @@
-sample_id	tissue	timepoint_hr	batch	condition_simple	group	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
-SRR10358645	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358646	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358647	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358648	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358649	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358650	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
-SRR10358657	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
-SRR10358658	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
-SRR10358659	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
-SRR10358660	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
-SRR10358661	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
-SRR10358662	blood	24	NA	DELIVERY	ad_empty	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+sample_id	tissue	timepoint_hr	batch	condition_simple	group	raw_time_label	time_reference_event	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
+SRR10358645	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358646	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358647	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358648	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358649	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358650	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	ad_empty__vs__none	matched_time
+SRR10358657	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+SRR10358658	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+SRR10358659	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+SRR10358660	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+SRR10358661	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time
+SRR10358662	blood	24	NA	DELIVERY	ad_empty	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	ad_empty	blood	24	24	24h	NA	FALSE	none	ad_empty__vs__none	matched_time

@@ -1,7 +1,0 @@
-sample_id	group	tissue	timepoint_hr	batch	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	condition_simple	control_label	contrast_label	control_time_policy
-SRR13694568	delivery_untreated	Tibialis anterior	672	NA	delivery_untreated	Tibialis anterior	672	672	672h	NA	TRUE	CONTROL	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time
-SRR13694569	delivery_untreated	Tibialis anterior	672	NA	delivery_untreated	Tibialis anterior	672	672	672h	NA	TRUE	CONTROL	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time
-SRR13694570	delivery_untreated	Tibialis anterior	672	NA	delivery_untreated	Tibialis anterior	672	672	672h	NA	TRUE	CONTROL	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time
-SRR13694562	delivery_aav9_ar45	Tibialis anterior	672	NA	delivery_aav9_ar45	Tibialis anterior	672	672	672h	NA	FALSE	DELIVERY	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time
-SRR13694563	delivery_aav9_ar45	Tibialis anterior	672	NA	delivery_aav9_ar45	Tibialis anterior	672	672	672h	NA	FALSE	DELIVERY	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time
-SRR13694564	delivery_aav9_ar45	Tibialis anterior	672	NA	delivery_aav9_ar45	Tibialis anterior	672	672	672h	NA	FALSE	DELIVERY	delivery_untreated	delivery_aav9_ar45__vs__delivery_untreated	matched_time

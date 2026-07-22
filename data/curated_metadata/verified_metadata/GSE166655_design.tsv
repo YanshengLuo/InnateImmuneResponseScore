@@ -1,10 +1,10 @@
-sample_id	group	tissue	timepoint_hr	batch
-SRR13694562	delivery_aav9_ar45	Tibialis anterior	672	NA
-SRR13694563	delivery_aav9_ar45	Tibialis anterior	672	NA
-SRR13694564	delivery_aav9_ar45	Tibialis anterior	672	NA
-SRR13694565	delivery_aav9_gfp	Tibialis anterior	672	NA
-SRR13694566	delivery_aav9_gfp	Tibialis anterior	672	NA
-SRR13694567	delivery_aav9_gfp	Tibialis anterior	672	NA
-SRR13694568	delivery_untreated	Tibialis anterior	672	NA
-SRR13694569	delivery_untreated	Tibialis anterior	672	NA
-SRR13694570	delivery_untreated	Tibialis anterior	672	NA
+sample_id	group	tissue	timepoint_hr	batch	raw_time_label	time_reference_event
+SRR13694562	delivery_aav9_ar45	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694563	delivery_aav9_ar45	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694564	delivery_aav9_ar45	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694565	delivery_aav9_gfp	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694566	delivery_aav9_gfp	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694567	delivery_aav9_gfp	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694568	delivery_untreated	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694569	delivery_untreated	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection
+SRR13694570	delivery_untreated	Tibialis anterior	1008	NA	6 weeks after AAV9 injection (5 to 11 weeks of age)	intravenous AAV9-AR45 or AAV9-GFP injection

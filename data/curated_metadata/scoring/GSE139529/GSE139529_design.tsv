@@ -1,66 +1,66 @@
-sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
-SRR10358615	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358616	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358617	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358618	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358619	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358620	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA
-SRR10358621	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358622	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358623	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358624	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358625	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358626	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA
-SRR10358627	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358628	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358629	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358630	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358631	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358632	DELIVERY	FALSE	bexsero	blood	24	24	NA
-SRR10358633	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358634	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358635	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358636	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358637	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358638	DELIVERY	FALSE	bex.bex	blood	24	24	NA
-SRR10358639	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358640	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358641	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358642	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358643	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358644	DELIVERY	FALSE	mva.ad	blood	24	24	NA
-SRR10358645	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358646	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358647	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358648	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358649	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358650	CONTROL	TRUE	none	blood	24	24	NA
-SRR10358651	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358652	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358653	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358654	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358655	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358656	DELIVERY	FALSE	ad.mva	blood	24	24	NA
-SRR10358657	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358658	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358659	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358660	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358661	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358662	DELIVERY	FALSE	ad_empty	blood	24	24	NA
-SRR10358663	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358664	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358665	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358666	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358667	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358668	DELIVERY	FALSE	trumenba	blood	24	24	NA
-SRR10358669	DELIVERY	FALSE	tru.tru	blood	24	24	NA
-SRR10358670	DELIVERY	FALSE	tru.tru	blood	24	24	NA
-SRR10358671	DELIVERY	FALSE	tru.tru	blood	24	24	NA
-SRR10358672	DELIVERY	FALSE	tru.tru	blood	24	24	NA
-SRR10358673	DELIVERY	FALSE	tru.tru	blood	24	24	NA
-SRR10358674	DELIVERY	FALSE	ad_pref	blood	24	24	NA
-SRR10358675	DELIVERY	FALSE	ad_pref	blood	24	24	NA
-SRR10358676	DELIVERY	FALSE	ad_pref	blood	24	24	NA
-SRR10358677	DELIVERY	FALSE	ad_pref	blood	24	24	NA
-SRR10358678	DELIVERY	FALSE	ad_pref	blood	24	24	NA
-SRR10358679	DELIVERY	FALSE	ad_pref	blood	24	24	NA
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	raw_time_label	time_reference_event
+SRR10358615	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358616	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358617	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358618	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358619	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358620	DELIVERY	FALSE	ad_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358621	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358622	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358623	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358624	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358625	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358626	DELIVERY	FALSE	mva_fhbp	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358627	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358628	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358629	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358630	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358631	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358632	DELIVERY	FALSE	bexsero	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358633	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358634	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358635	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358636	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358637	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358638	DELIVERY	FALSE	bex.bex	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358639	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358640	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358641	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358642	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358643	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358644	DELIVERY	FALSE	mva.ad	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358645	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358646	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358647	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358648	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358649	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358650	CONTROL	TRUE	none	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358651	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358652	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358653	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358654	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358655	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358656	DELIVERY	FALSE	ad.mva	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358657	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358658	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358659	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358660	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358661	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358662	DELIVERY	FALSE	ad_empty	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358663	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358664	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358665	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358666	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358667	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358668	DELIVERY	FALSE	trumenba	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358669	DELIVERY	FALSE	tru.tru	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358670	DELIVERY	FALSE	tru.tru	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358671	DELIVERY	FALSE	tru.tru	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358672	DELIVERY	FALSE	tru.tru	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358673	DELIVERY	FALSE	tru.tru	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358674	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358675	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358676	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358677	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358678	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
+SRR10358679	DELIVERY	FALSE	ad_pref	blood	24	24	NA	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups
