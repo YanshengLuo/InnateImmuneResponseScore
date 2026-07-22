@@ -1,9 +1,9 @@
-sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
-SRR14828048	CONTROL	TRUE	mouse_repopulated_pbs	Liver	48	48	NA
-SRR14828059	CONTROL	TRUE	mouse_repopulated_pbs	Liver	48	48	NA
-SRR14828060	CONTROL	TRUE	mouse_repopulated_pbs	Liver	48	48	NA
-SRR14828061	CONTROL	TRUE	mouse_repopulated_pbs	Liver	48	48	NA
-SRR14828049	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	48	48	NA
-SRR14828062	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	48	48	NA
-SRR14828063	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	48	48	NA
-SRR14828064	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	48	48	NA
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	raw_time_label	time_reference_event
+SRR14828048	CONTROL	TRUE	mouse_repopulated_pbs	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828059	CONTROL	TRUE	mouse_repopulated_pbs	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828060	CONTROL	TRUE	mouse_repopulated_pbs	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828061	CONTROL	TRUE	mouse_repopulated_pbs	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828049	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828062	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828063	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection
+SRR14828064	DELIVERY	FALSE	mouse_repopulated_lnp	Liver	24	24	NA	24 h after intravenous LNP or PBS injection	intravenous pooled-LNP or PBS injection

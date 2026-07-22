@@ -1,17 +1,17 @@
 score_id	score_label	manuscript_interpretation_group	manuscript_interpretation_label	n_contrasts	mean_delta_score	median_delta_score	proportion_positive_delta	mean_auc_secondary	median_auc_secondary
-IMRS	IMRS	strict_anchor	Strict anchor	32	4.218337804396852	3.544721604297695	1	0.97375	1
+IMRS	IMRS	strict_anchor	Locked anchor (production)	40	7.183469962400175	3.614798054079461	0.975	0.954	1
 IMRS	IMRS	primary_acute_validation	Primary acute validation	14	10.874867967390026	11.924730800981251	1	0.9702380952380952	1
 IMRS	IMRS	extended_validation	Extended validation	11	1.3577380698401753	0.4507210263939263	0.8181818181818182	0.7894949494949495	0.8
-IMRS	IMRS	secondary_support_not_primary	Secondary support	13	12.100578394657251	2.562748652650221	0.8461538461538461	0.8376068376068376	1
-ISG	Interferon-stimulated genes	strict_anchor	Strict anchor	32	3.7781194852663167	3.5776596026396073	0.84375	0.89625	1
+IMRS	IMRS	secondary_support_not_primary	Secondary support	5	0.9911060750473073	0.7571044035156834	0.8	0.7777777777777778	0.7777777777777778
+ISG	Interferon-stimulated genes	strict_anchor	Locked anchor (production)	40	5.579221899230916	3.609107014815111	0.85	0.88575	1
 ISG	Interferon-stimulated genes	primary_acute_validation	Primary acute validation	14	17.356482001233903	9.551546760704326	1	0.9920634920634921	1
 ISG	Interferon-stimulated genes	extended_validation	Extended validation	11	1.1884114333888218	0.32047031536763476	0.8181818181818182	0.7171212121212122	0.8
-ISG	Interferon-stimulated genes	secondary_support_not_primary	Secondary support	13	7.912151070915668	1.0778433836863048	0.6923076923076923	0.6816239316239316	0.5625
-CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	strict_anchor	Strict anchor	32	5.705562345689792	4.344290658149237	1	0.99875	1
+ISG	Interferon-stimulated genes	secondary_support_not_primary	Secondary support	5	0.11778229623783487	-0.34287611139013596	0.4	0.4222222222222222	0.4444444444444444
+CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	strict_anchor	Locked anchor (production)	40	5.7727593562173825	4.19048551800824	0.925	0.9347638888888888	1
 CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	primary_acute_validation	Primary acute validation	14	6.596152976124582	4.917976003214207	0.9285714285714286	0.9067460317460317	1
 CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	extended_validation	Extended validation	11	2.5700661264288343	1.3018437252292998	1	0.8067424242424243	0.7777777777777778
-CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	secondary_support_not_primary	Secondary support	13	4.414893376639655	2.526769099880506	0.6923076923076923	0.6741452991452992	0.8888888888888888
-GENERIC_INNATE	Generic innate immune genes	strict_anchor	Strict anchor	32	2.2433716644912356	1.2836895210951693	1	0.9875	1
+CHEMOKINE_INFLAMMATORY	Chemokine/inflammatory genes	secondary_support_not_primary	Secondary support	5	1.8122469419387082	2.526769099880506	0.8	0.6666666666666666	0.8888888888888888
+GENERIC_INNATE	Generic innate immune genes	strict_anchor	Locked anchor (production)	40	4.099180345707657	1.3730196846620526	1	0.9821875	1
 GENERIC_INNATE	Generic innate immune genes	primary_acute_validation	Primary acute validation	14	5.610782474448112	5.084552253367249	1	0.9702380952380952	1
 GENERIC_INNATE	Generic innate immune genes	extended_validation	Extended validation	11	1.0120355009275834	0.6599101302690485	0.7272727272727273	0.6899747474747475	0.6875
-GENERIC_INNATE	Generic innate immune genes	secondary_support_not_primary	Secondary support	13	7.451598615235814	3.4658002622777535	0.8461538461538461	0.8221153846153846	1
+GENERIC_INNATE	Generic innate immune genes	secondary_support_not_primary	Secondary support	5	0.938292286695769	0.07905847301086695	0.6	0.6	0.5555555555555556

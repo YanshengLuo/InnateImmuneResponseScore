@@ -1,0 +1,31 @@
+{
+  "generated": "2026-07-21",
+  "principal_evaluated_contrasts": 70,
+  "all_scored_rows": 70,
+  "metadata_only_rows": 3,
+  "s3_category_counts": {
+    "Tissue/time kinetic effect": 6,
+    "Therapeutic cargo/context effect": 4,
+    "Disease-rescue model": 2,
+    "Distal or adaptive tissue context": 1,
+    "Low-inflammatory formulation design": 1,
+    "Late timepoint": 1
+  },
+  "s5_database_counts": {
+    "GO Biological Process": 469,
+    "Reactome": 31,
+    "MSigDB Hallmark": 7
+  },
+  "output_files": [
+    "Supplementary_Table_Notes.tsv",
+    "Supplementary_Table_S1.tsv",
+    "Supplementary_Table_S2.tsv",
+    "Supplementary_Table_S3.tsv",
+    "Supplementary_Table_S4A_Robustness.tsv",
+    "Supplementary_Table_S4B_LOAO.tsv",
+    "Supplementary_Table_S4C_Comparator.tsv",
+    "Supplementary_Table_S4D_Paired_Tests.tsv",
+    "Supplementary_Table_S5.tsv",
+    "_computed_comparator_tests.tsv"
+  ]
+}

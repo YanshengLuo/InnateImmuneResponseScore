@@ -1,7 +1,7 @@
-tissue_raw	time_label	batch_raw	genotype_raw	group_raw	group_token	control_raw	n_control	n_delivery
-whole liver	4h	NA	TRIM21_KO	TRIM21_KO_virus_only_whole_liver	TRIM21_KO_virus_only_whole_liver	TRIM21_KO_uninfected_whole_liver	4	4
-whole liver	4h	NA	TRIM21_KO	TRIM21_KO_virus_plus_rh9C12_H433A_whole_liver	GID00096342	TRIM21_KO_uninfected_whole_liver	4	4
-whole liver	4h	NA	TRIM21_KO	TRIM21_KO_virus_plus_rh9C12_WT_whole_liver	GID00088542	TRIM21_KO_uninfected_whole_liver	4	4
-whole liver	4h	NA	WT	WT_virus_only_whole_liver	WT_virus_only_whole_liver	WT_uninfected_whole_liver	4	4
-whole liver	4h	NA	WT	WT_virus_plus_rh9C12_H433A_whole_liver	GID00069418	WT_uninfected_whole_liver	4	4
-whole liver	4h	NA	WT	WT_virus_plus_rh9C12_WT_whole_liver	WT_virus_plus_rh9C12_WT_whole_liver	WT_uninfected_whole_liver	4	4
+tissue_raw	time_label	batch_raw	group_raw	group_token
+whole liver	4h	NA	WT_virus_plus_rh9C12_H433A_whole_liver	GID00069418
+whole liver	4h	NA	TRIM21_KO_virus_plus_rh9C12_WT_whole_liver	GID00088542
+whole liver	4h	NA	TRIM21_KO_virus_plus_rh9C12_H433A_whole_liver	GID00096342
+whole liver	4h	NA	TRIM21_KO_virus_only_whole_liver	TRIM21_KO_virus_only_whole_liver
+whole liver	4h	NA	WT_virus_only_whole_liver	WT_virus_only_whole_liver
+whole liver	4h	NA	WT_virus_plus_rh9C12_WT_whole_liver	WT_virus_plus_rh9C12_WT_whole_liver

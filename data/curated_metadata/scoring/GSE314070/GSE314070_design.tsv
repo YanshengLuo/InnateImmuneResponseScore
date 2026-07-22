@@ -1,10 +1,10 @@
-sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch
-SRR36481704	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA
-SRR36481705	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA
-SRR36481706	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA
-SRR36481707	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA
-SRR36481708	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA
-SRR36481709	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA
-SRR36481710	CONTROL	TRUE	baseline_0	small intestine	336	336	NA
-SRR36481711	CONTROL	TRUE	baseline_0	small intestine	336	336	NA
-SRR36481712	CONTROL	TRUE	baseline_0	small intestine	336	336	NA
+sample_id	condition_simple	is_control	group	tissue	timepoint_hr	time_h	batch	raw_time_label	time_reference_event
+SRR36481704	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481705	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481706	DELIVERY	FALSE	delivery_am80_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481707	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481708	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481709	DELIVERY	FALSE	delivery_sm102_lnp	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481710	CONTROL	TRUE	baseline_0	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481711	CONTROL	TRUE	baseline_0	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21
+SRR36481712	CONTROL	TRUE	baseline_0	small intestine	336	336	NA	14 days after booster (day 35; prime on day 0, booster on day 21)	booster immunization on day 21

@@ -1,9 +1,9 @@
-sample_id	group	tissue	timepoint_hr	batch
-SRR25237521	delivery_gfp	Liver	96	NA
-SRR25237522	delivery_gfp	Liver	96	NA
-SRR25237523	delivery_gfp	Liver	96	NA
-SRR25237524	delivery_gfp	Liver	96	NA
-SRR25237525	delivery_ecsth	Liver	96	NA
-SRR25237526	delivery_ecsth	Liver	96	NA
-SRR25237527	delivery_ecsth	Liver	96	NA
-SRR25237528	delivery_ecsth	Liver	96	NA
+sample_id	group	tissue	timepoint_hr	batch	raw_time_label	time_reference_event
+SRR25237521	delivery_gfp	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237522	delivery_gfp	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237523	delivery_gfp	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237524	delivery_gfp	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237525	delivery_ecsth	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237526	delivery_ecsth	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237527	delivery_ecsth	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration
+SRR25237528	delivery_ecsth	Liver	96	NA	4 days after retro-orbital adenovirus administration	retro-orbital EcSTH- or GFP-adenovirus administration

@@ -42,12 +42,12 @@ manual_metadata <- function() {
     "GSE264344", "GSE264344", "Mus musculus", "adenoviral vector", "40162786", "Early spatiotemporal evolution of the immune response elicited by adenovirus serotype 26 vector vaccination in mice", "10.1128/jvi.00247-25", "adenoviral vector vaccination time-course across blood, muscle, and draining lymph node", NA_character_,
     "GSE279744", "GSE279744", "Mus musculus", "mRNA lipid nanoparticle vaccine", NA_character_, NA_character_, NA_character_, "LNP formulation calibration; lymph node; 6 h", "locked anchor; acute LNP formulation / dLN context",
     "GSE279372", "GSE279372", "Mus musculus", "vaccine formulation / LNP or alum/VLP depending split", NA_character_, NA_character_, NA_character_, "acute draining lymph node formulation response", "locked anchor; acute discovery context",
-    "GSE262515_cell_line", "GSE262515", "Homo sapiens", "optimized therapeutic lipid nanoparticle", "38902241", "Optimized RNA interference therapeutics combined with interleukin-2 mRNA for treating hepatitis B virus infection", "10.1038/s41392-024-01871-8", "optimized tLNP therapeutic RNAi context; cell-line arm; 72 h", "secondary support / weak-context audit; not in production discovery set",
+    "GSE262515_cell_line", "GSE262515", "Homo sapiens", "optimized therapeutic lipid nanoparticle", "38902241", "Optimized RNA interference therapeutics combined with interleukin-2 mRNA for treating hepatitis B virus infection", "10.1038/s41392-024-01871-8", "optimized tLNP therapeutic RNAi context; HepG2 cell-line arm; 16 h", "secondary support / weak-context audit; not in production discovery set",
     "GSE262515_tissue", "GSE262515", "Mus musculus", "optimized therapeutic lipid nanoparticle", "38902241", "Optimized RNA interference therapeutics combined with interleukin-2 mRNA for treating hepatitis B virus infection", "10.1038/s41392-024-01871-8", "optimized tLNP therapeutic RNAi context; mouse tissue/liver arm; 72 h", "secondary support / weak-context audit; not in production discovery set",
     "GSE119119", "GSE119119", "Mus musculus", "adenoviral vector / virus-antibody perturbation", NA_character_, NA_character_, NA_character_, "acute liver viral perturbation; TRIM21-related context", "external acute validation, but interpret with genotype/antibody perturbation context",
     "GSE139529", "GSE139529", "Mus musculus", "adenoviral / MVA vaccine vector", NA_character_, NA_character_, NA_character_, "blood response 24 h after vaccination", "external acute validation",
     "GSE166655", "GSE166655", "Mus musculus", "AAV9 gene therapy", "34417184", "Gene therapy with AR isoform 2 rescues spinal and bulbar muscular atrophy phenotype by modulating AR transcriptional activity", "10.1126/sciadv.abi6896", "late AAV therapeutic transgene/disease-rescue model", "external extended transfer; not acute innate validation",
-    "GSE178313", "GSE178313", "Mus musculus or humanized mouse if metadata indicates", "lipid nanoparticle", NA_character_, NA_character_, NA_character_, "liver LNP response at 48 h", "external extended transfer; not strict acute validation",
+    "GSE178313", "GSE178313", "Mus musculus or humanized mouse if metadata indicates", "lipid nanoparticle", NA_character_, NA_character_, NA_character_, "liver LNP response at 24 h", "external extended transfer because of species/humanized context; not strict primary validation",
     "GSE279743", "GSE279743", "Mus musculus", "mRNA lipid nanoparticle vaccine", NA_character_, NA_character_, NA_character_, "lymph node response at 6 h", "external acute validation",
     "GSE314070", "GSE314070", "Mus musculus", "mRNA lipid nanoparticle vaccine", "41671339", "Parenteral vaccination with an adjuvanted mRNA vaccine induces protective mucosal immunity against rotavirus in neonatal mice", "10.1126/scitranslmed.adw6105", "late small-intestine mucosal/adaptive response after booster immunization", "external extended transfer; not acute innate validation"
   )
@@ -277,7 +277,8 @@ main <- function() {
         production_anchor_row ~ "production locked anchor dataset and anchor-phase row",
         dataset_id %in% c("GSE119119", "GSE139529", "GSE279743") ~ "acute validation dataset; acute timing alone does not define discovery-set membership",
         dataset_id == "GSE264344" & is.finite(time_h) & time_h > 24 ~ "same GSE as a locked anchor, but this row is >24 h and therefore extended validation",
-        dataset_id %in% c("GSE166655", "GSE178313", "GSE314070") ~ "late or context-shifted validation dataset",
+        dataset_id == "GSE166655" ~ "late therapeutic validation dataset",
+        dataset_id %in% c("GSE178313", "GSE314070") ~ "context-shifted validation dataset",
         dataset_id %in% c("GSE262515_cell_line", "GSE262515_tissue") ~ "secondary support / weak-context audit; absent from production Step 06A discovery counts",
         TRUE ~ "not assigned to a main manuscript display group"
       ),

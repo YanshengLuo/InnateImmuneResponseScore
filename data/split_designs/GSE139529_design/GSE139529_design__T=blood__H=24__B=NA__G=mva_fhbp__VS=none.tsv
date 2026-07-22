@@ -1,13 +1,13 @@
-sample_id	tissue	timepoint_hr	batch	condition_simple	group	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
-SRR10358645	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358646	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358647	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358648	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358649	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358650	blood	24	NA	CONTROL	none	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
-SRR10358621	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
-SRR10358622	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
-SRR10358623	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
-SRR10358624	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
-SRR10358625	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
-SRR10358626	blood	24	NA	DELIVERY	mva_fhbp	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+sample_id	tissue	timepoint_hr	batch	condition_simple	group	raw_time_label	time_reference_event	group_raw	tissue_raw	time_raw	time_h	time_label	batch_raw	is_control	control_label	contrast_label	control_time_policy
+SRR10358645	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358646	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358647	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358648	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358649	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358650	blood	24	NA	CONTROL	none	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	none	blood	24	24	24h	NA	TRUE	none	mva_fhbp__vs__none	matched_time
+SRR10358621	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+SRR10358622	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+SRR10358623	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+SRR10358624	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+SRR10358625	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time
+SRR10358626	blood	24	NA	DELIVERY	mva_fhbp	24 h after most recent dose; after booster for prime-boost groups	most recent immunization; booster/second dose for prime-boost groups	mva_fhbp	blood	24	24	24h	NA	FALSE	none	mva_fhbp__vs__none	matched_time

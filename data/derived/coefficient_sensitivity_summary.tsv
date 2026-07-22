@@ -1,17 +1,16 @@
-﻿metric	value	interpretation	source_file
-leave_one_gene_out_rows	1750	Rows are gene-removal by split-contrast records from the existing coefficient sensitivity run.	<local_project_root>/audit/results/leave_one_gene_out_summary.tsv
-leave_one_gene_out_removed_genes	25	Number of unique removed genes represented in the existing sensitivity output.	<local_project_root>/audit/results/leave_one_gene_out_summary.tsv
-leave_one_gene_out_direction_preserved_fraction	0.9989	Fraction of gene-removal contrast records where Delta IMRSz direction stayed the same.	<local_project_root>/audit/results/leave_one_gene_out_summary.tsv
-leave_one_gene_out_median_absolute_percent_change_delta	0.9229	Median absolute percent change in Delta IMRSz after single-gene removal.	<local_project_root>/audit/results/leave_one_gene_out_summary.tsv
-leave_one_gene_out_max_absolute_delta_change	2.5537	Largest observed absolute Delta IMRSz change after removing one gene.	<local_project_root>/audit/results/leave_one_gene_out_summary.tsv
-leave_one_anchor_out_holdouts	3	Number of strict-anchor holdout summaries in the existing robustness output.	<local_project_root>/audit/results/leave_one_anchor_out_summary.tsv
-leave_one_anchor_out_all_positive_holdouts	TRUE	Whether every held-out strict-anchor summary retained positive split-level directionality.	<local_project_root>/audit/results/leave_one_anchor_out_summary.tsv
-leave_one_anchor_out_min_mean_delta	1.9795	Smallest mean Delta IMRSz across strict-anchor holdout summaries.	<local_project_root>/audit/results/leave_one_anchor_out_summary.tsv
-threshold_sensitivity_grid_count	18	Number of coefficient/gene-selection threshold settings already evaluated.	<local_project_root>/audit/results/threshold_sensitivity_summary.tsv
-threshold_sensitivity_external_positive_delta_min	0.9211	Minimum positive-delta fraction across external contrasts in the threshold grid.	<local_project_root>/audit/results/threshold_sensitivity_summary.tsv
-threshold_sensitivity_external_mean_delta_range	9.0087 to 12.8097	Range of external mean Delta IMRSz across threshold settings.	<local_project_root>/audit/results/threshold_sensitivity_summary.tsv
-threshold_sensitivity_status_values	ok	Run-status values reported by the existing threshold sensitivity output.	<local_project_root>/audit/results/threshold_sensitivity_summary.tsv
-gene_dominance_rows	70	Number of split contrasts represented in the existing top-contributor dominance audit.	<local_project_root>/audit/results/gene_dominance_summary.tsv
-gene_dominance_median_max_contribution_fraction	0.0271	Median, across contrasts, of the per-sample maximum contribution fraction.	<local_project_root>/audit/results/gene_dominance_summary.tsv
-gene_dominance_max_max_contribution_fraction	0.2101	Largest observed maximum contribution fraction in the existing audit.	<local_project_root>/audit/results/gene_dominance_summary.tsv
-
+metric	value	interpretation	source_file
+leave_one_gene_out_rows	1750	Rows are gene-removal by split-contrast records from the existing coefficient sensitivity run.	<upstream_project_root>/audit/results/leave_one_gene_out_summary.tsv
+leave_one_gene_out_removed_genes	25	Number of unique removed genes represented in the existing sensitivity output.	<upstream_project_root>/audit/results/leave_one_gene_out_summary.tsv
+leave_one_gene_out_direction_preserved_fraction	0.9989	Fraction of gene-removal contrast records where Delta IMRSz direction stayed the same.	<upstream_project_root>/audit/results/leave_one_gene_out_summary.tsv
+leave_one_gene_out_median_absolute_percent_change_delta	0.9229	Median absolute percent change in Delta IMRSz after single-gene removal.	<upstream_project_root>/audit/results/leave_one_gene_out_summary.tsv
+leave_one_gene_out_max_absolute_delta_change	2.5537	Largest observed absolute Delta IMRSz change after removing one gene.	<upstream_project_root>/audit/results/leave_one_gene_out_summary.tsv
+leave_one_anchor_out_holdouts	3	Number of strict-anchor holdout summaries in the existing robustness output.	<upstream_project_root>/audit/results/leave_one_anchor_out_summary.tsv
+leave_one_anchor_out_all_positive_holdouts	TRUE	Whether every held-out strict-anchor summary retained positive split-level directionality.	<upstream_project_root>/audit/results/leave_one_anchor_out_summary.tsv
+leave_one_anchor_out_min_mean_delta	1.9795	Smallest mean Delta IMRSz across strict-anchor holdout summaries.	<upstream_project_root>/audit/results/leave_one_anchor_out_summary.tsv
+threshold_sensitivity_grid_count	18	Number of coefficient/gene-selection threshold settings already evaluated.	<upstream_project_root>/audit/results/threshold_sensitivity_summary.tsv
+threshold_sensitivity_external_positive_delta_min	0.9211	Minimum positive-delta fraction across external contrasts in the threshold grid.	<upstream_project_root>/audit/results/threshold_sensitivity_summary.tsv
+threshold_sensitivity_external_mean_delta_range	9.0087 to 12.8097	Range of external mean Delta IMRSz across threshold settings.	<upstream_project_root>/audit/results/threshold_sensitivity_summary.tsv
+threshold_sensitivity_status_values	ok	Run-status values reported by the existing threshold sensitivity output.	<upstream_project_root>/audit/results/threshold_sensitivity_summary.tsv
+gene_dominance_rows	70	Number of split contrasts represented in the existing top-contributor dominance audit.	<upstream_project_root>/audit/results/gene_dominance_summary.tsv
+gene_dominance_median_max_contribution_fraction	0.0271	Median, across contrasts, of the per-sample maximum contribution fraction.	<upstream_project_root>/audit/results/gene_dominance_summary.tsv
+gene_dominance_max_max_contribution_fraction	0.2101	Largest observed maximum contribution fraction in the existing audit.	<upstream_project_root>/audit/results/gene_dominance_summary.tsv

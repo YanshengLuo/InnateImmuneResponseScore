@@ -1,4 +1,3 @@
-﻿design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
-<local_project_root>/00_metadata/verified_metadata/splited/GSE166655_design/GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated.tsv	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated.tsv	NA	672	NA	NA	delivery_untreated	NA
-<local_project_root>/00_metadata/verified_metadata/splited/GSE166655_design/GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated.tsv	GSE166655_design__T=Tibialis_anterior__H=672__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated.tsv	NA	672	NA	NA	delivery_untreated	NA
-
+design_file	file_base	tissue	time_h	batch	group_token	control_token	group_raw
+<upstream_project_root>/00_metadata/verified_metadata/splited/GSE166655_design/GSE166655_design__T=Tibialis_anterior__H=1008__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated.tsv	GSE166655_design__T=Tibialis_anterior__H=1008__B=NA__G=delivery_aav9_ar45__VS=delivery_untreated.tsv	NA	1008	NA	NA	delivery_untreated	NA
+<upstream_project_root>/00_metadata/verified_metadata/splited/GSE166655_design/GSE166655_design__T=Tibialis_anterior__H=1008__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated.tsv	GSE166655_design__T=Tibialis_anterior__H=1008__B=NA__G=delivery_aav9_gfp__VS=delivery_untreated.tsv	NA	1008	NA	NA	delivery_untreated	NA
