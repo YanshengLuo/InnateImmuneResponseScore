@@ -189,7 +189,7 @@ v5_integer_size_breaks <- function(max_n, requested) {
 
 install_v5_clipping_overrides <- function(env) {
   override_code <- '
-make_FigureSB_simplified <- function() {
+make_FigureSC <- function() {
   plot_tbl <- role_pass_for_plot %>%
     filter(as.character(manuscript_group) != "Locked anchor") %>%
     group_by(dataset_id, tissue, time_h, delivery_platform_clean, manuscript_group) %>%
@@ -241,9 +241,9 @@ make_FigureSB_simplified <- function() {
       plot.margin = margin(10, 28, 16, 10)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1B_simplified_by_dataset", 8.2, 5.5, dpi = 400,
+                 "FigureS1C_simplified_by_dataset", 8.2, 5.5, dpi = 400,
                  source_tables = required_paths$role_table,
-                 source_code_section_or_function = "make_FigureSB_simplified")
+                 source_code_section_or_function = "make_FigureSC")
 }
 
 make_FigureSD <- function() {
@@ -612,11 +612,11 @@ make_v5_panel_plan <- function() {
       "Figure2B_core_gene_reproducibility_missing_anchor",
       "Figure2D_weight_distribution",
       "Figure3B_primary_validation_summary",
-      "FigureS1B_simplified_by_dataset",
+      "FigureS1C_simplified_by_dataset",
       "Figure4A_top_contrast_responses",
       "FigureS1D_weak_zoom_forest",
       "FigureS3B_gse264344_time_course",
-      "FigureS1C_weak_dataset_context_summary",
+      "FigureS1B_weak_dataset_context_summary",
       "Figure5A_label_permutation_observed_vs_null",
       "Figure5C_permutation_response_by_analysis_group",
       "Figure7A_leave_one_gene_out_delta_correlation",
@@ -627,8 +627,8 @@ make_v5_panel_plan <- function() {
     source_function = c(
       "render_Figure1A_merged_workflow_v5", "make_Figure1C_display_aggregated_v5",
       "make_Figure2C", "split_Figure2B_main", "split_Figure2B_missing_anchor", "make_Figure2D",
-      "make_Figure3B", "make_FigureSB_simplified", "make_Figure3D_simplified",
-      "make_FigureSD", "make_FigureSF", "make_FigureSC",
+      "make_Figure3B", "make_FigureSC", "make_Figure3D_simplified",
+      "make_FigureSD", "make_FigureSF", "make_FigureSB_simplified",
       "make_Figure4A", "make_Figure4C", "make_Figure5A", "make_Figure5C",
       "make_Figure4D", "make_Figure4F"
     ),
@@ -668,7 +668,7 @@ make_v5_panel_plan <- function() {
       "Faceted validation summary retained in supplement.",
       "Late/context-shifted dataset scatter retained as main Figure 4 panel.",
       "Adenoviral-vector time-course panel retained as main Figure 4 panel.",
-      "Context-shifted interpretation categories moved to supplement.",
+      "Corrected context-shifted interpretation categories generated as Supplementary Figure S1B.",
       "Permutation ordered contrast plot retained.",
       "Observed score-shift summary by manuscript analysis group retained.",
       "Leave-one-gene-out ΔIMRSz correlation retained.",

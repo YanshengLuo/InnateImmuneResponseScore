@@ -700,7 +700,7 @@ loao_detail_tbl <- read_required_tsv(required_paths$leave_one_anchor_detail,
                                      "leave_one_anchor_out_contrast_details.tsv")
 weak_tbl <- read_required_tsv(required_paths$weak_context,
                               c("dataset_id", "gse_id", "split_id", "tissue", "time_h",
-                                "delivery_platform", "original_IMRS_delta",
+                                "treatment_group", "delivery_platform", "original_IMRS_delta",
                                 "explanation_category", "reviewer_risk_level"),
                               "weak_dataset_paper_context_audit.tsv")
 step09_eval_tbl <- read_required_tsv(required_paths$step09_eval,
@@ -2337,6 +2337,141 @@ make_FigureSB <- function() {
 }
 
 make_FigureSB_simplified <- function() {
+  corrected_split_id <- paste0(
+    "GSE262515_design__T=cell_line__H=16__B=NA__",
+    "G=delivery_tlnp_sinc_50nm__VS=baseline_0"
+  )
+  corrected_row <- weak_tbl %>%
+    filter(
+      dataset_id == "GSE262515_cell_line",
+      treatment_group == "delivery_tlnp_sinc_50nm",
+      split_id == corrected_split_id
+    )
+  if (nrow(corrected_row) != 1L) {
+    stop("Supplementary Figure S1B requires exactly one matching GSE262515 siNC cell-line row.",
+         call. = FALSE)
+  }
+
+  category_levels <- c(
+    "Disease-rescue model",
+    "Distal/adaptive tissue context",
+    "Late timepoint",
+    "Low-inflammatory formulation design",
+    "Therapeutic cargo/context effect",
+    "Tissue/time kinetic effect"
+  )
+  support_levels <- c("low", "medium", "high")
+  support_palette <- c(low = "#4E79A7", medium = "#F28E2B", high = "#E15759")
+  corrected_flag <- weak_tbl$dataset_id == "GSE262515_cell_line" &
+    weak_tbl$treatment_group == "delivery_tlnp_sinc_50nm" &
+    weak_tbl$split_id == corrected_split_id
+
+  row_tbl <- weak_tbl %>%
+    mutate(
+      explanation_category_plot = if_else(
+        corrected_flag,
+        "therapeutic_cargo_specific_effect",
+        as.character(explanation_category)
+      ),
+      support_level = if_else(corrected_flag, "low", as.character(reviewer_risk_level)),
+      category = recode(
+        explanation_category_plot,
+        disease_rescue_model = "Disease-rescue model",
+        distal_or_adaptive_tissue = "Distal/adaptive tissue context",
+        late_timepoint = "Late timepoint",
+        formulation_designed_to_reduce_inflammation = "Low-inflammatory formulation design",
+        therapeutic_cargo_specific_effect = "Therapeutic cargo/context effect",
+        tissue_time_kinetic_effect = "Tissue/time kinetic effect",
+        .default = NA_character_
+      ),
+      category = factor(category, levels = category_levels),
+      support_level = factor(support_level, levels = support_levels)
+    )
+  if (nrow(row_tbl) != 15L || any(is.na(row_tbl$category)) || any(is.na(row_tbl$support_level))) {
+    stop("Supplementary Figure S1B requires 15 fully classified context rows.", call. = FALSE)
+  }
+
+  plot_tbl <- row_tbl %>%
+    count(category, support_level, name = "n", .drop = FALSE)
+  total_tbl <- row_tbl %>%
+    count(category, name = "total", .drop = FALSE)
+  expected_totals <- c(2L, 1L, 1L, 1L, 4L, 6L)
+  if (!identical(as.integer(total_tbl$total), expected_totals)) {
+    stop("Supplementary Figure S1B category totals do not match 2, 1, 1, 1, 4, 6.",
+         call. = FALSE)
+  }
+  expected_support <- matrix(
+    c(0L, 2L, 0L,
+      1L, 0L, 0L,
+      0L, 1L, 0L,
+      1L, 0L, 0L,
+      1L, 3L, 0L,
+      6L, 0L, 0L),
+    nrow = length(category_levels), byrow = TRUE
+  )
+  observed_support <- matrix(
+    as.integer(plot_tbl$n),
+    nrow = length(category_levels), byrow = TRUE
+  )
+  if (!identical(observed_support, expected_support)) {
+    stop("Supplementary Figure S1B support-level stacks do not match the corrected specification.",
+         call. = FALSE)
+  }
+  segment_label_tbl <- plot_tbl %>%
+    filter(category == "Therapeutic cargo/context effect", n > 0L)
+
+  p <- ggplot(plot_tbl, aes(x = category, y = n, fill = support_level)) +
+    geom_col(width = 0.7) +
+    geom_text(
+      data = segment_label_tbl,
+      aes(label = n),
+      position = position_stack(vjust = 0.5),
+      color = "white",
+      fontface = "bold",
+      size = 3.1
+    ) +
+    geom_text(
+      data = total_tbl,
+      aes(x = category, y = total, label = total),
+      inherit.aes = FALSE,
+      vjust = -0.45,
+      color = "#111827",
+      fontface = "bold",
+      size = 3.2
+    ) +
+    scale_fill_manual(
+      values = support_palette,
+      limits = support_levels,
+      breaks = support_levels,
+      labels = support_levels,
+      drop = FALSE
+    ) +
+    scale_y_continuous(
+      breaks = 0:6,
+      expand = expansion(mult = c(0, 0.12))
+    ) +
+    coord_cartesian(clip = "off") +
+    labs(
+      title = "Weak responses are explained by timing and biological context",
+      subtitle = "Fifteen context-shifted contrasts are grouped by biological interpretation and support level.",
+      x = "Biological interpretation category",
+      y = "Number of contrasts",
+      fill = "Interpretation support level"
+    ) +
+    theme_imrs_publication(base_size = 9.5) +
+    theme(
+      axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+      legend.position = "bottom",
+      legend.box.just = "center",
+      plot.margin = margin(10, 16, 18, 10)
+    )
+  save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
+                 "FigureS1B_weak_dataset_context_summary", 9, 5.5, dpi = 400,
+                 source_tables = required_paths$weak_context,
+                 source_code_section_or_function = "make_FigureSB_simplified")
+}
+
+make_FigureSC <- function() {
   plot_tbl <- role_pass_for_plot %>%
     filter(as.character(manuscript_group) != "Locked anchor") %>%
     group_by(dataset_id, tissue, time_h, delivery_platform_clean, manuscript_group) %>%
@@ -2351,7 +2486,7 @@ make_FigureSB_simplified <- function() {
     scale_size_continuous(range = c(2, 5)) +
     labs(
       title = "Dataset-level summaries clarify context-dependent IMRS responses",
-      subtitle = "Dataset-level means reduce contrast-level crowding; full forest is retained as appendix FigureSB.",
+      subtitle = "Dataset-level means reduce contrast-level crowding; the full forest is retained in the appendix.",
       x = "Mean delivery-minus-control IMRS z-score",
       y = "Dataset context",
       color = "Validation group",
@@ -2359,32 +2494,8 @@ make_FigureSB_simplified <- function() {
     ) +
     theme_imrs_publication(base_size = 9)
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1B_simplified_by_dataset", 8.2, 5.5, dpi = 400,
+                 "FigureS1C_simplified_by_dataset", 8.2, 5.5, dpi = 400,
                  source_tables = required_paths$role_table,
-                 source_code_section_or_function = "make_FigureSB_simplified")
-}
-
-make_FigureSC <- function() {
-  plot_tbl <- weak_tbl %>%
-    mutate(reviewer_risk_level = factor(reviewer_risk_level, levels = names(reviewer_risk_palette)),
-           explanation_category = factor(display_text(explanation_category))) %>%
-    count(explanation_category, reviewer_risk_level, name = "n")
-  p <- ggplot(plot_tbl, aes(x = explanation_category, y = n, fill = reviewer_risk_level)) +
-    geom_col(width = 0.7) +
-    geom_text(aes(label = n), position = position_stack(vjust = 0.5), color = "white", size = 3) +
-    scale_fill_manual(values = reviewer_risk_palette, drop = FALSE) +
-    labs(
-      title = "Weak responses are explained by timing and biological context",
-      subtitle = "Risk categories summarize reviewer-facing interpretation of weak, late, or context-shifted contrasts.",
-      x = "Biological interpretation category",
-      y = "Number of contrasts",
-      fill = "Reviewer risk level"
-    ) +
-    theme_imrs_publication() +
-    theme(axis.text.x = element_text(angle = 35, hjust = 1))
-  save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1C_weak_dataset_context_summary", 9, 5.5, dpi = 400,
-                 source_tables = required_paths$weak_context,
                  source_code_section_or_function = "make_FigureSC")
 }
 
