@@ -58,24 +58,24 @@ global_text_replacements_v5 <- c(
   "Benchmark score" = "Immune-response signature",
   "Primary validation" = "Primary acute validation",
   "primary validation" = "primary acute validation",
-  "Primary validation datasets show consistent IMRS elevation" = "Primary acute validation showed consistent positive delivery-minus-control ΔIMRSz",
-  "Primary acute validation supports delivery-associated IMRS elevation" = "Primary acute validation showed consistent positive delivery-minus-control ΔIMRSz",
-  "Primary and extended datasets show positive IMRS shifts" = "Primary acute and extended validation show positive ΔIMRSz",
+  "Primary validation datasets show consistent IMRS elevation" = "Primary acute validation showed consistent positive delivery-minus-control \u0394IMRSz",
+  "Primary acute validation supports delivery-associated IMRS elevation" = "Primary acute validation showed consistent positive delivery-minus-control \u0394IMRSz",
+  "Primary and extended datasets show positive IMRS shifts" = "Primary acute and extended validation show positive \u0394IMRSz",
   "Each point is a split contrast; the dashed line marks no delivery-associated score shift." = "Each point is a split contrast; the dashed line marks no delivery-minus-control score shift.",
-  "\\npositive=" = "\\nΔ>0 = ",
-  "Mean delivery-minus-control IMRS z-score (pseudo-log scale)" = "Mean delivery-minus-control ΔIMRSz (pseudo-log scale)",
-  "Mean delivery-minus-control IMRS z-score" = "Mean delivery-minus-control ΔIMRSz",
-  "Mean delivery-minus-control\\nIMRS z-score" = "Mean delivery-minus-control\\nΔIMRSz",
-  "Observed mean delivery-minus-control IMRS z-score" = "Observed mean delivery-minus-control ΔIMRSz",
-  "Split contrasts ordered by observed delivery-minus-control IMRS z-score" = "Split contrasts ordered by observed delivery-minus-control ΔIMRSz",
-  "Original mean delivery-minus-control IMRS z-score" = "Original ΔIMRSz",
-  "After single-gene removal IMRS z-score" = "ΔIMRSz after single-gene removal",
-  "Maximum absolute change in delivery-minus-control IMRS z-score" = "Maximum absolute change in delivery-minus-control ΔIMRSz",
-  "IMRS delivery-minus-control z-score" = "IMRS delivery-minus-control ΔIMRSz",
+  "\\npositive=" = "\\n\u0394>0 = ",
+  "Mean delivery-minus-control IMRS z-score (pseudo-log scale)" = "Mean delivery-minus-control \u0394IMRSz (pseudo-log scale)",
+  "Mean delivery-minus-control IMRS z-score" = "Mean delivery-minus-control \u0394IMRSz",
+  "Mean delivery-minus-control\\nIMRS z-score" = "Mean delivery-minus-control\\n\u0394IMRSz",
+  "Observed mean delivery-minus-control IMRS z-score" = "Observed mean delivery-minus-control \u0394IMRSz",
+  "Split contrasts ordered by observed delivery-minus-control IMRS z-score" = "Split contrasts ordered by observed delivery-minus-control \u0394IMRSz",
+  "Original mean delivery-minus-control IMRS z-score" = "Original \u0394IMRSz",
+  "After single-gene removal IMRS z-score" = "\u0394IMRSz after single-gene removal",
+  "Maximum absolute change in delivery-minus-control IMRS z-score" = "Maximum absolute change in delivery-minus-control \u0394IMRSz",
+  "IMRS delivery-minus-control z-score" = "IMRS delivery-minus-control \u0394IMRSz",
   "Baseline signature delivery-minus-control z-score" = "Baseline signature delivery-minus-control score",
   "Proportion of positive delivery-associated contrasts" = "Proportion of contrasts with positive delivery-minus-control score",
   "delivery-associated score shifts" = "delivery-minus-control score shifts",
-  "delivery-associated IMRS elevation" = "positive delivery-minus-control ΔIMRSz",
+  "delivery-associated IMRS elevation" = "positive delivery-minus-control \u0394IMRSz",
   "delivery-associated sample-level separation" = "delivery-control sample-level separation",
   "Largest IMRS weights highlight acute discovery response genes" = "Top frozen IMRS coefficients",
   "Genes are ranked by magnitude of the frozen weight, not signed direction." = "Genes are ranked by magnitude of the frozen IMRS coefficient, not signed direction.",
@@ -89,17 +89,17 @@ global_text_replacements_v5 <- c(
   "weighted gene" = "coefficient-weighted gene",
   "Weak responses are explained by timing and biological context" = "Late or context-shifted settings provide boundary-setting evidence",
   "Risk categories summarize reviewer-facing interpretation of weak, late, or context-shifted contrasts." = "Support levels summarize interpretation of late or context-shifted contrasts.",
-  "Weak-context datasets show attenuated IMRS responses" = "Late or context-shifted settings show attenuated ΔIMRSz",
+  "Weak-context datasets show attenuated IMRS responses" = "Late or context-shifted settings show attenuated \u0394IMRSz",
   "Dataset-level means highlight late or context-shifted validation settings." = "Dataset-level means highlight late or context-shifted settings.",
-  "Context-shifted datasets show variable IMRS elevation" = "Late and context-shifted datasets show variable ΔIMRSz",
-  "Points show delivery-minus-control IMRS shifts annotated by collection time." = "Points show delivery-minus-control ΔIMRSz annotated by collection time.",
+  "Context-shifted datasets show variable IMRS elevation" = "Late and context-shifted datasets show variable \u0394IMRSz",
+  "Points show delivery-minus-control IMRS shifts annotated by collection time." = "Points show delivery-minus-control \u0394IMRSz annotated by collection time.",
   "GSE264344 captures adenoviral-vector IMRS kinetics" = "Adenoviral-vector IMRS responses peak within the acute window and attenuate by 72 h",
   "dLN means draining lymph node; 72 h values are interpreted as waning kinetics." = "dLN means draining lymph node; 72 h values are consistent with attenuation by 72 h.",
   "waning kinetics" = "attenuation",
-  "Observed IMRS shifts exceed label-permutation expectations" = "Observed ΔIMRSz exceeds within-contrast label-permutation null intervals",
-  "Observed delivery-minus-control shifts are compared with 95% within-contrast label-permutation intervals." = "Observed delivery-minus-control ΔIMRSz is compared with 95% within-contrast label-permutation intervals.",
-  "Permutation-tested IMRS shifts differ by analysis group" = "Permutation-tested contrasts retain positive ΔIMRSz in acute groups",
-  "IMRS scores remain stable after single-gene removal" = "Single-gene removal preserves contrast-level ΔIMRSz",
+  "Observed IMRS shifts exceed label-permutation expectations" = "Observed \u0394IMRSz exceeds within-contrast label-permutation null intervals",
+  "Observed delivery-minus-control shifts are compared with 95% within-contrast label-permutation intervals." = "Observed delivery-minus-control \u0394IMRSz is compared with 95% within-contrast label-permutation intervals.",
+  "Permutation-tested IMRS shifts differ by analysis group" = "Permutation-tested contrasts retain positive \u0394IMRSz in acute groups",
+  "IMRS scores remain stable after single-gene removal" = "Single-gene removal preserves contrast-level \u0394IMRSz",
   "No single gene dominates IMRS contrast-level responses" = "Top-gene contribution remains low across contrasts",
   "IMRS response is not driven by a single dominant gene" = "Top-gene contribution remains low across contrasts",
   "Baseline signatures provide comparator response profiles" = "Comparator immune signatures contextualize acute IMRS response patterns",
@@ -148,7 +148,7 @@ wording_audit_rows_v5 <- function() {
       "Control-referenced gene z-scores",
       "Weighted sample-level IMRS score",
       "Control-standardized sample IMRSz",
-      "Delivery-minus-control ΔIMRSz, directionality, and secondary AUC",
+      "Delivery-minus-control \u0394IMRSz, directionality, and secondary AUC",
       "Dataset-role curation and boundary-context audit",
       "Manuscript analysis groups",
       "Frozen anchor-derived coefficients are not refit during validation or transfer evaluation."
@@ -170,7 +170,12 @@ replace_text_v5 <- function(x) {
 replace_source_text_v5 <- function(lines) {
   out <- lines
   for (pat in names(global_text_replacements_v5)) {
-    out <- gsub(pat, global_text_replacements_v5[[pat]], out, fixed = TRUE)
+    replacement <- global_text_replacements_v5[[pat]]
+    replacement <- paste(
+      strsplit(replacement, intToUtf8(0x0394), fixed = TRUE)[[1]],
+      collapse = "\\u0394"
+    )
+    out <- gsub(pat, replacement, out, fixed = TRUE)
   }
   out
 }
@@ -225,20 +230,25 @@ make_FigureSC <- function() {
       )
     ) +
     labs(
-      title = "Dataset-level summaries clarify context-dependent ΔIMRSz values",
+      title = "Dataset-level summaries clarify context-dependent \\u0394IMRSz values",
       subtitle = "Dataset-level means reduce contrast-level crowding; full forest is retained as appendix FigureSB.",
       x = "Mean delivery-minus-control \\u0394IMRSz",
       y = "Dataset context",
       color = "Manuscript analysis group",
       size = "Passing split contrasts"
     ) +
-    theme_imrs_publication(base_size = 9) +
+    theme_imrs_publication(base_size = 10) +
     theme(
+      axis.text.y = element_text(size = 9.8),
+      axis.text.x = element_text(size = 9.2),
+      axis.title = element_text(size = 10.2),
+      legend.text = element_text(size = 9),
+      legend.title = element_text(size = 9.5),
       legend.position = "bottom",
       legend.box = "vertical",
       legend.box.just = "center",
       legend.margin = margin(t = 4, r = 12, b = 4, l = 12),
-      plot.margin = margin(10, 28, 16, 10)
+      plot.margin = margin(10, 28, 16, 12)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
                  "FigureS1C_simplified_by_dataset", 8.2, 5.5, dpi = 400,
@@ -294,13 +304,18 @@ make_FigureSD <- function() {
       color = "Manuscript analysis group",
       size = "Contrasts"
     ) +
-    theme_imrs_publication(base_size = 8.5) +
+    theme_imrs_publication(base_size = 9.6) +
     theme(
+      axis.text.y = element_text(size = 9.6),
+      axis.text.x = element_text(size = 9),
+      axis.title = element_text(size = 10),
+      legend.text = element_text(size = 8.8),
+      legend.title = element_text(size = 9.3),
       legend.position = "bottom",
       legend.box = "vertical",
       legend.box.just = "center",
       legend.margin = margin(t = 4, r = 12, b = 4, l = 12),
-      plot.margin = margin(10, 28, 16, 10)
+      plot.margin = margin(10, 28, 16, 12)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
                  "FigureS1D_weak_zoom_forest", 8.8, 4.9, dpi = 400,
@@ -658,7 +673,7 @@ make_v5_panel_plan <- function() {
     ),
     notes = c(
       "Merged IMRS scoring and transfer-evaluation workflow rendered with v6 terminology, font, and spacing adjustments.",
-      "Dataset/tissue-level delivery-minus-control ΔIMRSz landscape regenerated with manuscript-analysis-group wording.",
+      "Dataset/tissue-level delivery-minus-control \u0394IMRSz landscape regenerated with manuscript-analysis-group wording.",
       "Top frozen IMRS coefficients retained from clean v3 style.",
       "Locked-anchor support summary split from old Figure2B.",
       "Missing-anchor support mini-panel split from old Figure2B with 4/5 support wording.",
@@ -671,7 +686,7 @@ make_v5_panel_plan <- function() {
       "Corrected context-shifted interpretation categories generated as Supplementary Figure S1B.",
       "Permutation ordered contrast plot retained.",
       "Observed score-shift summary by manuscript analysis group retained.",
-      "Leave-one-gene-out ΔIMRSz correlation retained.",
+      "Leave-one-gene-out \u0394IMRSz correlation retained.",
       "Gene-dominance distribution retained.",
       "Comparator immune-signature boxplot/faceted panel retained in supplemental comparator figure.",
       "Positive-directionality bar chart retained in supplemental comparator figure."
@@ -891,8 +906,9 @@ render_figure2_support_split_v5 <- function(old_env, out_dir, dpi = 400) {
     ggplot2::labs(x = "Missing anchor", y = "Retained genes") +
     env$theme_imrs_publication(base_size = 9.2, legend_position = "none") +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 35, hjust = 1, vjust = 1, size = 7.8),
-      axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = 6)),
+      axis.text.x = ggplot2::element_text(angle = 35, hjust = 1, vjust = 1, size = 8.6),
+      axis.title = ggplot2::element_text(size = 9.7),
+      axis.title.x = ggplot2::element_text(size = 9.7, margin = ggplot2::margin(t = 6)),
       plot.margin = ggplot2::margin(8, 8, 8, 8)
     )
 
@@ -986,9 +1002,9 @@ render_corrected_figure1b_landscape_v5 <- function(old_env, v5_root, dpi = 400) 
       name = "Passing split contrasts"
     ) +
     ggplot2::labs(
-      title = "Dataset-level delivery-minus-control ΔIMRSz landscape",
+      title = "Dataset-level delivery-minus-control \u0394IMRSz landscape",
       subtitle = "Pseudo-log x-axis preserves resolution near zero while keeping large positive responses visible.",
-      x = "Mean delivery-minus-control ΔIMRSz (pseudo-log scale)",
+      x = "Mean delivery-minus-control \u0394IMRSz (pseudo-log scale)",
       y = NULL,
       color = "Manuscript analysis group",
       size = "Passing split contrasts"
@@ -1008,14 +1024,19 @@ render_corrected_figure1b_landscape_v5 <- function(old_env, v5_root, dpi = 400) 
         byrow = TRUE
       )
     ) +
-    old_env$theme_imrs_publication(base_size = 8) +
+    old_env$theme_imrs_publication(base_size = 9.75) +
     ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10),
+      axis.text.x = ggplot2::element_text(size = 9.5),
+      axis.title.x = ggplot2::element_text(size = 10.5),
+      legend.text = ggplot2::element_text(size = 9),
+      legend.title = ggplot2::element_text(size = 9.5),
       legend.position = "bottom",
       legend.box = "vertical",
       legend.box.just = "center",
       legend.margin = ggplot2::margin(t = 4, r = 8, b = 4, l = 8),
       legend.box.margin = ggplot2::margin(t = 4, r = 4, b = 8, l = 4),
-      plot.margin = ggplot2::margin(8, 18, 24, 10)
+      plot.margin = ggplot2::margin(8, 18, 24, 12)
     )
 
   paths <- save_plot_all_formats_v5(
@@ -1077,6 +1098,14 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
   specs <- make_v5_panel_plan()
   out_dir <- file.path(v5_root, "intermediate_panels")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+  expected_panel_files <- unlist(lapply(
+    specs$output_stem,
+    function(stem) file.path(out_dir, paste0(stem, c(".png", ".pdf", ".svg")))
+  ), use.names = FALSE)
+  stale_panel_files <- expected_panel_files[file.exists(expected_panel_files)]
+  if (length(stale_panel_files) > 0L && !all(file.remove(stale_panel_files))) {
+    stop("Could not clear stale intermediate panel output(s) before rendering.", call. = FALSE)
+  }
   lookup <- split(specs, specs$source_old_panel)
   rendered <- list()
 

@@ -1,21 +1,29 @@
 # Shared config helpers for the repository active-manuscript layer.
 
 imrs_repo_root <- function(start = getwd()) {
-  candidates <- c(
-    Sys.getenv("IMRS_REPOSITORY_ROOT", unset = NA_character_),
-    start,
-    dirname(start),
-    dirname(dirname(start)),
-    dirname(dirname(dirname(start)))
-  )
-  candidates <- unique(normalizePath(candidates[!is.na(candidates) & nzchar(candidates)],
-                                     winslash = "/", mustWork = FALSE))
-  for (candidate in candidates) {
-    if (file.exists(file.path(candidate, "config", "config_template.yml"))) {
-      return(candidate)
+  env_root <- Sys.getenv("IMRS_REPOSITORY_ROOT", unset = "")
+  starts <- unique(c(env_root, start))
+  starts <- starts[!is.na(starts) & nzchar(starts)]
+
+  for (item in starts) {
+    current <- normalizePath(item, winslash = "/", mustWork = FALSE)
+    if (file.exists(current) && !dir.exists(current)) current <- dirname(current)
+    repeat {
+      if (file.exists(file.path(current, "config", "config_template.yml")) &&
+          file.exists(file.path(current, "scripts", "active_manuscript", "lib", "active_config.R"))) {
+        return(current)
+      }
+      parent <- dirname(current)
+      if (identical(parent, current)) break
+      current <- parent
     }
   }
-  normalizePath(start, winslash = "/", mustWork = FALSE)
+
+  stop(
+    "Could not identify the IMRS repository root from: ", paste(starts, collapse = "; "),
+    ". Keep the extracted repository structure intact.",
+    call. = FALSE
+  )
 }
 
 imrs_read_simple_yaml <- function(file) {

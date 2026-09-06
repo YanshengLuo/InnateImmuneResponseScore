@@ -51,31 +51,12 @@ scripts_root <- file.path(project_root, "scripts", "active_manuscript", "lib")
 existing_figures_root <- output_root
 audit_results_dir <- figure_input_dir
 extra_results_dir <- figure_input_dir
-temporal_root <- file.path(output_root, "_panel_builder_work")
-dir.create(temporal_root, recursive = TRUE, showWarnings = FALSE)
-five_anchor_loao_root <- file.path(temporal_root, "five_anchor_LOAO")
-dir.create(five_anchor_loao_root, recursive = TRUE, showWarnings = FALSE)
 figure1c_inclusion_check_path <- file.path(output_root, "Figure1C_pseudolog_inclusion_check.tsv")
 figure8a_loao_source_audit_path <- file.path(output_root, "Figure8A_LOAO_source_audit.tsv")
 figure8b_sample_source_check_path <- file.path(output_root, "Figure8B_anchor_sample_source_check.tsv")
 figure4a_anchor_inclusion_check_path <- file.path(output_root, "Figure4A_anchor_inclusion_check.tsv")
 
-figure_folders <- c(
-  "Figure1_framework_dataset_provenance",
-  "Figure2_anchor_construction_weights",
-  "Figure3_primary_validation_overview",
-  "Figure4_validation_detail_and_discrimination",
-  "Figure5_permutation_null_analysis",
-  "Figure6_baseline_signature_benchmarking",
-  "Figure7_gene_threshold_robustness",
-  "Figure8_anchor_coefficient_robustness",
-  "FigureS1_weak_late_context_summary",
-  "FigureS2_detailed_validation_forests",
-  "FigureS3_context_timecourse_and_dominance_appendix"
-)
 folder_path <- function(folder) file.path(output_root, folder)
-invisible(lapply(file.path(output_root, figure_folders), dir.create,
-                 recursive = TRUE, showWarnings = FALSE))
 
 manifest_path <- file.path(output_root, "figure_generation_manifest.tsv")
 log_path <- file.path(output_root, "figure_generation_log.txt")
@@ -1393,7 +1374,11 @@ make_Figure2C <- function() {
       x = "Absolute frozen IMRS weight",
       y = "Gene"
     ) +
-    theme_imrs_publication(legend_position = "none")
+    theme_imrs_publication(legend_position = "none") +
+    theme(
+      axis.text.y = element_text(size = 10.5),
+      plot.margin = margin(8, 10, 8, 12)
+    )
   save_imrs_plot(p, folder_path("Figure2_anchor_construction_weights"),
                  "Figure2C_top_weighted_genes", 7.2, 5.2, dpi = 400,
                  source_tables = c(required_paths$gene_weights, required_paths$gene_symbols),
@@ -1498,7 +1483,7 @@ make_Figure3A <- function() {
       title = "Primary validation datasets show consistent IMRS elevation",
       subtitle = "Each dot is a split contrast, not a dataset; pseudo-log scaling reduces anchor outlier compression.",
       x = "Manuscript analysis group",
-      y = "Mean ΔIMRSz (pseudo-log scale)",
+      y = "Mean \u0394IMRSz (pseudo-log scale)",
       fill = "Manuscript analysis group"
     ) +
     coord_cartesian(clip = "off") +
@@ -1668,15 +1653,16 @@ make_Figure3D_simplified <- function() {
     labs(
       title = "Validation and anchor responses remain positive across groups",
       subtitle = "Five locked anchors appear once; validation panels show the largest score shifts per group.",
-      x = "Mean delivery-minus-control ΔIMRSz",
+      x = "Mean delivery-minus-control \u0394IMRSz",
       y = "Dataset context",
       color = "Manuscript analysis group"
     ) +
     coord_cartesian(clip = "off") +
     theme_imrs_publication(base_size = 10.5, legend_position = "none") +
     theme(
-      axis.text.y = element_text(size = 9.5),
-      strip.text = element_text(size = 11),
+      axis.text.y = element_text(size = 10.2),
+      axis.text.x = element_text(size = 9.8),
+      strip.text = element_text(size = 11.3),
       plot.margin = margin(8, 22, 8, 10)
     )
   save_imrs_plot(p, folder_path("Figure4_validation_detail_and_discrimination"),
@@ -1725,7 +1711,7 @@ make_Figure3F <- function() {
       title = "Contrast-level IMRS shifts align with sample-level separation",
       subtitle = "AUC is secondary evidence, not the primary IMRS endpoint; small jitter reveals overlapping contrasts near AUC = 1.",
       x = "Mean delivery-minus-control IMRS z-score",
-      y = "AUC for control–delivery separation",
+      y = "AUC for control\u2013delivery separation",
       color = "Manuscript analysis group",
       size = "Sample size"
     ) +
@@ -1804,7 +1790,11 @@ make_Figure4C <- function() {
       fill = "Manuscript analysis group"
     ) +
     theme_imrs_publication() +
-    theme(axis.text.x = element_text(angle = 25, hjust = 1))
+    theme(
+      axis.text = element_text(size = 11.5),
+      legend.text = element_text(size = 11.5),
+      axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5)
+    )
   save_imrs_plot(p, folder_path("Figure5_permutation_null_analysis"),
                  "Figure5C_permutation_response_by_analysis_group", 8.2, 5.2, dpi = 400,
                  source_tables = required_paths$label_permutation_summary,
@@ -1830,7 +1820,10 @@ make_Figure4D <- function() {
       fill = "Manuscript analysis group"
     ) +
     theme_imrs_publication() +
-    theme(axis.text.x = element_text(angle = 25, hjust = 1))
+    theme(
+      axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5),
+      strip.text = element_text(size = 11.5)
+    )
   save_imrs_plot(p, folder_path("Figure6_baseline_signature_benchmarking"),
                  "Figure6A_baseline_delta_by_analysis_group", 9, 6.4, dpi = 400,
                  source_tables = required_paths$baseline_contrast_long,
@@ -1888,7 +1881,7 @@ make_Figure4F <- function() {
       fill = "Benchmark score"
     ) +
     theme_imrs_publication() +
-    theme(axis.text.x = element_text(angle = 25, hjust = 1))
+    theme(axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5))
   save_imrs_plot(p, folder_path("Figure6_baseline_signature_benchmarking"),
                  "Figure6C_benchmark_directionality_summary", 8.8, 5.2, dpi = 400,
                  source_tables = required_paths$baseline_contrast_long,
@@ -2458,9 +2451,10 @@ make_FigureSB_simplified <- function() {
       y = "Number of contrasts",
       fill = "Interpretation support level"
     ) +
-    theme_imrs_publication(base_size = 9.5) +
+    theme_imrs_publication(base_size = 10) +
     theme(
-      axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1),
+      axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1, size = 9.3),
+      legend.text = element_text(size = 9),
       legend.position = "bottom",
       legend.box.just = "center",
       plot.margin = margin(10, 16, 18, 10)
@@ -2587,7 +2581,7 @@ make_FigureSF <- function() {
     geom_vline(xintercept = 24, linetype = "dashed", linewidth = 0.35, color = "#4B5563") +
     geom_line(aes(group = interaction(tissue_label, vector_label)), alpha = 0.55, linewidth = 0.45) +
     geom_point(size = 2.4, alpha = 0.92) +
-    geom_text(aes(label = point_label), nudge_y = 0.45, size = 2.4, show.legend = FALSE) +
+    geom_text(aes(label = point_label), nudge_y = 0.45, size = 2.9, show.legend = FALSE) +
     facet_wrap(~ tissue_label, nrow = 1) +
     scale_x_continuous(breaks = sort(unique(plot_tbl$time_h))) +
     labs(
@@ -2598,8 +2592,14 @@ make_FigureSF <- function() {
       color = "Tissue",
       shape = "Vector"
     ) +
-    theme_imrs_publication(base_size = 8) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme_imrs_publication(base_size = 9.5) +
+    theme(
+      axis.text = element_text(size = 9.2),
+      strip.text = element_text(size = 10),
+      legend.text = element_text(size = 8.8),
+      legend.title = element_text(size = 9.2),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 9.2)
+    )
   save_imrs_plot(p, folder_path("FigureS3_context_timecourse_and_dominance_appendix"),
                  "FigureS3B_gse264344_time_course", 7.5, 4.6, dpi = 400,
                  source_tables = required_paths$role_table,

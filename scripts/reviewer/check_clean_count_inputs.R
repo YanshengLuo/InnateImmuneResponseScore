@@ -1,11 +1,37 @@
 #!/usr/bin/env Rscript
 
-script_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-if (length(script_arg) == 0L) {
-  stop("This script must be run with Rscript.", call. = FALSE)
+imrs_detect_script_path_local <- function(expected_basename = NULL) {
+  candidates <- character()
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) > 0L) candidates <- c(candidates, sub("^--file=", "", file_arg[[1L]]))
+  frame_paths <- unlist(lapply(sys.frames(), function(frame) {
+    path <- frame$ofile
+    if (is.null(path) || length(path) == 0L) character() else as.character(path[[1L]])
+  }), use.names = FALSE)
+  candidates <- c(candidates, frame_paths)
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    candidates <- c(candidates, tryCatch(rstudioapi::getActiveDocumentContext()$path,
+                                         error = function(e) ""))
+  }
+  candidates <- unique(candidates[!is.na(candidates) & nzchar(candidates)])
+  if (length(candidates) > 0L) {
+    candidates <- normalizePath(candidates, winslash = "/", mustWork = FALSE)
+    if (!is.null(expected_basename) && nzchar(expected_basename)) {
+      matching <- candidates[basename(candidates) == expected_basename]
+      if (length(matching) > 0L) candidates <- c(matching, candidates)
+    }
+    existing <- candidates[file.exists(candidates)]
+    if (length(existing) > 0L) return(existing[[1L]])
+  }
+  if (!is.null(expected_basename) && nzchar(expected_basename)) {
+    candidate <- file.path(getwd(), expected_basename)
+    if (file.exists(candidate)) return(normalizePath(candidate, winslash = "/", mustWork = TRUE))
+  }
+  NA_character_
 }
-script_path <- normalizePath(sub("^--file=", "", script_arg[[1]]),
-                             winslash = "/", mustWork = FALSE)
+
+script_path <- imrs_detect_script_path_local("check_clean_count_inputs.R")
+if (is.na(script_path)) stop("Could not identify this script path. Use RStudio Source/Run or Rscript.", call. = FALSE)
 repo_root <- normalizePath(file.path(dirname(script_path), "..", ".."),
                            winslash = "/", mustWork = FALSE)
 

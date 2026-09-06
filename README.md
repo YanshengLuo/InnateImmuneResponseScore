@@ -10,6 +10,7 @@ The frozen production model uses five acute mouse anchor datasets. Validation an
 
 ## Starting points
 
+- `RUN_FIGURES_v6.R` is the simplest one-click entry point for manuscript figure regeneration. It discovers the repository location automatically in RStudio or Rscript; no manual `setwd()` is required.
 - `run_all_manuscript_outputs_v6.R` regenerates staged manuscript outputs when the required inputs and R environment are available.
 - `run_full_pipeline_from_public_data_TEMPLATE.R` is the portable count-level pipeline template.
 - `config/config_template.yml` and `config/full_pipeline_config.yml` provide portable configuration examples.

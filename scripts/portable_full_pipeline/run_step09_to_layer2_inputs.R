@@ -1,7 +1,37 @@
 #!/usr/bin/env Rscript
 
-this_file <- normalizePath(sub("^--file=", "", grep("^--file=",
-  commandArgs(trailingOnly = FALSE), value = TRUE)[1]), winslash = "/", mustWork = FALSE)
+imrs_detect_script_path_local <- function(expected_basename = NULL) {
+  candidates <- character()
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) > 0L) candidates <- c(candidates, sub("^--file=", "", file_arg[[1L]]))
+  frame_paths <- unlist(lapply(sys.frames(), function(frame) {
+    path <- frame$ofile
+    if (is.null(path) || length(path) == 0L) character() else as.character(path[[1L]])
+  }), use.names = FALSE)
+  candidates <- c(candidates, frame_paths)
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    candidates <- c(candidates, tryCatch(rstudioapi::getActiveDocumentContext()$path,
+                                         error = function(e) ""))
+  }
+  candidates <- unique(candidates[!is.na(candidates) & nzchar(candidates)])
+  if (length(candidates) > 0L) {
+    candidates <- normalizePath(candidates, winslash = "/", mustWork = FALSE)
+    if (!is.null(expected_basename) && nzchar(expected_basename)) {
+      matching <- candidates[basename(candidates) == expected_basename]
+      if (length(matching) > 0L) candidates <- c(matching, candidates)
+    }
+    existing <- candidates[file.exists(candidates)]
+    if (length(existing) > 0L) return(existing[[1L]])
+  }
+  if (!is.null(expected_basename) && nzchar(expected_basename)) {
+    candidate <- file.path(getwd(), expected_basename)
+    if (file.exists(candidate)) return(normalizePath(candidate, winslash = "/", mustWork = TRUE))
+  }
+  NA_character_
+}
+
+this_file <- imrs_detect_script_path_local("run_step09_to_layer2_inputs.R")
+if (is.na(this_file)) stop("Could not identify this script path. Use RStudio Source/Run or Rscript and keep the extracted repository structure intact.", call. = FALSE)
 script_root <- dirname(this_file)
 source(file.path(script_root, "lib", "portable_pipeline_utils.R"))
 

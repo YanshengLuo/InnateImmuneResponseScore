@@ -6,23 +6,100 @@
 
 options(stringsAsFactors = FALSE)
 
-this_file <- tryCatch(normalizePath(sys.frame(1)$ofile, winslash = "/", mustWork = TRUE),
-                      error = function(e) NA_character_)
-if (is.na(this_file)) {
+imrs_detect_script_path <- function(expected_basename = NULL) {
+  candidates <- character()
+
+  # Rscript --file=... invocation.
   file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  this_file <- if (length(file_arg)) sub("^--file=", "", file_arg[[1]]) else getwd()
+  if (length(file_arg) > 0L) {
+    candidates <- c(candidates, sub("^--file=", "", file_arg[[1L]]))
+  }
+
+  # source()/sys.source() invocation (search all active frames, not only frame 1).
+  frame_paths <- unlist(lapply(sys.frames(), function(frame) {
+    path <- frame$ofile
+    if (is.null(path) || length(path) == 0L) character() else as.character(path[[1L]])
+  }), use.names = FALSE)
+  candidates <- c(candidates, frame_paths)
+
+  # RStudio "Run" / "Source" invocation, including running selected lines.
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    editor_path <- tryCatch(
+      rstudioapi::getActiveDocumentContext()$path,
+      error = function(e) ""
+    )
+    candidates <- c(candidates, editor_path)
+  }
+
+  candidates <- unique(candidates[!is.na(candidates) & nzchar(candidates)])
+  if (length(candidates) > 0L) {
+    candidates <- normalizePath(candidates, winslash = "/", mustWork = FALSE)
+    if (!is.null(expected_basename) && nzchar(expected_basename)) {
+      matching <- candidates[basename(candidates) == expected_basename]
+      if (length(matching) > 0L) candidates <- c(matching, candidates)
+    }
+    existing <- candidates[file.exists(candidates)]
+    if (length(existing) > 0L) return(existing[[1L]])
+  }
+
+  # Last-resort support when the working directory is the script directory.
+  if (!is.null(expected_basename) && nzchar(expected_basename)) {
+    cwd_candidate <- file.path(getwd(), expected_basename)
+    if (file.exists(cwd_candidate)) {
+      return(normalizePath(cwd_candidate, winslash = "/", mustWork = TRUE))
+    }
+  }
+
+  NA_character_
 }
-active_config_helper <- file.path(dirname(normalizePath(this_file, winslash = "/", mustWork = FALSE)),
-                                  "..", "active_manuscript", "lib", "active_config.R")
-if (!file.exists(active_config_helper)) {
-  active_config_helper <- file.path(getwd(), "scripts", "active_manuscript", "lib", "active_config.R")
+
+imrs_find_repo_root_bootstrap <- function(start = getwd()) {
+  if (is.null(start) || length(start) == 0L || is.na(start) || !nzchar(start)) {
+    start <- getwd()
+  }
+  current <- normalizePath(start, winslash = "/", mustWork = FALSE)
+  if (file.exists(current) && !dir.exists(current)) current <- dirname(current)
+
+  repeat {
+    marker_config <- file.path(current, "config", "config_template.yml")
+    marker_active <- file.path(current, "scripts", "active_manuscript", "lib", "active_config.R")
+    if (file.exists(marker_config) && file.exists(marker_active)) return(current)
+    parent <- dirname(current)
+    if (identical(parent, current)) break
+    current <- parent
+  }
+  NA_character_
 }
+
+this_file <- imrs_detect_script_path("build_NAR_GB_readiness_v6.R")
+bootstrap_starts <- unique(c(
+  if (!is.na(this_file)) dirname(this_file) else character(),
+  getwd()
+))
+repo_root_bootstrap <- NA_character_
+for (start in bootstrap_starts) {
+  candidate_root <- imrs_find_repo_root_bootstrap(start)
+  if (!is.na(candidate_root)) {
+    repo_root_bootstrap <- candidate_root
+    break
+  }
+}
+if (is.na(repo_root_bootstrap)) {
+  stop(
+    "Could not locate the IMRS repository root. Keep the extracted repository structure intact and run this file with RStudio Source/Run or Rscript.",
+    call. = FALSE
+  )
+}
+active_config_helper <- file.path(
+  repo_root_bootstrap, "scripts", "active_manuscript", "lib", "active_config.R"
+)
 source(active_config_helper)
 
-config <- imrs_load_active_config(dirname(active_config_helper))
+
+config <- imrs_load_active_config(repo_root_bootstrap)
 project_root <- imrs_project_root(config)
 v6_root <- imrs_config_field_path(config, "manuscript_output_dir")
-out_dir <- imrs_config_field_path(config, "nar_readiness_dir")
+out_dir <- imrs_config_field_path(config, "internal_readiness_dir", "results_release_templates/internal_qc/NAR_GB_readiness")
 dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
 
 delta <- intToUtf8(0x0394)

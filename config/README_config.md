@@ -1,6 +1,6 @@
 # Configuration
 
-Copy `config_template.yml` to `config.yml` before running repository scripts. The template uses repository-relative paths; `project_root: "."` is appropriate when running from the repository root.
+For the reviewer-facing active manuscript scripts, `config/config_template.yml` is used automatically when `config/config.yml` is absent, so extraction plus figure regeneration does not require a manual config copy. Create `config/config.yml` only when you need local overrides. The template uses repository-relative paths and is resolved against the detected repository root.
 
 The Layer 2 manuscript-output runner expects released inputs under `data/derived/`, including the explicit `data/derived/figure_inputs/` bundle used by the repo-contained figure implementation. It writes generated artifacts beneath `results_release_templates/`.
 

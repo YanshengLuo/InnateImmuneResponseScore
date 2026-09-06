@@ -16,32 +16,43 @@ imrs_require <- function(packages) {
 }
 
 imrs_script_file <- function() {
+  candidates <- character()
   file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) > 0) {
-    return(normalizePath(sub("^--file=", "", file_arg[[1]]),
-                         winslash = "/", mustWork = FALSE))
+  if (length(file_arg) > 0L) candidates <- c(candidates, sub("^--file=", "", file_arg[[1L]]))
+  frame_paths <- unlist(lapply(sys.frames(), function(frame) {
+    path <- frame$ofile
+    if (is.null(path) || length(path) == 0L) character() else as.character(path[[1L]])
+  }), use.names = FALSE)
+  candidates <- c(candidates, frame_paths)
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    candidates <- c(candidates, tryCatch(rstudioapi::getActiveDocumentContext()$path,
+                                         error = function(e) ""))
+  }
+  candidates <- unique(candidates[!is.na(candidates) & nzchar(candidates)])
+  if (length(candidates) > 0L) {
+    candidates <- normalizePath(candidates, winslash = "/", mustWork = FALSE)
+    existing <- candidates[file.exists(candidates)]
+    if (length(existing) > 0L) return(existing[[1L]])
   }
   normalizePath(getwd(), winslash = "/", mustWork = FALSE)
 }
 
 imrs_repo_root <- function() {
-  here <- dirname(imrs_script_file())
-  candidates <- unique(c(
-    normalizePath(getwd(), winslash = "/", mustWork = FALSE),
-    normalizePath(here, winslash = "/", mustWork = FALSE),
-    normalizePath(file.path(here, ".."), winslash = "/", mustWork = FALSE),
-    normalizePath(file.path(here, "..", ".."), winslash = "/", mustWork = FALSE),
-    normalizePath(file.path(here, "..", "..", ".."), winslash = "/", mustWork = FALSE)
-  ))
-  hit <- candidates[
-    file.exists(file.path(candidates, "README.md")) &
-      dir.exists(file.path(candidates, "scripts"))
-  ]
-  if (length(hit) == 0) {
-    stop("Could not identify the repository root. Run from the repository root.",
-         call. = FALSE)
+  env_root <- Sys.getenv("IMRS_REPOSITORY_ROOT", unset = "")
+  starts <- unique(c(env_root, dirname(imrs_script_file()), getwd()))
+  starts <- starts[!is.na(starts) & nzchar(starts)]
+  for (start in starts) {
+    current <- normalizePath(start, winslash = "/", mustWork = FALSE)
+    if (file.exists(current) && !dir.exists(current)) current <- dirname(current)
+    repeat {
+      if (file.exists(file.path(current, "README.md")) &&
+          dir.exists(file.path(current, "scripts", "portable_full_pipeline"))) return(current)
+      parent <- dirname(current)
+      if (identical(parent, current)) break
+      current <- parent
+    }
   }
-  hit[[1]]
+  stop("Could not identify the repository root. Keep the extracted repository structure intact.", call. = FALSE)
 }
 
 imrs_is_absolute <- function(path) {

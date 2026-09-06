@@ -15,12 +15,12 @@ build_merged_imrs_workflow_v5 <- function(project_root = normalizePath(Sys.geten
 
   dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
 
-  box_text_size <- 3.2
-  column_text_size <- 2.95
-  connector_text_size <- 2.8
+  box_text_size <- 3.75
+  column_text_size <- 3.35
+  connector_text_size <- 3.05
   title_text_size <- 4.25
-  subtitle_text_size <- 2.8
-  footer_text_size <- 2.85
+  subtitle_text_size <- 3.1
+  footer_text_size <- 3.1
 
   node_border <- "#24364A"
   arrow_color <- "#46556A"
@@ -44,7 +44,7 @@ build_merged_imrs_workflow_v5 <- function(project_root = normalizePath(Sys.geten
       "Control-referenced\ngene z-scores",
       "Weighted sample-level\nIMRS score",
       "Control-standardized\nsample IMRSz",
-      "Delivery-minus-control\nΔIMRSz, directionality,\nand secondary AUC",
+      "Delivery-minus-control\n\u0394IMRSz, directionality,\nand secondary AUC",
       "Dataset-role curation and\nboundary-context audit",
       "Label permutation, comparator benchmarking,\nand coefficient sensitivity",
       "Manuscript\nanalysis groups"

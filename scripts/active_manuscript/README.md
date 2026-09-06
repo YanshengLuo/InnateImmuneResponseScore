@@ -4,6 +4,8 @@ This directory implements Layer 2 reviewer-facing manuscript-output reproduction
 
 ## Entry Points
 
+All active entry scripts now locate the repository from their own file path (including RStudio Run/Source) and do not require the working directory to be changed manually. For figure-only regeneration, `RUN_FIGURES_v6.R` at the repository root is the simplest entry point.
+
 - `00_generate_manuscript_figures_v6.R`: regenerates manuscript figure panels and assembled figures from `data/derived/figure_inputs/`.
 - `02_run_priority3_gene_program_enrichment_v6.R`: regenerates Supplementary Figure S2 and retained frozen-gene enrichment tables from released frozen inputs.
 - `01_build_supplementary_tables_v6.R`: packages Supplementary Tables S1-S5 after Priority3 enrichment outputs are present.
