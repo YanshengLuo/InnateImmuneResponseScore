@@ -1,0 +1,16 @@
+dataset_id	gse_accession	in_scored_manuscript_universe	retained_in_metadata_and_provenance	species	exclusion_reason	manuscript_authority
+GSE39129	GSE39129	TRUE	TRUE	Mus musculus		Methods: locked anchor
+GSE119119	GSE119119	TRUE	TRUE	Mus musculus		Methods: primary acute validation
+GSE139529	GSE139529	TRUE	TRUE	Mus musculus		Methods: primary acute validation
+GSE166655	GSE166655	TRUE	TRUE	Mus musculus		Methods: extended validation
+GSE167521	GSE167521	TRUE	TRUE	Mus musculus		Methods: locked anchor
+GSE178313	GSE178313	TRUE	TRUE	Mus musculus		Methods: extended validation
+GSE262515_tissue	GSE262515	TRUE	TRUE	Mus musculus		Discussion: "only the retained mouse-liver therapeutic LNP arm contributes scored secondary-support evidence"
+GSE262515_cell_line	GSE262515	FALSE	TRUE	Homo sapiens	Human HepG2 arm scored with a mouse-derived frozen coefficient set. Scores invalidated and excluded pending human-reference reprocessing and explicit ortholog-based evaluation. Metadata and provenance are retained.	Methods para: "the human HepG2 arm was retained in metadata but excluded from scoring until species-appropriate reprocessing could be performed"; Discussion para: "its previous scores were invalidated and excluded"
+GSE264344	GSE264344	TRUE	TRUE	Mus musculus		Methods: locked anchor (1-24 h) and extended validation (72 h)
+GSE279372	GSE279372	TRUE	TRUE	Mus musculus		Methods: locked anchor
+GSE279743	GSE279743	TRUE	TRUE	Mus musculus		Methods: primary acute validation
+GSE279744	GSE279744	TRUE	TRUE	Mus musculus		Methods: locked anchor
+GSE314070	GSE314070	TRUE	TRUE	Mus musculus		Methods: extended validation
+GSE190850_HUMAN	GSE190850	FALSE	TRUE	Homo sapiens	Human BALF dataset. Never scored; metadata-only. Not referenced in the manuscript.	Pipeline classification: Excluded/unclear, 0 scored contrasts
+GSE237068	GSE237068	FALSE	TRUE	Mus musculus	Metabolic reductive-stress perturbation study rather than a delivery-induced innate activation experiment. Never scored; metadata-only.	Pipeline classification: Excluded/unclear, 0 scored contrasts

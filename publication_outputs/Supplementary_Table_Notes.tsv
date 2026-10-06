@@ -1,5 +1,5 @@
 Table	Publication note
-S1	The table separates all scored contrasts from the 70 contrasts included in the principal manuscript analysis and from metadata-only records.
+S1	The table separates all scored contrasts from the 68 contrasts included in the principal manuscript analysis and from metadata-only records.
 S1	GSE264344 acute 1-24 h rows contributed to frozen-model construction; its 72 h rows are extended validation. GSE262515 did not contribute to frozen-coefficient construction; its cell-line and tissue arms are 16 h and 72 h, respectively.
 S2	Blank numeric cells denote values that were unavailable, not estimable, or not applicable; the adjacent status fields distinguish these cases.
 S3	Weak or attenuated responses are interpreted as context-shifted evidence defining the boundary of the acute-response interpretation, not automatically as failures.

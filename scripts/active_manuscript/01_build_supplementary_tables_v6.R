@@ -94,6 +94,10 @@ active_config_helper <- file.path(
 )
 source(active_config_helper)
 
+# Single authoritative definition of the scored manuscript universe.
+source(file.path(repo_root_bootstrap, "scripts", "active_manuscript", "lib",
+                 "manuscript_universe.R"))
+
 
 config <- imrs_load_active_config(repo_root_bootstrap)
 project_root <- imrs_project_root(config)
@@ -156,6 +160,10 @@ paths <- list(
   gene_dominance = imrs_config_field_path(config, "gene_dominance_summary"),
   threshold_sensitivity = imrs_config_field_path(config, "threshold_sensitivity_summary"),
   leave_one_anchor_out = imrs_config_field_path(config, "leave_one_anchor_out_summary"),
+  threshold_detail = imrs_config_field_path(config, "threshold_sensitivity_detail",
+                       default = "data/derived/figure_inputs/threshold_sensitivity_contrast_deltas.tsv"),
+  comparator_contrast_long = imrs_config_field_path(config, "comparator_contrast_long",
+                       default = "data/derived/figure_inputs/baseline_signature_contrast_long.tsv"),
   comparator_benchmarking = imrs_config_field_path(config, "comparator_benchmarking_summary"),
   coefficient_sensitivity = imrs_config_field_path(config, "coefficient_sensitivity_summary"),
   s5_enrichment = file.path(imrs_config_field_path(config, "priority3_enrichment_dir"), "tables", "Supplementary_Table_S5_IMRS_gene_enrichment_all.tsv"),
@@ -246,7 +254,19 @@ table_note_s5 <- paste0(
   "Enrichment results provide program-level biological context and do not establish causal pathways, cell-type sources, clinical reactogenicity prediction, or delivery-platform safety ranking."
 )
 
-provenance <- read_source(paths$provenance) %>%
+provenance_all <- read_source(paths$provenance)
+
+# (1) The GSE262515 splits are registered under both the generic
+#     GSE262515_design/ directory and the arm-specific *_design/ directories,
+#     which duplicated 5 (dataset_id, split_id) pairs and inflated the
+#     "Positive evaluated contrasts" column of Supplementary Table S1.
+# (2) The scored universe gate then removes arms that are retained in metadata
+#     but excluded from scored manuscript outputs.
+provenance_all <- imrs_dedup_provenance(provenance_all, "supplement provenance")
+provenance_metadata_only <- provenance_all[
+  !(trimws(as.character(provenance_all$dataset_id)) %in% imrs_scored_ids(project_root)), , drop = FALSE]
+provenance <- imrs_filter_scored(provenance_all, "dataset_id",
+                                 "supplement provenance", project_root) %>%
   mutate(
     delta_value = as_num(.data$delta_mean_imrs_z),
     auc_value = as_num(.data$auc_imrs_z_secondary),
@@ -339,7 +359,9 @@ S2 <- provenance %>%
   ) %>%
   arrange(.data$manuscript_analysis_group, .data$dataset_id, as_num(.data$timepoint_h), .data$split_id)
 
-boundary_source <- read_source(paths$boundary_audit)
+boundary_source <- imrs_filter_scored(read_source(paths$boundary_audit),
+                                      "dataset_id", "boundary context audit",
+                                      project_root)
 role_lookup <- provenance %>%
   select(split_id, manuscript_analysis_group) %>%
   distinct()
@@ -397,11 +419,47 @@ S3 <- boundary_source %>%
   ) %>%
   arrange(.data$boundary_category, .data$dataset_id, as_num(.data$timepoint_h), .data$split_id)
 
-perm <- read_source(paths$label_permutation)
+# Every per-contrast robustness source passes through the scored manuscript
+# universe before it is summarised. Without this, S4 reported leave-one-gene-out
+# over 1750 tests and gene dominance over 70 contrasts while the manuscript (and
+# the permutation table) used 68.
+perm <- imrs_filter_scored(read_source(paths$label_permutation), "gse_id",
+                           "label permutation summary", project_root)
 perm_ok <- perm %>% filter(.data$permutation_status == "ok")
-logo <- read_source(paths$leave_one_gene_out)
-dominance <- read_source(paths$gene_dominance)
+logo <- imrs_filter_scored(read_source(paths$leave_one_gene_out), "gse_id",
+                           "leave-one-gene-out summary", project_root)
+dominance <- imrs_filter_scored(read_source(paths$gene_dominance), "gse_id",
+                                "gene dominance summary", project_root)
+
+# Threshold sensitivity ships only a pre-aggregated per-grid summary, so the
+# external_* columns cannot be gated after the fact. Recompute them from the
+# per-contrast detail table with the gate applied. NOTE: "external" here means
+# "outside the STRICT-THREE sensitivity anchor set", which is a different and
+# larger set than the manuscript's external validation contrasts.
 threshold <- read_source(paths$threshold_sensitivity)
+if (file.exists(paths$threshold_detail)) {
+  thr_detail <- imrs_filter_scored(read_source(paths$threshold_detail), "gse_id",
+                                   "threshold sensitivity detail", project_root) %>%
+    filter(.data$sensitivity_scope == "external_full_3_anchor_weights")
+  thr_recomputed <- thr_detail %>%
+    group_by(.data$grid_id) %>%
+    summarise(
+      external_n_contrasts = n(),
+      external_mean_delta_imrs_z = mean(as_num(.data$delta_mean_imrs_z), na.rm = TRUE),
+      external_median_delta_imrs_z = median(as_num(.data$delta_mean_imrs_z), na.rm = TRUE),
+      external_proportion_positive_delta = mean(as_num(.data$delta_mean_imrs_z) > 0, na.rm = TRUE),
+      external_mean_auc_secondary = mean(as_num(.data$auc_imrs_z), na.rm = TRUE),
+      external_median_auc_secondary = median(as_num(.data$auc_imrs_z), na.rm = TRUE),
+      .groups = "drop"
+    )
+  threshold <- threshold %>%
+    select(-any_of(names(thr_recomputed)[-1])) %>%
+    left_join(thr_recomputed, by = "grid_id")
+  log_msg("Threshold sensitivity external_* recomputed on the scored universe: ",
+          paste(unique(thr_recomputed$external_n_contrasts), collapse = ","),
+          " contrasts per grid (outside the strict-three anchor set).")
+}
+
 loao <- read_source(paths$leave_one_anchor_out)
 comparator <- if (file.exists(paths$comparator_benchmarking)) read_source(paths$comparator_benchmarking) else tibble()
 coef_sens <- if (file.exists(paths$coefficient_sensitivity)) read_source(paths$coefficient_sensitivity) else tibble()
@@ -639,7 +697,14 @@ append_change_log <- function() {
   path <- file.path(v6_root, "v6_change_log.tsv")
   cols <- c("file", "panel_or_figure", "change_type", "old_text", "new_text",
             "plot_visible_or_caption", "regenerated_or_copied", "notes")
-  existing <- if (file.exists(path)) readr::read_tsv(path, show_col_types = FALSE, progress = FALSE) else tibble()
+  # Read every column as character so a previously written file cannot come
+  # back with a guessed type (integer, or logical for an all-NA column) that
+  # clashes with the freshly built rows in bind_rows() below. Without this the
+  # script fails on every run after the first.
+  existing <- if (file.exists(path)) {
+    readr::read_tsv(path, col_types = readr::cols(.default = readr::col_character()),
+                    progress = FALSE)
+  } else tibble()
   for (col in cols) if (!col %in% names(existing)) existing[[col]] <- character()
   existing <- existing %>% filter(.data$change_type != "supplementary_table_package_added")
   rows <- tibble(
@@ -672,15 +737,27 @@ append_change_log <- function() {
     regenerated_or_copied = "generated",
     notes = "Packaging-only update; no IMRS score, validation, robustness, transfer-evaluation, or enrichment statistics were changed."
   )
+  rows <- rows %>% dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+  existing <- existing %>% dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
   readr::write_tsv(bind_rows(existing[, cols], rows), path, na = "")
 }
 
 append_table_inventory <- function() {
   path <- file.path(v6_root, "v6_table_inventory.tsv")
   cols <- c("table_file", "purpose_inferred", "edited_yes_no", "key_changes", "row_count", "column_count")
-  existing <- if (file.exists(path)) readr::read_tsv(path, show_col_types = FALSE, progress = FALSE) else tibble()
+  # Read every column as character. Previously this used type guessing, so an
+  # inventory written in an earlier run came back with row_count/column_count as
+  # <integer> while the freshly built rows are <character> (or vice versa), and
+  # bind_rows() below aborted with "Can't combine ..$row_count". That made the
+  # script fail on every run after the first, which is a reproducibility blocker.
+  existing <- if (file.exists(path)) {
+    readr::read_tsv(path, col_types = readr::cols(.default = readr::col_character()),
+                    progress = FALSE)
+  } else tibble()
   for (col in cols) if (!col %in% names(existing)) existing[[col]] <- character()
-  existing <- existing %>% filter(!stringr::str_starts(.data$table_file, "supplementary_tables/"))
+  existing <- existing %>%
+    dplyr::mutate(dplyr::across(dplyr::everything(), as.character)) %>%
+    filter(!stringr::str_starts(.data$table_file, "supplementary_tables/"))
   table_rows <- tibble(
     table_file = c(
       "supplementary_tables/Supplementary_Table_S1_dataset_level_provenance.tsv",
@@ -715,13 +792,22 @@ append_table_inventory <- function() {
     row_count = c(nrow(S1), nrow(S1), nrow(S2), nrow(S2), nrow(S3), nrow(S3), nrow(S4), nrow(S4), nrow(S5), nrow(S5), NA_integer_, nrow(inventory)),
     column_count = c(ncol(S1), ncol(S1), ncol(S2), ncol(S2), ncol(S3), ncol(S3), ncol(S4), ncol(S4), ncol(S5), ncol(S5), NA_integer_, ncol(inventory))
   )
+  table_rows <- table_rows %>%
+    dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
   readr::write_tsv(bind_rows(existing[, cols], table_rows), path, na = "")
 }
 
 update_file_inventory <- function() {
   path <- file.path(v6_root, "v6_file_inventory.tsv")
   cols <- c("file", "extension", "size_bytes", "modified_time", "copied_from_v5_yes_no", "generated_in_v6_yes_no")
-  existing <- if (file.exists(path)) readr::read_tsv(path, show_col_types = FALSE, progress = FALSE) else tibble()
+  # Read every column as character so a previously written file cannot come
+  # back with a guessed type (integer, or logical for an all-NA column) that
+  # clashes with the freshly built rows in bind_rows() below. Without this the
+  # script fails on every run after the first.
+  existing <- if (file.exists(path)) {
+    readr::read_tsv(path, col_types = readr::cols(.default = readr::col_character()),
+                    progress = FALSE)
+  } else tibble()
   for (col in cols) if (!col %in% names(existing)) existing[[col]] <- character()
   existing <- existing %>% mutate(across(all_of(cols), as.character))
   existing <- existing %>% filter(!stringr::str_starts(.data$file, "supplementary_tables/"))
@@ -738,6 +824,8 @@ update_file_inventory <- function() {
       generated_in_v6_yes_no = "yes"
     )
   })
+  rows <- rows %>% dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
+  existing <- existing %>% dplyr::mutate(dplyr::across(dplyr::everything(), as.character))
   readr::write_tsv(bind_rows(existing[, cols], rows), path, na = "")
 }
 
