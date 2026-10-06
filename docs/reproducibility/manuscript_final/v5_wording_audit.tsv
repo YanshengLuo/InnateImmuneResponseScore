@@ -1,0 +1,77 @@
+figure_or_panel	old_text	new_text	reason
+global/source-label replacement	Validation context	Manuscript analysis group	v5 manuscript-facing terminology standardization
+global/source-label replacement	validation context	manuscript analysis group	v5 manuscript-facing terminology standardization
+global/source-label replacement	Validation groups	Manuscript analysis groups	v5 manuscript-facing terminology standardization
+global/source-label replacement	Validation group	Manuscript analysis group	v5 manuscript-facing terminology standardization
+global/source-label replacement	Validation timing group	Manuscript analysis group	v5 manuscript-facing terminology standardization
+global/source-label replacement	Analysis group	Manuscript analysis group	v5 manuscript-facing terminology standardization
+global/source-label replacement	Reviewer risk level	Interpretation support level	v5 manuscript-facing terminology standardization
+global/source-label replacement	Reviewer risk	Interpretation support level	v5 manuscript-facing terminology standardization
+global/source-label replacement	Interpretation confidence	Interpretation support level	v5 manuscript-facing terminology standardization
+global/source-label replacement	Comparator signature	Signature	v5 manuscript-facing terminology standardization
+global/source-label replacement	Benchmark score	Signature	v5 manuscript-facing terminology standardization
+global/source-label replacement	Primary validation	Primary acute validation	v5 manuscript-facing terminology standardization
+global/source-label replacement	primary validation	primary acute validation	v5 manuscript-facing terminology standardization
+global/source-label replacement	Primary validation datasets show consistent IMRS elevation	Primary acute validation showed consistent positive delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Primary acute validation supports delivery-associated IMRS elevation	Primary acute validation showed consistent positive delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Primary and extended datasets show positive IMRS shifts	Primary acute and extended validation show positive <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Each point is a split contrast; the dashed line marks no delivery-associated score shift.	Each point is a split contrast; the dashed line marks no delivery-minus-control score shift.	v5 manuscript-facing terminology standardization
+global/source-label replacement	\npositive=	\n<U+0394>>0 = 	v5 manuscript-facing terminology standardization
+global/source-label replacement	Mean delivery-minus-control IMRS z-score (pseudo-log scale)	Mean delivery-minus-control <U+0394>IMRSz (pseudo-log scale)	v5 manuscript-facing terminology standardization
+global/source-label replacement	Mean delivery-minus-control IMRS z-score	Mean delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Mean delivery-minus-control\nIMRS z-score	Mean delivery-minus-control\n<U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Observed mean delivery-minus-control IMRS z-score	Observed mean delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Split contrasts ordered by observed delivery-minus-control IMRS z-score	Split contrasts ordered by observed delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Original mean delivery-minus-control IMRS z-score	Original <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	After single-gene removal IMRS z-score	<U+0394>IMRSz after single-gene removal	v5 manuscript-facing terminology standardization
+global/source-label replacement	Maximum absolute change in delivery-minus-control IMRS z-score	Maximum absolute change in delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	IMRS delivery-minus-control z-score	IMRS delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Baseline signature delivery-minus-control z-score	Baseline signature delivery-minus-control score	v5 manuscript-facing terminology standardization
+global/source-label replacement	Proportion of positive delivery-associated contrasts	Proportion of contrasts with positive delivery-minus-control score	v5 manuscript-facing terminology standardization
+global/source-label replacement	delivery-associated score shifts	delivery-minus-control score shifts	v5 manuscript-facing terminology standardization
+global/source-label replacement	delivery-associated IMRS elevation	positive delivery-minus-control <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	delivery-associated sample-level separation	delivery-control sample-level separation	v5 manuscript-facing terminology standardization
+global/source-label replacement	Largest IMRS weights highlight acute discovery response genes	Top frozen IMRS coefficients	v5 manuscript-facing terminology standardization
+global/source-label replacement	Genes are ranked by magnitude of the frozen weight, not signed direction.	Genes are ranked by magnitude of the frozen IMRS coefficient, not signed direction.	v5 manuscript-facing terminology standardization
+global/source-label replacement	Absolute frozen IMRS weight	Absolute frozen IMRS coefficient	v5 manuscript-facing terminology standardization
+global/source-label replacement	Distribution of frozen IMRS gene weights	Distribution of frozen IMRS gene coefficients	v5 manuscript-facing terminology standardization
+global/source-label replacement	Distribution of fixed gene weights used for sample scoring	Distribution of frozen IMRS gene coefficients used for sample scoring	v5 manuscript-facing terminology standardization
+global/source-label replacement	Frozen IMRS gene weight	Frozen IMRS gene coefficient	v5 manuscript-facing terminology standardization
+global/source-label replacement	Largest IMRS weights	Top frozen IMRS coefficients	v5 manuscript-facing terminology standardization
+global/source-label replacement	frozen weight	frozen IMRS coefficient	v5 manuscript-facing terminology standardization
+global/source-label replacement	frozen weights	frozen IMRS coefficients	v5 manuscript-facing terminology standardization
+global/source-label replacement	weighted gene	coefficient-weighted gene	v5 manuscript-facing terminology standardization
+global/source-label replacement	Weak responses are explained by timing and biological context	Late or context-shifted settings provide boundary-setting evidence	v5 manuscript-facing terminology standardization
+global/source-label replacement	Risk categories summarize reviewer-facing interpretation of weak, late, or context-shifted contrasts.	Support levels summarize interpretation of late or context-shifted contrasts.	v5 manuscript-facing terminology standardization
+global/source-label replacement	Weak-context datasets show attenuated IMRS responses	Late or context-shifted settings show attenuated <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Dataset-level means highlight late or context-shifted validation settings.	Dataset-level means highlight late or context-shifted settings.	v5 manuscript-facing terminology standardization
+global/source-label replacement	Context-shifted datasets show variable IMRS elevation	Late and context-shifted datasets show variable <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	Points show delivery-minus-control IMRS shifts annotated by collection time.	Points show delivery-minus-control <U+0394>IMRSz annotated by collection time.	v5 manuscript-facing terminology standardization
+global/source-label replacement	GSE264344 captures adenoviral-vector IMRS kinetics	Adenoviral-vector IMRS responses peak within the acute window and attenuate by 72 h	v5 manuscript-facing terminology standardization
+global/source-label replacement	dLN means draining lymph node; 72 h values are interpreted as waning kinetics.	dLN means draining lymph node; 72 h values are consistent with attenuation by 72 h.	v5 manuscript-facing terminology standardization
+global/source-label replacement	waning kinetics	attenuation	v5 manuscript-facing terminology standardization
+global/source-label replacement	Observed IMRS shifts exceed label-permutation expectations	Observed <U+0394>IMRSz exceeds within-contrast label-permutation null intervals	v5 manuscript-facing terminology standardization
+global/source-label replacement	Observed delivery-minus-control shifts are compared with 95% within-contrast label-permutation intervals.	Observed delivery-minus-control <U+0394>IMRSz is compared with 95% within-contrast label-permutation intervals.	v5 manuscript-facing terminology standardization
+global/source-label replacement	Permutation-tested IMRS shifts differ by analysis group	Permutation-tested contrasts retain positive <U+0394>IMRSz in acute groups	v5 manuscript-facing terminology standardization
+global/source-label replacement	IMRS scores remain stable after single-gene removal	Single-gene removal preserves contrast-level <U+0394>IMRSz	v5 manuscript-facing terminology standardization
+global/source-label replacement	No single gene dominates IMRS contrast-level responses	Top-gene contribution remains low across contrasts	v5 manuscript-facing terminology standardization
+global/source-label replacement	IMRS response is not driven by a single dominant gene	Top-gene contribution remains low across contrasts	v5 manuscript-facing terminology standardization
+global/source-label replacement	Baseline signatures provide comparator response profiles	Comparator immune signatures contextualize acute IMRS response patterns	v5 manuscript-facing terminology standardization
+global/source-label replacement	IMRS and benchmark signatures are directionally compared	Comparator immune signatures contextualize delivery-minus-control directionality	v5 manuscript-facing terminology standardization
+global/source-label replacement	Benchmark signatures are positive-control comparators, not replacements for IMRS.	Immune-response signatures are contextual comparators, not replacements for IMRS.	v5 manuscript-facing terminology standardization
+Figure1A	IMRS computation and validation workflow	Frozen IMRS scoring and transfer-evaluation workflow	requested Figure 1A wording/content polish
+Figure1A	Anchor construction, frozen-weight scoring, split-contrast validation, and manuscript-readiness audit	Anchor-derived gene coefficients are frozen before scoring independent delivery-versus-control contrasts	requested Figure 1A wording/content polish
+Figure1A	Verified metadata and raw count matrices	Verified metadata and raw RNA-seq count matrices	requested Figure 1A wording/content polish
+Figure1A	DELIVERY vs CONTROL split contrasts	Delivery-versus-control split definitions	requested Figure 1A wording/content polish
+Figure1A	Anchor-only differential expression	Locked-anchor delivery-versus-control differential expression	requested Figure 1A wording/content polish
+Figure1A	Reproducibility gene filtering	Cross-anchor reproducibility filtering	requested Figure 1A wording/content polish
+Figure1A	Heterogeneity and low-power filtering	Heterogeneity and information-content filtering	requested Figure 1A wording/content polish
+Figure1A	Frozen anchor-derived gene weights	Frozen anchor-derived gene coefficients	requested Figure 1A wording/content polish
+Figure1A	Target dataset normalization	Target-dataset count normalization	requested Figure 1A wording/content polish
+Figure1A	Control-based gene z-scores	Control-referenced gene z-scores	requested Figure 1A wording/content polish
+Figure1A	Weighted raw IMRS score	Weighted sample-level IMRS score	requested Figure 1A wording/content polish
+Figure1A	Control-standardized IMRSz	Control-standardized sample IMRSz	requested Figure 1A wording/content polish
+Figure1A	Split-contrast Delta IMRSz / AUC / direction	Delivery-minus-control <U+0394>IMRSz, directionality, and secondary AUC	requested Figure 1A wording/content polish
+Figure1A	Dataset-role audit and weak-dataset cleanup	Dataset-role curation and boundary-context audit	requested Figure 1A wording/content polish
+Figure1A	Manuscript interpretation groups	Manuscript analysis groups	requested Figure 1A wording/content polish
+Figure1A	Frozen anchor-derived weights are not refit on validation or transfer datasets.	Frozen anchor-derived coefficients are not refit during validation or transfer evaluation.	requested Figure 1A wording/content polish

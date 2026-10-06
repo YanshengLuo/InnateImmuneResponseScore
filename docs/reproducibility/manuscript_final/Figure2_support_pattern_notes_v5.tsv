@@ -1,0 +1,7 @@
+support_n	pattern_label	n_retained_genes	support_category	supporting_datasets	absent_datasets
+5	All 5 locked anchors	178	Supported in 5/5 locked anchors	GSE39129;GSE167521;GSE264344;GSE279372;GSE279744	
+4	All except GSE167521	18	Supported in 4/5 locked anchors	GSE39129;GSE264344;GSE279372;GSE279744	GSE167521
+4	All except GSE264344	13	Supported in 4/5 locked anchors	GSE39129;GSE167521;GSE279372;GSE279744	GSE264344
+4	All except GSE279372	33	Supported in 4/5 locked anchors	GSE39129;GSE167521;GSE264344;GSE279744	GSE279372
+4	All except GSE279744	10	Supported in 4/5 locked anchors	GSE39129;GSE167521;GSE264344;GSE279372	GSE279744
+4	All except GSE39129	35	Supported in 4/5 locked anchors	GSE167521;GSE264344;GSE279372;GSE279744	GSE39129

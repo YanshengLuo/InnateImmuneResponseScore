@@ -54,7 +54,9 @@ extra_results_dir <- figure_input_dir
 figure1c_inclusion_check_path <- file.path(output_root, "Figure1C_pseudolog_inclusion_check.tsv")
 figure8a_loao_source_audit_path <- file.path(output_root, "Figure8A_LOAO_source_audit.tsv")
 figure8b_sample_source_check_path <- file.path(output_root, "Figure8B_anchor_sample_source_check.tsv")
-figure4a_anchor_inclusion_check_path <- file.path(output_root, "Figure4A_anchor_inclusion_check.tsv")
+figure4a_anchor_inclusion_check_path <- file.path(
+  output_root, "tables", "Figure4A_anchor_inclusion_check.tsv"
+)
 
 folder_path <- function(folder) file.path(output_root, folder)
 
@@ -146,9 +148,9 @@ dataset_role_summary_labels <- c(
 
 score_palette <- c(
   "IMRS" = "#111827",
-  "ISG baseline" = "#0072B2",
-  "Inflammatory baseline" = "#D55E00",
-  "Other benchmark" = "#009E73"
+  "ISG signature" = "#0072B2",
+  "Chemokine/inflammatory signature" = "#D55E00",
+  "Generic innate signature" = "#009E73"
 )
 
 reviewer_risk_palette <- c(
@@ -344,6 +346,24 @@ count_excluded_unclear_rows <- function(df, role_cols) {
   sum(Reduce(`|`, flags), na.rm = TRUE)
 }
 
+is_human_hepg2_figure_row <- function(df) {
+  marker_cols <- intersect(
+    c("dataset_id", "gse_id", "Dataset", "split_id", "split_path",
+      "context_label", "cell_type_or_cell_line"),
+    names(df)
+  )
+  if (length(marker_cols) == 0L || nrow(df) == 0L) return(rep(FALSE, nrow(df)))
+  marker <- do.call(
+    paste,
+    c(lapply(df[marker_cols], function(x) ifelse(is.na(x), "", as.character(x))), sep = " | ")
+  )
+  grepl("GSE262515_cell_line|HepG2", marker, ignore.case = TRUE)
+}
+
+drop_human_hepg2_figure_rows <- function(df) {
+  df[!is_human_hepg2_figure_row(df), , drop = FALSE]
+}
+
 clean_dataset_role_for_plot <- function(df, role_col = "manuscript_group",
                                         role_levels = manuscript_plot_groups) {
   if (!role_col %in% names(df)) {
@@ -366,9 +386,9 @@ map_score_label <- function(score_label, score_id = NA_character_) {
   label <- tolower(paste(score_label, score_id))
   out <- dplyr::case_when(
     str_detect(label, "\\bimrs\\b") ~ "IMRS",
-    str_detect(label, "isg|interferon|ifit|mx1|oas") ~ "ISG baseline",
-    str_detect(label, "inflam|chemokine|ccl|cxcl|il1|il6|tnf") ~ "Inflammatory baseline",
-    TRUE ~ "Other benchmark"
+    str_detect(label, "isg|interferon|ifit|mx1|oas") ~ "ISG signature",
+    str_detect(label, "inflam|chemokine|ccl|cxcl|il1|il6|tnf") ~ "Chemokine/inflammatory signature",
+    TRUE ~ "Generic innate signature"
   )
   factor(out, levels = names(score_palette))
 }
@@ -573,6 +593,7 @@ role_tbl <- read_required_tsv(
     manuscript_group = factor(final_display_group_v2, levels = manuscript_group_order),
     context_label = dataset_context_label(dataset_id, tissue, time_h, delivery_platform_clean)
   )
+role_tbl <- drop_human_hepg2_figure_rows(role_tbl)
 role_pass <- role_tbl %>% filter(pass %in% TRUE)
 role_pass_excluded_unclear_rows_removed <- count_excluded_unclear_rows(
   role_pass,
@@ -717,6 +738,169 @@ baseline_scores_tbl <- read_required_tsv(required_paths$baseline_scores_sample,
 coefficient_summary_tbl <- read_required_tsv(required_paths$coefficient_sensitivity_summary,
                                              c("metric", "value", "interpretation", "source_file"),
                                              "coefficient_sensitivity_summary.tsv")
+
+# The manuscript-authoritative scored state excludes the human 16 h HepG2 arm of
+# GSE262515. Apply this once to every contrast- or sample-grained input consumed by
+# the figure layer so no downstream panel can silently reintroduce the stale rows.
+loo_tbl <- drop_human_hepg2_figure_rows(loo_tbl)
+dominance_tbl <- drop_human_hepg2_figure_rows(dominance_tbl)
+threshold_detail_tbl <- drop_human_hepg2_figure_rows(threshold_detail_tbl)
+weak_tbl <- drop_human_hepg2_figure_rows(weak_tbl)
+step09_eval_tbl <- drop_human_hepg2_figure_rows(step09_eval_tbl)
+step09_sample_tbl <- drop_human_hepg2_figure_rows(step09_sample_tbl)
+perm_summary_tbl <- drop_human_hepg2_figure_rows(perm_summary_tbl)
+baseline_long_tbl <- drop_human_hepg2_figure_rows(baseline_long_tbl)
+baseline_paired_tbl <- drop_human_hepg2_figure_rows(baseline_paired_tbl)
+baseline_scores_tbl <- drop_human_hepg2_figure_rows(baseline_scores_tbl)
+
+# Recompute the comparator summary from the synchronized contrast-level source.
+# This prevents the old 5-row secondary-support aggregate from surviving after the
+# two metadata-only human rows have been removed.
+baseline_summary_tbl <- baseline_long_tbl %>%
+  mutate(
+    pass = logic_col(pass),
+    delta_score = safe_num(delta_score),
+    auc_secondary = safe_num(auc_secondary)
+  ) %>%
+  filter(pass %in% TRUE, is.finite(delta_score)) %>%
+  group_by(score_id, score_label, manuscript_interpretation_group,
+           manuscript_interpretation_label) %>%
+  summarise(
+    n_contrasts = n(),
+    mean_delta_score = mean(delta_score, na.rm = TRUE),
+    median_delta_score = median(delta_score, na.rm = TRUE),
+    proportion_positive_delta = mean(delta_score > 0, na.rm = TRUE),
+    mean_auc_secondary = mean(auc_secondary, na.rm = TRUE),
+    median_auc_secondary = median(auc_secondary, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+assert_equal_integer <- function(actual, expected, label) {
+  actual <- as.integer(actual)
+  expected <- as.integer(expected)
+  if (length(actual) != 1L || is.na(actual) || actual != expected) {
+    stop(label, " manuscript invariant failed: expected ", expected,
+         ", observed ", paste(actual, collapse = ", "), ".", call. = FALSE)
+  }
+}
+
+assert_close_numeric <- function(actual, expected, tolerance, label) {
+  actual <- as.numeric(actual)
+  if (length(actual) != 1L || !is.finite(actual) || abs(actual - expected) > tolerance) {
+    stop(label, " manuscript invariant failed: expected ", expected,
+         " +/- ", tolerance, ", observed ", paste(actual, collapse = ", "), ".",
+         call. = FALSE)
+  }
+}
+
+manuscript_counts <- role_pass_for_plot %>%
+  count(manuscript_group, name = "n")
+expected_manuscript_counts <- c(
+  "Locked anchor" = 40L,
+  "Primary acute validation" = 14L,
+  "Extended validation" = 11L,
+  "Secondary support" = 3L
+)
+assert_equal_integer(nrow(role_pass_for_plot), 68L, "Total scored contrasts")
+for (group_name in names(expected_manuscript_counts)) {
+  observed <- manuscript_counts$n[as.character(manuscript_counts$manuscript_group) == group_name]
+  if (length(observed) == 0L) observed <- 0L
+  assert_equal_integer(observed, expected_manuscript_counts[[group_name]],
+                       paste0("Group count: ", group_name))
+}
+
+human_scored_objects <- list(
+  role_table = role_pass_for_plot,
+  step09_eval = step09_eval_tbl,
+  step09_sample = step09_sample_tbl,
+  permutation = perm_summary_tbl,
+  leave_one_gene_out = loo_tbl,
+  gene_dominance = dominance_tbl,
+  comparator_contrasts = baseline_long_tbl,
+  comparator_paired = baseline_paired_tbl,
+  comparator_samples = baseline_scores_tbl,
+  context_audit = weak_tbl
+)
+human_scored_n <- sum(vapply(human_scored_objects, function(x) {
+  sum(is_human_hepg2_figure_row(x))
+}, integer(1)))
+assert_equal_integer(human_scored_n, 0L, "Human HepG2 scored rows")
+
+primary_ids <- sort(unique(as.character(
+  role_pass_for_plot$dataset_id[
+    as.character(role_pass_for_plot$manuscript_group) == "Primary acute validation"
+  ]
+)))
+expected_primary_ids <- sort(c("GSE119119", "GSE139529", "GSE279743"))
+if (!identical(primary_ids, expected_primary_ids)) {
+  stop("Primary-dataset manuscript invariant failed: expected ",
+       paste(expected_primary_ids, collapse = ", "), "; observed ",
+       paste(primary_ids, collapse = ", "), ".", call. = FALSE)
+}
+
+primary_means <- role_pass_for_plot %>%
+  filter(as.character(manuscript_group) == "Primary acute validation") %>%
+  group_by(dataset_id) %>%
+  summarise(mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE), .groups = "drop")
+expected_primary_means <- c(GSE119119 = 10.739, GSE139529 = 11.920, GSE279743 = 8.148)
+for (dataset_name in names(expected_primary_means)) {
+  assert_close_numeric(
+    primary_means$mean_delta[primary_means$dataset_id == dataset_name],
+    expected_primary_means[[dataset_name]], 0.001,
+    paste0("Primary dataset mean: ", dataset_name)
+  )
+}
+
+assert_equal_integer(nrow(weak_tbl), 13L, "Context-audit row count")
+expected_context_counts <- c(
+  tissue_time_kinetic_effect = 6L,
+  therapeutic_cargo_specific_effect = 2L,
+  disease_rescue_model = 2L,
+  late_timepoint = 1L,
+  distal_or_adaptive_tissue = 1L,
+  formulation_designed_to_reduce_inflammation = 1L
+)
+observed_context_counts <- table(as.character(weak_tbl$explanation_category))
+for (category_name in names(expected_context_counts)) {
+  observed <- unname(observed_context_counts[category_name])
+  if (length(observed) == 0L || is.na(observed)) observed <- 0L
+  assert_equal_integer(observed, expected_context_counts[[category_name]],
+                       paste0("Context category: ", category_name))
+}
+
+assert_equal_integer(nrow(weights_tbl), 287L, "Frozen weighted genes")
+assert_equal_integer(nrow(perm_summary_tbl), 68L, "Permutation contrasts")
+assert_equal_integer(sum(safe_num(perm_summary_tbl$n_permutations) == 1000L), 68L,
+                     "Permutation contrasts with 1,000 permutations")
+assert_equal_integer(sum(safe_num(perm_summary_tbl$observed_delta_mean_imrs_z) > 0), 65L,
+                     "Positive permutation-tested contrasts")
+assert_equal_integer(sum(logic_col(perm_summary_tbl$observed_outside_95pct_null)), 49L,
+                     "Permutation contrasts outside the strict 95% null interval")
+assert_equal_integer(sum(safe_num(perm_summary_tbl$empirical_p_two_sided_fdr) < 0.05), 43L,
+                     "BH-significant two-sided permutation contrasts")
+assert_equal_integer(nrow(loo_tbl), 1700L, "Leave-one-gene-out contrast-by-removal rows")
+assert_equal_integer(length(unique(loo_tbl$removed_gene_id)), 25L,
+                     "Leave-one-gene-out removed genes")
+assert_equal_integer(sum(logic_col(loo_tbl$direction_preserved)), 1699L,
+                     "Leave-one-gene-out direction-preserved rows")
+assert_equal_integer(nrow(dominance_tbl), 68L, "Gene-dominance contrasts")
+assert_close_numeric(mean(safe_num(dominance_tbl$mean_max_contribution_fraction), na.rm = TRUE),
+                     0.033, 0.001, "Mean maximum single-gene contribution fraction")
+assert_close_numeric(max(safe_num(dominance_tbl$mean_max_contribution_fraction), na.rm = TRUE),
+                     0.087, 0.001, "Largest observed mean maximum single-gene contribution fraction")
+
+assert_equal_integer(
+  nrow(role_pass_for_plot %>% filter(dataset_id == "GSE166655", time_h == 1008)),
+  2L, "GSE166655 1008 h rows"
+)
+assert_equal_integer(
+  nrow(role_pass_for_plot %>% filter(dataset_id == "GSE178313", time_h == 24)),
+  1L, "GSE178313 24 h rows"
+)
+assert_equal_integer(
+  nrow(role_pass_for_plot %>% filter(dataset_id == "GSE262515_tissue", time_h == 72)),
+  3L, "GSE262515 mouse/tissue 72 h rows"
+)
 
 preferred_discovery_order <- c(strict_anchor_ids, names(additional_discovery_palette))
 actual_discovery_ids <- dataset_classification_tbl %>%
@@ -1368,19 +1552,21 @@ make_Figure2C <- function() {
     )
   p <- ggplot(weights, aes(x = abs(applied_beta), y = gene_symbol)) +
     geom_col(width = 0.72, fill = "#6B7280") +
+    scale_x_continuous(expand = expansion(mult = c(0, 0.05))) +
     labs(
       title = "Largest IMRS weights highlight acute discovery response genes",
       subtitle = "Genes are ranked by magnitude of the frozen weight, not signed direction.",
       x = "Absolute frozen IMRS weight",
       y = "Gene"
     ) +
-    theme_imrs_publication(legend_position = "none") +
+    theme_imrs_publication(base_size = 11.5, legend_position = "none") +
     theme(
-      axis.text.y = element_text(size = 10.5),
-      plot.margin = margin(8, 10, 8, 12)
+      axis.text.y = element_text(size = 11.2),
+      axis.title = element_text(size = 11.5),
+      plot.margin = margin(6, 8, 6, 12)
     )
   save_imrs_plot(p, folder_path("Figure2_anchor_construction_weights"),
-                 "Figure2C_top_weighted_genes", 7.2, 5.2, dpi = 400,
+                 "Figure2C_top_weighted_genes", 6.9, 4.8, dpi = 400,
                  source_tables = c(required_paths$gene_weights, required_paths$gene_symbols),
                  source_code_section_or_function = "make_Figure2C",
                  notes = "Panel ranks absolute frozen IMRS weight magnitude; bar fill is intentionally neutral.")
@@ -1391,15 +1577,17 @@ make_Figure2D <- function() {
   p <- ggplot(weights, aes(x = applied_beta)) +
     geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.35, color = "#4B5563") +
     geom_histogram(bins = 40, fill = "#4E79A7", color = "white", linewidth = 0.2) +
+    scale_y_continuous(expand = expansion(mult = c(0, 0.05))) +
     labs(
       title = "Distribution of frozen IMRS gene weights",
       subtitle = paste0("Distribution of fixed gene weights used for sample scoring; n = ", nrow(weights), " genes."),
       x = "Frozen IMRS gene weight",
       y = "Number of genes"
     ) +
-    theme_imrs_publication()
+    theme_imrs_publication(base_size = 11.5) +
+    theme(plot.margin = margin(6, 8, 6, 8))
   save_imrs_plot(p, folder_path("Figure2_anchor_construction_weights"),
-                 "Figure2D_weight_distribution", 7, 4.6, dpi = 400,
+                 "Figure2D_weight_distribution", 16.2, 4.2, dpi = 400,
                  source_tables = required_paths$gene_weights,
                  source_code_section_or_function = "make_Figure2D")
 }
@@ -1666,7 +1854,7 @@ make_Figure3D_simplified <- function() {
       plot.margin = margin(8, 22, 8, 10)
     )
   save_imrs_plot(p, folder_path("Figure4_validation_detail_and_discrimination"),
-                 "Figure4A_top_contrast_responses", 10, 6.8, dpi = 400,
+                 "Figure4A_top_contrast_responses", 9.6, 6.4, dpi = 400,
                  source_tables = required_paths$role_table,
                  source_code_section_or_function = "make_Figure3D_simplified",
                  notes = paste0("Slide-friendly summary with all five locked anchors represented once; inclusion check: ",
@@ -1746,9 +1934,15 @@ make_Figure4A <- function() {
       y = "Mean delivery-minus-control IMRS z-score",
       color = "Manuscript analysis group"
     ) +
-    theme_imrs_publication()
+    guides(color = guide_legend(nrow = 2, byrow = TRUE)) +
+    theme_imrs_publication(base_size = 11.5) +
+    theme(
+      legend.position = "bottom",
+      legend.box.just = "center",
+      plot.margin = margin(5, 8, 5, 8)
+    )
   save_imrs_plot(p, folder_path("Figure5_permutation_null_analysis"),
-                 "Figure5A_label_permutation_observed_vs_null", 8.4, 5.1, dpi = 400,
+                 "Figure5A_label_permutation_observed_vs_null", 7.6, 4.7, dpi = 400,
                  source_tables = required_paths$label_permutation_summary,
                  source_code_section_or_function = "make_Figure4A")
 }
@@ -1786,17 +1980,23 @@ make_Figure4C <- function() {
       title = "Permutation-tested IMRS shifts differ by analysis group",
       subtitle = "Primary acute validation is summarized separately from extended validation and secondary support.",
       x = "Manuscript analysis group",
-      y = "Observed mean delivery-minus-control IMRS z-score",
+      y = "Observed mean delivery-minus-control\n\u0394IMRSz",
       fill = "Manuscript analysis group"
     ) +
-    theme_imrs_publication() +
+    guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
+    theme_imrs_publication(base_size = 11.5) +
     theme(
-      axis.text = element_text(size = 11.5),
-      legend.text = element_text(size = 11.5),
-      axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5)
+      axis.text = element_text(size = 10.5),
+      legend.position = "bottom",
+      legend.box.just = "center",
+      legend.text = element_text(size = 10.8),
+      legend.title = element_text(size = 10.8),
+      axis.title.y = element_text(size = 10.5),
+      axis.text.x = element_text(angle = 25, hjust = 1, size = 10.5),
+      plot.margin = margin(5, 8, 5, 8)
     )
   save_imrs_plot(p, folder_path("Figure5_permutation_null_analysis"),
-                 "Figure5C_permutation_response_by_analysis_group", 8.2, 5.2, dpi = 400,
+                 "Figure5C_permutation_response_by_analysis_group", 8.0, 4.7, dpi = 400,
                  source_tables = required_paths$label_permutation_summary,
                  source_code_section_or_function = "make_Figure4C")
 }
@@ -1816,16 +2016,19 @@ make_Figure4D <- function() {
       title = "Baseline signatures provide comparator response profiles",
       subtitle = "Benchmark signatures are positive-control comparators, not replacements for IMRS.",
       x = "Manuscript analysis group",
-      y = "Mean delivery-minus-control signature z-score",
+      y = "Mean delivery-minus-control signature score",
       fill = "Manuscript analysis group"
     ) +
+    guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
     theme_imrs_publication() +
     theme(
       axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5),
-      strip.text = element_text(size = 11.5)
+      strip.text = element_text(size = 11.5),
+      legend.box.just = "center",
+      plot.margin = margin(6, 8, 6, 8)
     )
   save_imrs_plot(p, folder_path("Figure6_baseline_signature_benchmarking"),
-                 "Figure6A_baseline_delta_by_analysis_group", 9, 6.4, dpi = 400,
+                 "Figure6A_baseline_delta_by_analysis_group", 7.25, 6.4, dpi = 400,
                  source_tables = required_paths$baseline_contrast_long,
                  source_code_section_or_function = "make_Figure4D")
 }
@@ -1856,11 +2059,28 @@ make_Figure4E <- function() {
 }
 
 make_Figure4F <- function() {
-  plot_tbl <- baseline_long_tbl %>%
+  comparator_source_tbl <- baseline_long_tbl %>%
     filter(logic_col(pass)) %>%
     attach_role_group() %>%
     mutate(score_display = map_score_label(score_label, score_id),
-           delta_score = safe_num(delta_score)) %>%
+           delta_score = safe_num(delta_score))
+
+  secondary_isg <- comparator_source_tbl %>%
+    filter(as.character(manuscript_group) == "Secondary support",
+           score_display == "ISG signature")
+  secondary_isg_valid_n <- sum(is.finite(secondary_isg$delta_score))
+  secondary_isg_positive_n <- sum(
+    is.finite(secondary_isg$delta_score) & secondary_isg$delta_score > 0
+  )
+  secondary_isg_missing_n <- sum(!is.finite(secondary_isg$delta_score))
+  assert_equal_integer(secondary_isg_valid_n, 3L,
+                       "Figure 6B Secondary-support ISG valid contrasts")
+  assert_equal_integer(secondary_isg_positive_n, 0L,
+                       "Figure 6B Secondary-support ISG positive contrasts")
+  assert_equal_integer(secondary_isg_missing_n, 0L,
+                       "Figure 6B Secondary-support ISG missing contrasts")
+
+  plot_tbl <- comparator_source_tbl %>%
     filter(is.finite(delta_score)) %>%
     group_by(score_id, score_label, score_display, manuscript_group) %>%
     summarise(
@@ -1871,19 +2091,33 @@ make_Figure4F <- function() {
     filter(is.finite(proportion_positive_delta))
   p <- ggplot(plot_tbl, aes(x = manuscript_group, y = proportion_positive_delta, fill = score_display)) +
     geom_col(position = position_dodge(width = 0.72), width = 0.64) +
-    scale_y_continuous(labels = scales::percent_format(accuracy = 1), limits = c(0, 1)) +
+    geom_text(
+      aes(label = ifelse(proportion_positive_delta == 0, "0%", "")),
+      position = position_dodge(width = 0.72), vjust = -0.35,
+      size = 3.2, color = "#111827", show.legend = FALSE
+    ) +
+    scale_y_continuous(
+      labels = scales::percent_format(accuracy = 1), limits = c(0, 1),
+      breaks = seq(0, 1, by = 0.25),
+      expand = expansion(mult = c(0, 0.06))
+    ) +
     scale_fill_manual(values = score_palette, drop = FALSE) +
     labs(
       title = "IMRS and benchmark signatures are directionally compared",
       subtitle = "Bars show the fraction of split contrasts with higher scores in delivery samples than controls.",
       x = "Manuscript analysis group",
-      y = "Proportion of positive delivery-associated contrasts",
-      fill = "Benchmark score"
+      y = "Proportion of contrasts with positive\ndelivery-minus-control score",
+      fill = "Signature"
     ) +
+    guides(fill = guide_legend(nrow = 2, byrow = TRUE)) +
     theme_imrs_publication() +
-    theme(axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5))
+    theme(
+      axis.text.x = element_text(angle = 25, hjust = 1, size = 11.5),
+      legend.box.just = "center",
+      plot.margin = margin(6, 8, 6, 8)
+    )
   save_imrs_plot(p, folder_path("Figure6_baseline_signature_benchmarking"),
-                 "Figure6C_benchmark_directionality_summary", 8.8, 5.2, dpi = 400,
+                 "Figure6C_benchmark_directionality_summary", 7.1, 6.4, dpi = 400,
                  source_tables = required_paths$baseline_contrast_long,
                  source_code_section_or_function = "make_Figure4F")
 }
@@ -1944,10 +2178,15 @@ make_Figure5A <- function() {
       y = "After single-gene removal IMRS z-score",
       color = "Analysis group"
     ) +
-    theme_imrs_publication(base_size = 10.5) +
-    theme(plot.margin = margin(8, 18, 8, 10))
+    theme_imrs_publication(base_size = 11.5) +
+    theme(
+      axis.text = element_text(size = 10),
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 10.5),
+      plot.margin = margin(4, 8, 4, 8)
+    )
   save_imrs_plot(p, folder_path("Figure7_gene_threshold_robustness"),
-                 "Figure7A_leave_one_gene_out_delta_correlation", 8.8, 5.2, dpi = 400,
+                 "Figure7A_leave_one_gene_out_delta_correlation", 7.6, 4.7, dpi = 400,
                  source_tables = required_paths$leave_one_gene_out,
                  source_code_section_or_function = "make_Figure5A")
 }
@@ -2000,10 +2239,15 @@ make_Figure5C <- function() {
       y = "Number of contrasts",
       fill = "Analysis group"
     ) +
-    theme_imrs_publication(base_size = 10.5) +
-    theme(plot.margin = margin(8, 18, 8, 10))
+    theme_imrs_publication(base_size = 11.5) +
+    theme(
+      axis.text = element_text(size = 10),
+      legend.text = element_text(size = 10),
+      legend.title = element_text(size = 10.5),
+      plot.margin = margin(4, 8, 4, 8)
+    )
   save_imrs_plot(p, folder_path("Figure7_gene_threshold_robustness"),
-                 "Figure7C_gene_dominance_distribution", 8.6, 5.1, dpi = 400,
+                 "Figure7C_gene_dominance_distribution", 8.0, 4.7, dpi = 400,
                  source_tables = required_paths$gene_dominance,
                  source_code_section_or_function = "make_Figure5C")
 }
@@ -2451,16 +2695,17 @@ make_FigureSB_simplified <- function() {
       y = "Number of contrasts",
       fill = "Interpretation support level"
     ) +
-    theme_imrs_publication(base_size = 10) +
+    theme_imrs_publication(base_size = 11) +
     theme(
-      axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1, size = 9.3),
-      legend.text = element_text(size = 9),
+      axis.text.x = element_text(angle = 30, hjust = 1, vjust = 1, size = 10.2),
+      legend.text = element_text(size = 9.8),
+      legend.title = element_text(size = 10.2),
       legend.position = "bottom",
       legend.box.just = "center",
-      plot.margin = margin(10, 16, 18, 10)
+      plot.margin = margin(8, 12, 12, 8)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1B_weak_dataset_context_summary", 9, 5.5, dpi = 400,
+                 "FigureS1B_weak_dataset_context_summary", 8.6, 5.1, dpi = 400,
                  source_tables = required_paths$weak_context,
                  source_code_section_or_function = "make_FigureSB_simplified")
 }
@@ -2573,7 +2818,7 @@ make_FigureSF <- function() {
         str_detect(str_to_lower(split_id), "ad5") ~ "Ad5",
         TRUE ~ short_text(display_text(delivery_platform_clean), 18)
       ),
-      point_label = ifelse(time_h == 72, "72 h", "")
+      point_label = ""
     )
   p <- ggplot(plot_tbl, aes(x = time_h, y = delta_mean_imrs_z,
                             color = tissue_label, shape = vector_label)) +
@@ -2581,7 +2826,6 @@ make_FigureSF <- function() {
     geom_vline(xintercept = 24, linetype = "dashed", linewidth = 0.35, color = "#4B5563") +
     geom_line(aes(group = interaction(tissue_label, vector_label)), alpha = 0.55, linewidth = 0.45) +
     geom_point(size = 2.4, alpha = 0.92) +
-    geom_text(aes(label = point_label), nudge_y = 0.45, size = 2.9, show.legend = FALSE) +
     facet_wrap(~ tissue_label, nrow = 1) +
     scale_x_continuous(breaks = sort(unique(plot_tbl$time_h))) +
     labs(
@@ -2592,13 +2836,14 @@ make_FigureSF <- function() {
       color = "Tissue",
       shape = "Vector"
     ) +
-    theme_imrs_publication(base_size = 9.5) +
+    theme_imrs_publication(base_size = 10.5) +
     theme(
-      axis.text = element_text(size = 9.2),
-      strip.text = element_text(size = 10),
-      legend.text = element_text(size = 8.8),
-      legend.title = element_text(size = 9.2),
-      axis.text.x = element_text(angle = 45, hjust = 1, size = 9.2)
+      axis.text = element_text(size = 10.2),
+      strip.text = element_text(size = 11),
+      legend.text = element_text(size = 9.6),
+      legend.title = element_text(size = 10),
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10.2),
+      plot.margin = margin(6, 8, 6, 8)
     )
   save_imrs_plot(p, folder_path("FigureS3_context_timecourse_and_dominance_appendix"),
                  "FigureS3B_gse264344_time_course", 7.5, 4.6, dpi = 400,

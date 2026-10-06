@@ -72,7 +72,11 @@ summarise_one_split <- function(df, n_perm) {
   observed <- mean(scores[labels == "DELIVERY"], na.rm = TRUE) -
     mean(scores[labels == "CONTROL"], na.rm = TRUE)
   null_delta <- permutation_delta(scores, labels, n_delivery, n_perm)
-  qs <- safe_quantile(null_delta, c(0.025, 0.05, 0.5, 0.95, 0.975))
+  # Preserve R's default empirical-quantile interpolation explicitly (type 7).
+  qs <- as.numeric(stats::quantile(
+    null_delta, probs = c(0.025, 0.05, 0.5, 0.95, 0.975),
+    na.rm = TRUE, names = FALSE, type = 7
+  ))
   null_sd <- safe_sd(null_delta)
   empirical_p_two_sided <- (1 + sum(abs(null_delta) >= abs(observed), na.rm = TRUE)) /
     (n_perm + 1)
@@ -114,11 +118,49 @@ main <- function() {
   log_extra("Starting label permutation/null analysis with ", n_perm,
             " permutations per valid contrast.")
 
+  is_human_hepg2_contrast <- function(df) {
+    if (nrow(df) == 0L) return(logical())
+    marker_cols <- intersect(
+      c("gse_id", "dataset_id", "split_id", "contrast_label", "tissue"),
+      names(df)
+    )
+    marker <- do.call(
+      paste,
+      c(lapply(df[marker_cols], function(x) ifelse(is.na(x), "", as.character(x))),
+        sep = " | ")
+    )
+    grepl("GSE262515_cell_line|HepG2", marker, ignore.case = TRUE)
+  }
+
+  # The manuscript-authoritative analysis has 68 mouse/tissue contrasts. The
+  # invalid human HepG2 contrasts must be excluded before any RNG draws; filtering
+  # a completed 70-contrast run changes neither the downstream RNG sequence nor
+  # the intended 68-test BH universe.
   eval_tbl <- load_eval_with_roles(required = TRUE) %>%
-    filter(pass %in% TRUE)
+    filter(pass %in% TRUE) %>%
+    filter(!is_human_hepg2_contrast(.))
   sample_tbl <- load_sample_with_roles(required = TRUE) %>%
+    filter(!is_human_hepg2_contrast(.)) %>%
     semi_join(eval_tbl %>% select(gse_id, split_id), by = c("gse_id", "split_id"))
   if (nrow(sample_tbl) == 0) stop("No valid split sample rows were available.")
+
+  expected_group_counts <- c(
+    strict_anchor = 40L,
+    primary_acute_validation = 14L,
+    extended_validation = 11L,
+    secondary_support_not_primary = 3L
+  )
+  observed_group_counts <- table(as.character(eval_tbl$manuscript_interpretation_group))
+  if (nrow(eval_tbl) != 68L || any(vapply(names(expected_group_counts), function(group) {
+    observed <- unname(observed_group_counts[group])
+    if (length(observed) == 0L || is.na(observed)) observed <- 0L
+    observed != expected_group_counts[[group]]
+  }, logical(1)))) {
+    stop(
+      "Final permutation universe must contain exactly 68 contrasts (40/14/11/3) ",
+      "after excluding human HepG2 rows.", call. = FALSE
+    )
+  }
 
   split_keys <- sample_tbl %>%
     distinct(gse_id, split_id, split_path, manuscript_role,
@@ -157,6 +199,16 @@ main <- function() {
     ) %>%
     arrange(manuscript_interpretation_group, gse_id, time_h, split_id)
   null_tbl <- bind_rows(null_rows)
+
+  outside_n <- sum(summary_tbl$observed_outside_95pct_null, na.rm = TRUE)
+  bh_two_sided_n <- sum(summary_tbl$empirical_p_two_sided_fdr < 0.05, na.rm = TRUE)
+  if (outside_n != 49L || bh_two_sided_n != 43L) {
+    stop(
+      "Validated final permutation invariants failed: expected 49/68 outside ",
+      "the strict 95% interval and 43/68 BH-significant two-sided tests; observed ",
+      outside_n, " and ", bh_two_sided_n, ".", call. = FALSE
+    )
+  }
 
   group_summary <- summary_tbl %>%
     filter(permutation_status == "ok") %>%

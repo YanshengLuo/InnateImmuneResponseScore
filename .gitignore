@@ -21,3 +21,12 @@ github_clean_repo_controlled_execution_summary.txt
 github_clean_repo_output_check.tsv
 github_clean_repo_final_sanitization_check.tsv
 *.tmp
+
+# Local authoring, dependency caches, and duplicate release archives
+/tmp/
+/.codex-build/
+/node_modules/
+/renv/library/
+/renv/staging/
+/results_release_templates.zip
+/package.zip

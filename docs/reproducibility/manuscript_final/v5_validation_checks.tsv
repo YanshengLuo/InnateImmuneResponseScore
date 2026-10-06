@@ -1,0 +1,13 @@
+check	status	detail
+all_expected_final_png_pdf_exist	PASS	7 final figure stems checked for PNG/PDF.
+all_png_outputs_nonzero	PASS	25 PNG outputs checked.
+no_duplicate_panel_id_format_records	PASS	Intermediate panel output ID/format records are unique.
+manifest_records_every_generated_figure_file	PASS	75 figure output files recorded in manifest.
+no_outputs_point_to_external_manuscript_or_project_paths	PASS	No manifest output path points outside repository results.
+released_figure_inputs_not_modified_check_1	PASS	Baseline newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv | Current newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv
+released_figure_inputs_not_modified_check_2	PASS	Baseline newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv | Current newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv
+released_figure_inputs_not_modified_check_3	PASS	Baseline newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv | Current newest: 2026-09-06 21:20:48 data/derived/figure_inputs/label_permutation_null_summary.tsv
+no_validation_context_text_in_svg_outputs	PASS	No SVG output contains 'Validation context'.
+no_weak_dataset_text_in_main_svg_outputs	PASS	No main SVG output contains weak-dataset wording.
+no_unsupported_claim_text_in_svg_outputs	PASS	No SVG output contains unsupported clinical/safety/performance claims.
+no_delta_imrs_z_score_spelling_in_svg_outputs	PASS	No SVG output contains 'Delta IMRS z-score'.

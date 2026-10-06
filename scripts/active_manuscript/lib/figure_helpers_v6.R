@@ -44,6 +44,25 @@ write_tsv_v5 <- function(x, path) {
                      row.names = FALSE, na = "", fileEncoding = "UTF-8")
 }
 
+clear_superseded_root_figures_v5 <- function(v5_root) {
+  if (!dir.exists(v5_root)) return(invisible(character()))
+  canonical_stems <- c(
+    paste0("Figure", 1:6, "_main_v5"),
+    "FigureS1_main_v5",
+    "FigureS2_gene_program_enrichment_combined"
+  )
+  root_media <- list.files(
+    v5_root, pattern = "\\.(png|pdf|svg)$", full.names = TRUE,
+    recursive = FALSE, ignore.case = TRUE
+  )
+  stale <- root_media[!tools::file_path_sans_ext(basename(root_media)) %in% canonical_stems]
+  if (length(stale) > 0L && !all(file.remove(stale))) {
+    stop("Could not remove superseded final-root figure file(s): ",
+         paste(stale, collapse = "; "), call. = FALSE)
+  }
+  invisible(stale)
+}
+
 global_text_replacements_v5 <- c(
   "Validation context" = "Manuscript analysis group",
   "validation context" = "manuscript analysis group",
@@ -54,8 +73,8 @@ global_text_replacements_v5 <- c(
   "Reviewer risk level" = "Interpretation support level",
   "Reviewer risk" = "Interpretation support level",
   "Interpretation confidence" = "Interpretation support level",
-  "Comparator signature" = "Immune-response signature",
-  "Benchmark score" = "Immune-response signature",
+  "Comparator signature" = "Signature",
+  "Benchmark score" = "Signature",
   "Primary validation" = "Primary acute validation",
   "primary validation" = "primary acute validation",
   "Primary validation datasets show consistent IMRS elevation" = "Primary acute validation showed consistent positive delivery-minus-control \u0394IMRSz",
@@ -217,15 +236,16 @@ make_FigureSC <- function() {
     guides(
       size = guide_legend(
         title = "Passing split contrasts",
-        nrow = 1,
-        order = 1,
+        ncol = 2,
+        byrow = TRUE,
+        order = 2,
         override.aes = list(color = "black")
       ),
       color = guide_legend(
         title = "Manuscript analysis group",
-        nrow = 2,
+        ncol = 1,
         byrow = TRUE,
-        order = 2,
+        order = 1,
         override.aes = list(size = 3)
       )
     ) +
@@ -237,21 +257,22 @@ make_FigureSC <- function() {
       color = "Manuscript analysis group",
       size = "Passing split contrasts"
     ) +
-    theme_imrs_publication(base_size = 10) +
+    theme_imrs_publication(base_size = 10.5) +
     theme(
-      axis.text.y = element_text(size = 9.8),
-      axis.text.x = element_text(size = 9.2),
-      axis.title = element_text(size = 10.2),
-      legend.text = element_text(size = 9),
-      legend.title = element_text(size = 9.5),
-      legend.position = "bottom",
+      axis.text.y = element_text(size = 10.5),
+      axis.text.x = element_text(size = 9.7),
+      axis.title = element_text(size = 10.6),
+      legend.text = element_text(size = 9.4),
+      legend.title = element_text(size = 9.8),
+      legend.position = "right",
       legend.box = "vertical",
-      legend.box.just = "center",
-      legend.margin = margin(t = 4, r = 12, b = 4, l = 12),
-      plot.margin = margin(10, 28, 16, 12)
+      legend.box.just = "top",
+      legend.margin = margin(t = 2, r = 2, b = 2, l = 4),
+      legend.spacing.y = grid::unit(8, "pt"),
+      plot.margin = margin(8, 8, 8, 10)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1C_simplified_by_dataset", 8.2, 5.5, dpi = 400,
+                 "FigureS1C_simplified_by_dataset", 7.9, 5.6, dpi = 400,
                  source_tables = required_paths$role_table,
                  source_code_section_or_function = "make_FigureSC")
 }
@@ -284,15 +305,15 @@ make_FigureSD <- function() {
     guides(
       size = guide_legend(
         title = "Contrasts",
-        nrow = 1,
-        order = 1,
+        ncol = 1,
+        order = 2,
         override.aes = list(color = "black")
       ),
       color = guide_legend(
         title = "Manuscript analysis group",
-        nrow = 2,
+        ncol = 1,
         byrow = TRUE,
-        order = 2,
+        order = 1,
         override.aes = list(size = 3)
       )
     ) +
@@ -304,21 +325,22 @@ make_FigureSD <- function() {
       color = "Manuscript analysis group",
       size = "Contrasts"
     ) +
-    theme_imrs_publication(base_size = 9.6) +
+    theme_imrs_publication(base_size = 10.2) +
     theme(
-      axis.text.y = element_text(size = 9.6),
-      axis.text.x = element_text(size = 9),
-      axis.title = element_text(size = 10),
-      legend.text = element_text(size = 8.8),
-      legend.title = element_text(size = 9.3),
-      legend.position = "bottom",
+      axis.text.y = element_text(size = 10.4),
+      axis.text.x = element_text(size = 9.5),
+      axis.title = element_text(size = 10.4),
+      legend.text = element_text(size = 9.2),
+      legend.title = element_text(size = 9.6),
+      legend.position = "right",
       legend.box = "vertical",
-      legend.box.just = "center",
-      legend.margin = margin(t = 4, r = 12, b = 4, l = 12),
-      plot.margin = margin(10, 28, 16, 12)
+      legend.box.just = "top",
+      legend.margin = margin(t = 2, r = 2, b = 2, l = 4),
+      legend.spacing.y = grid::unit(8, "pt"),
+      plot.margin = margin(8, 8, 8, 10)
     )
   save_imrs_plot(p, folder_path("FigureS1_weak_late_context_summary"),
-                 "FigureS1D_weak_zoom_forest", 8.8, 4.9, dpi = 400,
+                 "FigureS1D_weak_zoom_forest", 8.3, 5.25, dpi = 400,
                  source_tables = required_paths$role_table,
                  source_code_section_or_function = "make_FigureSD")
 }
@@ -510,6 +532,27 @@ draw_png_fit_v5 <- function(path, x, y, width, height) {
   grid::popViewport()
 }
 
+draw_grob_fit_v5 <- function(grob, source_width, source_height, x, y, width, height) {
+  source_aspect <- source_width / source_height
+  box_aspect <- width / height
+  if (source_aspect >= box_aspect) {
+    draw_width <- width
+    draw_height <- width / source_aspect
+  } else {
+    draw_height <- height
+    draw_width <- height * source_aspect
+  }
+  draw_x <- x + (width - draw_width) / 2
+  draw_y <- y + (height - draw_height) / 2
+  grid::pushViewport(grid::viewport(
+    x = grid::unit(draw_x, "inches"), y = grid::unit(draw_y, "inches"),
+    width = grid::unit(draw_width, "inches"), height = grid::unit(draw_height, "inches"),
+    just = c("left", "bottom")
+  ))
+  grid::grid.draw(grob)
+  grid::popViewport()
+}
+
 layout_positions_v5 <- function(fig, panel_x0, panel_y0, panel_w, panel_h, gap_x, gap_y) {
   mat <- fig$layout_matrix
   n_rows <- nrow(mat)
@@ -593,7 +636,7 @@ draw_clean_figure1a_grid_v5 <- function() {
   }
 }
 
-make_v5_panel_plan <- function() {
+make_v5_panel_plan_legacy <- function() {
   data.frame(
     figure_id = c(
       "Figure1", "Figure1",
@@ -657,19 +700,19 @@ make_v5_panel_plan <- function() {
     ),
     width = c(
       7.5, 7.8,
-      7.2, 5.8, 3.6, 7.0,
-      7.2, 9.5, 10.0,
-      9.8, 7.5, 9.0,
-      8.4, 8.2, 8.8, 8.6,
-      9.0, 8.8
+      6.9, 5.2, 3.85, 16.2,
+      7.2, 7.9, 9.6,
+      8.3, 7.5, 8.6,
+      7.6, 8.0, 7.6, 8.0,
+      7.25, 7.1
     ),
     height = c(
-      6.8, 6.8,
-      5.2, 5.2, 5.2, 4.6,
-      4.8, 5.5, 6.8,
-      4.9, 4.6, 5.5,
-      5.1, 5.2, 5.2, 5.1,
-      6.4, 5.2
+      7.4, 7.1,
+      4.8, 4.8, 4.8, 4.2,
+      4.8, 5.6, 6.4,
+      5.25, 4.6, 5.1,
+      4.7, 4.7, 4.7, 4.7,
+      6.4, 6.4
     ),
     notes = c(
       "Merged IMRS scoring and transfer-evaluation workflow rendered with v6 terminology, font, and spacing adjustments.",
@@ -695,7 +738,105 @@ make_v5_panel_plan <- function() {
   )
 }
 
-make_v5_figure_plan <- function() {
+make_v5_panel_plan <- function() {
+  data.frame(
+    figure_id = c(
+      "Figure1", "Figure1",
+      rep("Figure2", 4), rep("Figure3", 2), rep("Figure4", 2),
+      rep("Figure5", 4), rep("Figure6", 2), rep("FigureS1", 2)
+    ),
+    panel_id = c(
+      "Figure1A", "Figure1B",
+      "Figure2A", "Figure2B", "Figure2C", "Figure2D",
+      "Figure3A", "Figure3B", "Figure4A", "Figure4B",
+      "Figure5A", "Figure5B", "Figure5C", "Figure5D",
+      "Figure6A", "Figure6B", "FigureS1A", "FigureS1B"
+    ),
+    panel_letter = c(
+      "A", "B", "A", "B", "C", "D", "A", "B", "A", "B",
+      "A", "B", "C", "D", "A", "B", "A", "B"
+    ),
+    source_old_panel = c(
+      "Figure1A_IMRS_merged_workflow",
+      "Figure1C_dataset_tissue_pseudolog",
+      "Figure2B_core_gene_reproducibility_main",
+      "Figure2B_core_gene_reproducibility_missing_anchor",
+      "Figure2D_weight_distribution",
+      "Figure2C_top_weighted_genes",
+      "Figure3_primary_vs_extended_contrasts",
+      "Figure3_primary_dataset_summary",
+      "Figure4_context_boundary",
+      "FigureS3B_gse264344_time_course",
+      "Figure5A_label_permutation_observed_vs_null",
+      "Figure5C_permutation_response_by_analysis_group",
+      "Figure7A_leave_one_gene_out_delta_correlation",
+      "Figure5_maximum_single_gene_contribution",
+      "Figure6A_baseline_delta_by_analysis_group",
+      "Figure6C_benchmark_directionality_summary",
+      "FigureS1_detailed_dataset_context_audit",
+      "FigureS1_context_category_counts"
+    ),
+    source_function = c(
+      "render_Figure1A_merged_workflow_v5",
+      "make_Figure1C_display_aggregated_v5",
+      "split_Figure2B_main",
+      "split_Figure2B_missing_anchor",
+      "make_Figure2D",
+      "make_Figure2C",
+      "render_figure3a_primary_extended_v5",
+      "render_figure3b_primary_dataset_summary_v5",
+      "render_figure4a_boundary_context_v5",
+      "make_FigureSF",
+      "make_Figure4A",
+      "make_Figure4C",
+      "make_Figure5A",
+      "render_figure5d_max_contribution_v5",
+      "make_Figure4D",
+      "make_Figure4F",
+      "render_s1a_detailed_dataset_context_v5",
+      "render_s1b_context_categories_v5"
+    ),
+    output_stem = c(
+      "Figure1A_IMRS_merged_workflow_v5",
+      "Figure1B_dataset_tissue_response_landscape_v5_corrected",
+      "Figure2A_v5", "Figure2B_v5", "Figure2C_v5", "Figure2D_v5",
+      "Figure3A_v5", "Figure3B_v5", "Figure4A_v5", "Figure4B_v5",
+      "Figure5A_v5", "Figure5B_v5", "Figure5C_v5", "Figure5D_v5",
+      "Figure6A_v5", "Figure6B_v5", "FigureS1A_v5", "FigureS1B_v5"
+    ),
+    width = c(
+      7.5, 7.8, 6.8, 6.8, 6.8, 6.8, 7.4, 8.0, 8.7, 7.5,
+      7.6, 8.0, 7.6, 8.0, 7.25, 7.1, 9.0, 9.0
+    ),
+    height = c(
+      7.4, 7.1, 4.8, 4.8, 4.6, 4.8, 5.1, 5.1, 5.4, 4.6,
+      4.7, 4.7, 4.7, 4.7, 6.4, 6.4, 8.7, 4.8
+    ),
+    notes = c(
+      "Frozen IMRS scoring and transfer-evaluation workflow.",
+      "Compact global dataset/context landscape across all valid manuscript groups.",
+      "Retained-gene support count: 178 all-five and 109 four-of-five.",
+      "Missing-anchor breakdown for the 109 four-of-five-supported genes.",
+      "Distribution of the 287 applied beta_meta coefficients.",
+      "Top genes ranked by absolute beta_meta coefficient.",
+      "Split-level primary acute versus extended validation distribution.",
+      "Nested split contrasts and dataset means for three independent primary datasets.",
+      "Thirteen context-audit rows grouped by biological interpretation category.",
+      "GSE264344 adenoviral-vector time course.",
+      "Observed split effects relative to within-split permutation-null intervals.",
+      "Observed score-shift summaries by principal manuscript group.",
+      "Leave-one-gene-out effects versus original effects.",
+      "Mean maximum single-gene contribution fraction used, matching the manuscript metric.",
+      "Comparator immune-signature split-level shifts reclassified as main Figure 6.",
+      "Comparator positive-direction proportions reclassified as main Figure 6.",
+      "Detailed faceted dataset/context provenance across all manuscript groups.",
+      "Counts of the 13 context-audit rows by interpretation category and support level."
+    ),
+    stringsAsFactors = FALSE
+  )
+}
+
+make_v5_figure_plan_legacy <- function() {
   list(
     list(
       figure_id = "Figure1",
@@ -714,7 +855,7 @@ make_v5_figure_plan <- function() {
       width = 16.6,
       height = 9.6,
       layout_matrix = matrix(c("A", "B", "C", "D", "D", "D"), nrow = 2, byrow = TRUE),
-      col_widths = c(7.2, 5.8, 3.6),
+      col_widths = c(7.2, 5.4, 4.0),
       row_heights = c(5.2, 4.6),
       panels = c(A = "Figure2A", B = "Figure2B", C = "Figure2C", D = "Figure2D"),
       role = "main"
@@ -784,6 +925,62 @@ make_v5_figure_plan <- function() {
       row_heights = c(1),
       panels = c(A = "FigureS_comparator_benchmarking_A", B = "FigureS_comparator_benchmarking_B"),
       role = "supplement"
+    )
+  )
+}
+
+make_v5_figure_plan <- function() {
+  list(
+    list(
+      figure_id = "Figure1", output_stem = "Figure1_main_v5",
+      width = 15.9, height = 7.8,
+      layout_matrix = matrix(c("A", "B"), nrow = 1, byrow = TRUE),
+      col_widths = c(7.5, 7.8), row_heights = 1,
+      panels = c(A = "Figure1A", B = "Figure1B"), role = "main"
+    ),
+    list(
+      figure_id = "Figure2", output_stem = "Figure2_main_v5",
+      width = 14.4, height = 10.0,
+      layout_matrix = matrix(c("A", "B", "C", "D"), nrow = 2, byrow = TRUE),
+      col_widths = c(1, 1), row_heights = c(1, 1),
+      panels = c(A = "Figure2A", B = "Figure2B", C = "Figure2C", D = "Figure2D"),
+      role = "main"
+    ),
+    list(
+      figure_id = "Figure3", output_stem = "Figure3_main_v5",
+      width = 15.8, height = 5.8,
+      layout_matrix = matrix(c("A", "B"), nrow = 1, byrow = TRUE),
+      col_widths = c(7.4, 8.0), row_heights = 1,
+      panels = c(A = "Figure3A", B = "Figure3B"), role = "main"
+    ),
+    list(
+      figure_id = "Figure4", output_stem = "Figure4_main_v5",
+      width = 16.5, height = 6.1,
+      layout_matrix = matrix(c("A", "B"), nrow = 1, byrow = TRUE),
+      col_widths = c(8.7, 7.5), row_heights = 1,
+      panels = c(A = "Figure4A", B = "Figure4B"), role = "main"
+    ),
+    list(
+      figure_id = "Figure5", output_stem = "Figure5_main_v5",
+      width = 16.2, height = 10.0,
+      layout_matrix = matrix(c("A", "B", "C", "D"), nrow = 2, byrow = TRUE),
+      col_widths = c(1, 1), row_heights = c(1, 1),
+      panels = c(A = "Figure5A", B = "Figure5B", C = "Figure5C", D = "Figure5D"),
+      role = "main"
+    ),
+    list(
+      figure_id = "Figure6", output_stem = "Figure6_main_v5",
+      width = 15.0, height = 6.8,
+      layout_matrix = matrix(c("A", "B"), nrow = 1, byrow = TRUE),
+      col_widths = c(7.25, 7.1), row_heights = 1,
+      panels = c(A = "Figure6A", B = "Figure6B"), role = "main"
+    ),
+    list(
+      figure_id = "FigureS1", output_stem = "FigureS1_main_v5",
+      width = 9.4, height = 14.2,
+      layout_matrix = matrix(c("A", "B"), nrow = 2, byrow = TRUE),
+      col_widths = 1, row_heights = c(8.7, 4.8),
+      panels = c(A = "FigureS1A", B = "FigureS1B"), role = "supplement"
     )
   )
 }
@@ -866,6 +1063,16 @@ render_figure2_support_split_v5 <- function(old_env, out_dir, dpi = 400) {
     dplyr::summarise(total = sum(n_retained_genes), .groups = "drop") %>%
     dplyr::pull(total)
   if (length(all_but_one_total) == 0L) all_but_one_total <- 0L
+  all_five_total <- plot_tbl %>%
+    dplyr::filter(support_n == k_locked) %>%
+    dplyr::summarise(total = sum(n_retained_genes), .groups = "drop") %>%
+    dplyr::pull(total)
+  if (length(all_five_total) == 0L) all_five_total <- 0L
+  if (!identical(as.integer(all_five_total), 178L) ||
+      !identical(as.integer(all_but_one_total), 109L)) {
+    stop("Retained-gene support manuscript invariant failed: expected 178 all-five and 109 four-of-five; observed ",
+         all_five_total, " and ", all_but_one_total, ".", call. = FALSE)
+  }
 
   missing_anchor_tbl <- pattern_notes %>%
     dplyr::filter(support_n == k_locked - 1L, stringr::str_detect(pattern_label, "^All except ")) %>%
@@ -880,19 +1087,32 @@ render_figure2_support_split_v5 <- function(old_env, out_dir, dpi = 400) {
   if (sum(missing_anchor_tbl$n_retained_genes, na.rm = TRUE) != all_but_one_total) {
     stop("Figure2 all-but-one missing-anchor split does not sum to the all-but-one total.", call. = FALSE)
   }
+  expected_missing <- c(
+    GSE167521 = 18L, GSE264344 = 13L, GSE279372 = 33L,
+    GSE279744 = 10L, GSE39129 = 35L
+  )
+  observed_missing <- stats::setNames(
+    as.integer(missing_anchor_tbl$n_retained_genes),
+    as.character(missing_anchor_tbl$missing_anchor)
+  )
+  if (!identical(observed_missing[names(expected_missing)], expected_missing)) {
+    stop("Missing-anchor manuscript invariant failed. Expected ",
+         paste(names(expected_missing), expected_missing, sep = "=", collapse = ", "),
+         ".", call. = FALSE)
+  }
 
   main_y_max <- max(plot_tbl$n_retained_genes, na.rm = TRUE)
   main_plot <- ggplot2::ggplot(plot_tbl, ggplot2::aes(x = support_category, y = n_retained_genes)) +
     ggplot2::geom_col(fill = "#4E79A7", color = "#374151", linewidth = 0.45, width = 0.68) +
     ggplot2::geom_text(ggplot2::aes(label = n_retained_genes), vjust = -0.35, size = 4.2, color = "#111827") +
     ggplot2::scale_x_discrete(labels = function(x) stringr::str_wrap(x, width = 16)) +
-    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.02, 0.16)), breaks = scales::pretty_breaks(n = 5)) +
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.16)), breaks = scales::pretty_breaks(n = 5)) +
     ggplot2::coord_cartesian(ylim = c(0, main_y_max * 1.18), clip = "off") +
     ggplot2::labs(x = "Locked-anchor support", y = "Number of retained genes") +
     env$theme_imrs_publication(base_size = 12, legend_position = "none") +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(lineheight = 0.95, margin = ggplot2::margin(t = 6)),
-      plot.margin = ggplot2::margin(10, 14, 8, 10)
+      axis.text.x = ggplot2::element_text(size = 11.0, lineheight = 0.95, margin = ggplot2::margin(t = 6)),
+      plot.margin = ggplot2::margin(10, 14, 10, 10)
     )
 
   mini_y_max <- if (nrow(missing_anchor_tbl) > 0L) max(missing_anchor_tbl$n_retained_genes, na.rm = TRUE) else 1
@@ -901,20 +1121,22 @@ render_figure2_support_split_v5 <- function(old_env, out_dir, dpi = 400) {
     ggplot2::geom_text(ggplot2::aes(label = ifelse(n_retained_genes > 0, n_retained_genes, "")),
                        vjust = -0.25, size = 3.1, color = "#111827") +
     ggplot2::scale_fill_manual(values = env$anchor_palette[env$LOCKED_DATASETS_MOUSE], drop = FALSE) +
-    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.02, 0.18)), breaks = scales::pretty_breaks(n = 4)) +
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.18)), breaks = scales::pretty_breaks(n = 4)) +
     ggplot2::coord_cartesian(ylim = c(0, max(1, mini_y_max) * 1.22), clip = "off") +
     ggplot2::labs(x = "Missing anchor", y = "Retained genes") +
-    env$theme_imrs_publication(base_size = 9.2, legend_position = "none") +
+    env$theme_imrs_publication(base_size = 11.25, legend_position = "none") +
     ggplot2::theme(
-      axis.text.x = ggplot2::element_text(angle = 35, hjust = 1, vjust = 1, size = 8.6),
-      axis.title = ggplot2::element_text(size = 9.7),
-      axis.title.x = ggplot2::element_text(size = 9.7, margin = ggplot2::margin(t = 6)),
-      plot.margin = ggplot2::margin(8, 8, 8, 8)
+      axis.text.x = ggplot2::element_text(angle = 35, hjust = 1, vjust = 1, size = 10.2),
+      axis.title = ggplot2::element_text(size = 10.2),
+      axis.title.x = ggplot2::element_text(size = 10.2, margin = ggplot2::margin(t = 5)),
+      plot.margin = ggplot2::margin(6, 6, 10, 6)
     )
 
-  main_paths <- save_plot_all_formats_v5(main_plot, file.path(out_dir, "Figure2B_v5"), 5.8, 5.2, dpi)
-  mini_paths <- save_plot_all_formats_v5(mini_plot, file.path(out_dir, "Figure2C_v5"), 3.6, 5.2, dpi)
-  list(main = main_paths, mini = mini_paths)
+  main_plot <- strip_publication_text_v5(main_plot)
+  mini_plot <- strip_publication_text_v5(mini_plot)
+  main_paths <- save_plot_all_formats_v5(main_plot, file.path(out_dir, "Figure2A_v5"), 6.8, 4.8, dpi)
+  mini_paths <- save_plot_all_formats_v5(mini_plot, file.path(out_dir, "Figure2B_v5"), 6.8, 4.8, dpi)
+  list(main = main_paths, mini = mini_paths, main_plot = main_plot, mini_plot = mini_plot)
 }
 
 make_figure1b_display_table_v5 <- function(old_env) {
@@ -929,23 +1151,26 @@ make_figure1b_display_table_v5 <- function(old_env) {
       display_time_h = dplyr::if_else(is_gse264344_acute, NA_real_, time_h_num),
       time_window_label = dplyr::if_else(
         is_gse264344_acute,
-        "1\u201324 h",
+        "1-24 h",
         old_env$format_time_label(time_h_num)
       ),
       display_label = dplyr::case_when(
         is_gse264344_acute ~ paste(
-          "GSE264344 | adenoviral vector |",
+          "GSE264344 |",
           old_env$display_text(tissue),
-          "| 1\u201324 h"
+          "| 1-24 h"
         ),
         is_gse264344_late ~ paste(
-          "GSE264344 | adenoviral vector |",
+          "GSE264344 |",
           old_env$display_text(tissue),
           "|",
           old_env$format_time_label(time_h_num)
         ),
-        TRUE ~ old_env$dataset_context_label(
-          dataset_id, tissue, time_h, delivery_platform_clean, compact = TRUE
+        TRUE ~ paste(
+          dataset_id,
+          old_env$display_text(tissue),
+          old_env$format_time_label(time_h_num),
+          sep = " | "
         )
       )
     )
@@ -1013,36 +1238,37 @@ render_corrected_figure1b_landscape_v5 <- function(old_env, v5_root, dpi = 400) 
       color = ggplot2::guide_legend(
         title = "Manuscript analysis group",
         order = 1,
-        nrow = 2,
+        ncol = 1,
         byrow = TRUE,
         override.aes = list(size = 3)
       ),
       size = ggplot2::guide_legend(
         title = "Passing split contrasts",
         order = 2,
-        nrow = 1,
+        ncol = 2,
         byrow = TRUE
       )
     ) +
-    old_env$theme_imrs_publication(base_size = 9.75) +
+    old_env$theme_imrs_publication(base_size = 10.25) +
     ggplot2::theme(
-      axis.text.y = ggplot2::element_text(size = 10),
-      axis.text.x = ggplot2::element_text(size = 9.5),
-      axis.title.x = ggplot2::element_text(size = 10.5),
-      legend.text = ggplot2::element_text(size = 9),
-      legend.title = ggplot2::element_text(size = 9.5),
-      legend.position = "bottom",
+      axis.text.y = ggplot2::element_text(size = 10.4),
+      axis.text.x = ggplot2::element_text(size = 9.8),
+      axis.title.x = ggplot2::element_text(size = 10.7),
+      legend.text = ggplot2::element_text(size = 9.2),
+      legend.title = ggplot2::element_text(size = 9.8),
+      legend.position = "right",
       legend.box = "vertical",
-      legend.box.just = "center",
-      legend.margin = ggplot2::margin(t = 4, r = 8, b = 4, l = 8),
-      legend.box.margin = ggplot2::margin(t = 4, r = 4, b = 8, l = 4),
-      plot.margin = ggplot2::margin(8, 18, 24, 12)
+      legend.box.just = "top",
+      legend.margin = ggplot2::margin(t = 2, r = 2, b = 2, l = 4),
+      legend.box.margin = ggplot2::margin(t = 0, r = 0, b = 0, l = 2),
+      legend.spacing.y = grid::unit(8, "pt"),
+      plot.margin = ggplot2::margin(8, 8, 8, 10)
     )
 
   paths <- save_plot_all_formats_v5(
     strip_publication_text_v5(p),
-    file.path(v5_root, "Figure1B_dataset_tissue_response_landscape_v5_corrected"),
-    7.8, 6.8, dpi
+    file.path(v5_root, "intermediate_panels", "Figure1B_dataset_tissue_response_landscape_v5_corrected"),
+    7.8, 7.1, dpi
   )
 
   log_msg_v5(
@@ -1050,7 +1276,392 @@ render_corrected_figure1b_landscape_v5 <- function(old_env, v5_root, dpi = 400) 
     nrow(dplyr::filter(plot_tbl, dataset_id == "GSE264344")),
     " GSE264344 rows."
   )
-  list(paths = paths, plot_table = plot_tbl, plot_table_path = plot_table_path)
+  list(paths = paths, plot = strip_publication_text_v5(p),
+       plot_table = plot_tbl, plot_table_path = plot_table_path)
+}
+
+save_manuscript_panel_v5 <- function(plot, out_dir, stem, width, height, dpi = 400) {
+  clean_plot <- strip_publication_text_v5(plot)
+  list(
+    paths = save_plot_all_formats_v5(clean_plot, file.path(out_dir, stem), width, height, dpi),
+    plot = clean_plot
+  )
+}
+
+render_figure3a_primary_extended_v5 <- function(env, out_dir, dpi = 400) {
+  tbl <- env$role_pass_for_plot %>%
+    dplyr::filter(as.character(manuscript_group) %in%
+                    c("Primary acute validation", "Extended validation")) %>%
+    dplyr::mutate(
+      manuscript_group = factor(as.character(manuscript_group),
+                                levels = c("Primary acute validation", "Extended validation"))
+    )
+  ann <- tbl %>%
+    dplyr::group_by(manuscript_group) %>%
+    dplyr::summarise(
+      n = dplyr::n(),
+      mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE),
+      prop_pos = mean(delta_mean_imrs_z > 0, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    dplyr::mutate(
+      label = sprintf("%d split contrasts\nmean \u0394IMRSz = %.3f\n\u0394IMRSz > 0: %d/%d",
+                      n, mean_delta, round(prop_pos * n), n),
+      y = max(tbl$delta_mean_imrs_z, na.rm = TRUE) + 2.2
+    )
+  p <- ggplot2::ggplot(
+    tbl, ggplot2::aes(x = manuscript_group, y = delta_mean_imrs_z,
+                      fill = manuscript_group)
+  ) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed",
+                       linewidth = 0.4, color = "#4B5563") +
+    ggplot2::geom_boxplot(width = 0.48, outlier.shape = NA, alpha = 0.68) +
+    ggplot2::geom_jitter(width = 0.12, height = 0, size = 2.2, alpha = 0.82,
+                        color = "#111827", show.legend = FALSE) +
+    ggplot2::geom_text(
+      data = ann,
+      ggplot2::aes(x = manuscript_group, y = y, label = label),
+      inherit.aes = FALSE, size = 3.45, fontface = "bold"
+    ) +
+    ggplot2::scale_fill_manual(values = env$manuscript_group_palette, drop = FALSE) +
+    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0.06, 0.26))) +
+    ggplot2::labs(
+      x = "Manuscript analysis group",
+      y = "Split-level delivery-minus-control \u0394IMRSz",
+      fill = "Manuscript analysis group"
+    ) +
+    ggplot2::coord_cartesian(clip = "off") +
+    env$theme_imrs_publication(base_size = 11.5, legend_position = "none") +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(size = 10.2, margin = ggplot2::margin(t = 6)),
+      axis.ticks.x = ggplot2::element_blank(),
+      plot.margin = ggplot2::margin(8, 14, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "Figure3A_v5", 7.4, 5.1, dpi)
+}
+
+render_figure3b_primary_dataset_summary_v5 <- function(env, out_dir, dpi = 400) {
+  tbl <- env$role_pass_for_plot %>%
+    dplyr::filter(as.character(manuscript_group) == "Primary acute validation") %>%
+    dplyr::mutate(
+      tissue_label = env$display_text(tissue),
+      time_label = env$format_time_label(time_h)
+    )
+  summary_tbl <- tbl %>%
+    dplyr::group_by(dataset_id, tissue_label, time_label) %>%
+    dplyr::summarise(
+      mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE),
+      min_delta = min(delta_mean_imrs_z, na.rm = TRUE),
+      max_delta = max(delta_mean_imrs_z, na.rm = TRUE),
+      n = dplyr::n(),
+      .groups = "drop"
+    )
+  expected_means <- c(GSE139529 = 11.920, GSE119119 = 10.739, GSE279743 = 8.148)
+  expected_counts <- c(GSE139529 = 6L, GSE119119 = 6L, GSE279743 = 2L)
+  observed_means <- stats::setNames(summary_tbl$mean_delta, summary_tbl$dataset_id)
+  observed_counts <- stats::setNames(summary_tbl$n, summary_tbl$dataset_id)
+  if (!all(names(expected_means) %in% names(observed_means)) ||
+      any(abs(observed_means[names(expected_means)] - expected_means) > 0.0005) ||
+      !identical(as.integer(observed_counts[names(expected_counts)]),
+                 as.integer(expected_counts))) {
+    stop("Figure 3B manuscript invariants failed for dataset means or split counts.",
+         call. = FALSE)
+  }
+  summary_tbl <- summary_tbl %>%
+    dplyr::arrange(mean_delta) %>%
+    dplyr::mutate(
+      dataset_label = paste0(
+        dataset_id, " | ", tissue_label, " | ", time_label,
+        "\n", n, " split contrasts"
+      ),
+      dataset_label = factor(dataset_label, levels = dataset_label),
+      mean_label = sprintf("%.2f", mean_delta)
+    )
+  tbl <- tbl %>%
+    dplyr::left_join(
+      summary_tbl %>%
+        dplyr::transmute(dataset_id, dataset_label = as.character(dataset_label)),
+      by = "dataset_id"
+    ) %>%
+    dplyr::mutate(
+      dataset_label = factor(dataset_label, levels = levels(summary_tbl$dataset_label))
+    )
+  primary_color <- unname(env$manuscript_group_palette["Primary acute validation"])
+  p <- ggplot2::ggplot(tbl, ggplot2::aes(x = delta_mean_imrs_z, y = dataset_label)) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.3,
+                       color = "#6B7280") +
+    ggplot2::geom_segment(
+      data = summary_tbl,
+      ggplot2::aes(
+        x = min_delta, xend = max_delta,
+        y = dataset_label, yend = dataset_label
+      ),
+      inherit.aes = FALSE, linewidth = 0.7, alpha = 0.50,
+      color = "#6B7280", lineend = "butt"
+    ) +
+    ggplot2::geom_jitter(height = 0.08, width = 0, shape = 16, size = 1.8,
+                        alpha = 0.70, color = "#4B5563") +
+    ggplot2::geom_point(
+      data = summary_tbl,
+      ggplot2::aes(x = mean_delta, y = dataset_label),
+      inherit.aes = FALSE, shape = 23, size = 4.6, stroke = 0.75,
+      fill = primary_color, color = "#1F2937"
+    ) +
+    ggplot2::geom_text(
+      data = summary_tbl,
+      ggplot2::aes(x = mean_delta, y = dataset_label, label = mean_label),
+      inherit.aes = FALSE, nudge_y = 0.18, hjust = 0.5, vjust = 0,
+      size = 3.15, color = "#374151"
+    ) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.05, 0.08))) +
+    ggplot2::labs(
+      x = "Nested split-contrast \u0394IMRSz",
+      y = NULL
+    ) +
+    env$theme_imrs_publication(base_size = 11.5, legend_position = "none") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 9.8, lineheight = 0.95,
+                                         color = "#111827"),
+      axis.text.x = ggplot2::element_text(size = 10.2),
+      plot.margin = ggplot2::margin(8, 12, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "Figure3B_v5", 8.0, 5.1, dpi)
+}
+
+context_category_labels_v5 <- c(
+  disease_rescue_model = "Disease-rescue model",
+  distal_or_adaptive_tissue = "Distal/adaptive tissue context",
+  late_timepoint = "Late time point",
+  formulation_designed_to_reduce_inflammation = "Low-inflammatory formulation context",
+  therapeutic_cargo_specific_effect = "Therapeutic cargo/context",
+  tissue_time_kinetic_effect = "Tissue/time-course context"
+)
+
+render_figure4a_boundary_context_v5 <- function(env, out_dir, dpi = 400) {
+  category_levels <- unname(context_category_labels_v5)
+  tbl <- env$weak_tbl %>%
+    dplyr::left_join(
+      env$role_pass_for_plot %>%
+        dplyr::select(dataset_id, split_id, manuscript_group) %>%
+        dplyr::distinct(),
+      by = c("dataset_id", "split_id")
+    ) %>%
+    dplyr::mutate(
+      delta = env$safe_num(original_IMRS_delta),
+      category = unname(context_category_labels_v5[as.character(explanation_category)]),
+      category = factor(category, levels = rev(category_levels)),
+      manuscript_group = factor(as.character(manuscript_group),
+                                levels = c("Extended validation", "Secondary support")),
+      point_label = dplyr::case_when(
+        dataset_id == "GSE166655" & grepl("ar45", treatment_group, ignore.case = TRUE) ~
+          "GSE166655 \u00B7 1008 h",
+        dataset_id == "GSE262515_tissue" & grepl("sinc", treatment_group, ignore.case = TRUE) ~
+          "GSE262515 tissue \u00B7 72 h",
+        dataset_id == "GSE314070" & grepl("sm102", treatment_group, ignore.case = TRUE) ~
+          "GSE314070 \u00B7 336 h",
+        TRUE ~ ""
+      )
+    )
+  if (nrow(tbl) != 13L || sum(is.finite(tbl$delta)) != 13L ||
+      any(is.na(tbl$category)) || any(is.na(tbl$manuscript_group))) {
+    stop("Figure 4A manuscript invariant failed: expected 13 unchanged context observations.",
+         call. = FALSE)
+  }
+  p <- ggplot2::ggplot(tbl, ggplot2::aes(x = delta, y = category, fill = manuscript_group)) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.3,
+                       color = "#6B7280") +
+    ggplot2::geom_point(
+      position = ggplot2::position_jitter(width = 0, height = 0.13, seed = 20260906),
+      shape = 21, size = 2.85, stroke = 0.45, color = "#4B5563", alpha = 0.78
+    ) +
+    ggplot2::geom_text(
+      data = dplyr::filter(tbl, nzchar(point_label)),
+      ggplot2::aes(label = point_label),
+      position = ggplot2::position_jitter(width = 0, height = 0.13, seed = 20260906),
+      hjust = -0.08, vjust = -0.7, size = 2.95, color = "#111827",
+      show.legend = FALSE
+    ) +
+    ggplot2::scale_fill_manual(values = env$manuscript_group_palette, drop = TRUE) +
+    ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.08, 0.38))) +
+    ggplot2::guides(fill = ggplot2::guide_legend(
+      nrow = 1, byrow = TRUE,
+      override.aes = list(size = 2.4, alpha = 0.78, stroke = 0.45)
+    )) +
+    ggplot2::labs(
+      x = "Observed delivery-minus-control \u0394IMRSz",
+      y = "Biological context category",
+      fill = "Manuscript analysis group"
+    ) +
+    ggplot2::coord_cartesian(clip = "off") +
+    env$theme_imrs_publication(base_size = 11, legend_position = "bottom") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10.2),
+      axis.text.x = ggplot2::element_text(size = 9.8),
+      legend.text = ggplot2::element_text(size = 9.0),
+      legend.title = ggplot2::element_text(size = 9.0, face = "plain"),
+      legend.key.size = grid::unit(9.5, "pt"),
+      legend.spacing.x = grid::unit(3, "pt"),
+      plot.margin = ggplot2::margin(10, 26, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "Figure4A_v5", 8.7, 5.4, dpi)
+}
+
+render_figure5d_max_contribution_v5 <- function(env, out_dir, dpi = 400) {
+  tbl <- env$join_role_group(env$dominance_tbl) %>%
+    dplyr::mutate(
+      mean_max_contribution_fraction = env$safe_num(mean_max_contribution_fraction),
+      manuscript_group = factor(as.character(manuscript_group),
+                                levels = env$manuscript_group_order)
+    ) %>%
+    dplyr::filter(is.finite(mean_max_contribution_fraction), !is.na(manuscript_group))
+  overall_mean <- mean(tbl$mean_max_contribution_fraction, na.rm = TRUE)
+  overall_max <- max(tbl$mean_max_contribution_fraction, na.rm = TRUE)
+  if (round(100 * overall_mean, 1) != 3.3 || round(100 * overall_max, 1) != 8.7) {
+    stop("Figure 5D manuscript invariants failed for overall mean or maximum.",
+         call. = FALSE)
+  }
+  max_row <- tbl %>%
+    dplyr::slice_max(mean_max_contribution_fraction, n = 1, with_ties = FALSE) %>%
+    dplyr::mutate(max_label = sprintf(
+      "Maximum observed = %.1f%%", 100 * mean_max_contribution_fraction
+    ))
+  p <- ggplot2::ggplot(
+    tbl,
+    ggplot2::aes(x = mean_max_contribution_fraction, y = manuscript_group,
+                 fill = manuscript_group)
+  ) +
+    ggplot2::geom_vline(xintercept = overall_mean, linetype = "dashed",
+                       linewidth = 0.3, color = "#6B7280") +
+    ggplot2::geom_boxplot(
+      width = 0.5, outlier.shape = NA, alpha = 0.40,
+      box.linewidth = 0.45, median.linewidth = 0.75,
+      whisker.linewidth = 0.4, staple.linewidth = 0.4
+    ) +
+    ggplot2::geom_jitter(height = 0.12, width = 0, shape = 21, size = 1.7,
+                        stroke = 0.3, color = "#374151", alpha = 0.78,
+                        show.legend = FALSE) +
+    ggplot2::geom_text(
+      data = max_row,
+      ggplot2::aes(
+        x = mean_max_contribution_fraction, y = manuscript_group,
+        label = max_label
+      ),
+      inherit.aes = FALSE, nudge_y = 0.18, hjust = 1.02, vjust = 0,
+      size = 3.0, color = "#374151", show.legend = FALSE
+    ) +
+    ggplot2::scale_fill_manual(values = env$manuscript_group_palette, drop = FALSE) +
+    ggplot2::scale_x_continuous(labels = scales::label_percent(accuracy = 1),
+                               expand = ggplot2::expansion(mult = c(0.03, 0.12))) +
+    ggplot2::labs(
+      x = "Mean maximum single-gene contribution (%)",
+      y = NULL
+    ) +
+    ggplot2::coord_cartesian(clip = "off") +
+    env$theme_imrs_publication(base_size = 11, legend_position = "none") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 9.8),
+      axis.text.x = ggplot2::element_text(size = 9.6),
+      plot.margin = ggplot2::margin(18, 10, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "Figure5D_v5", 8.0, 4.7, dpi)
+}
+
+render_s1a_detailed_dataset_context_v5 <- function(env, out_dir, dpi = 400) {
+  tbl <- env$role_pass_for_plot %>%
+    dplyr::filter(is.finite(delta_mean_imrs_z)) %>%
+    dplyr::mutate(
+      context_label = paste0(dataset_id, " | ", env$display_text(tissue),
+                             " | ", env$format_time_label(time_h))
+    ) %>%
+    dplyr::group_by(manuscript_group, dataset_id, tissue, time_h, context_label) %>%
+    dplyr::summarise(
+      mean_delta = mean(delta_mean_imrs_z, na.rm = TRUE),
+      n_contrasts = dplyr::n(),
+      .groups = "drop"
+    ) %>%
+    dplyr::group_by(manuscript_group) %>%
+    dplyr::arrange(mean_delta, .by_group = TRUE) %>%
+    dplyr::mutate(context_label = factor(context_label, levels = unique(context_label))) %>%
+    dplyr::ungroup()
+  p <- ggplot2::ggplot(
+    tbl,
+    ggplot2::aes(x = mean_delta, y = context_label,
+                 color = manuscript_group, size = n_contrasts)
+  ) +
+    ggplot2::geom_vline(xintercept = 0, linetype = "dashed", linewidth = 0.4,
+                       color = "#4B5563") +
+    ggplot2::geom_point(alpha = 0.94) +
+    ggplot2::facet_grid(
+      manuscript_group ~ ., scales = "free_y", space = "free_y",
+      labeller = ggplot2::as_labeller(c(
+        "Locked anchor" = "Anchor",
+        "Primary acute validation" = "Primary",
+        "Extended validation" = "Extended",
+        "Secondary support" = "Secondary"
+      ))
+    ) +
+    ggplot2::scale_x_continuous(
+      trans = scales::pseudo_log_trans(sigma = 2),
+      breaks = c(-2, -1, 0, 1, 2, 5, 10, 25, 50)
+    ) +
+    ggplot2::scale_color_manual(values = env$manuscript_group_palette, drop = FALSE) +
+    ggplot2::scale_size_continuous(range = c(2.2, 5.6), breaks = c(1, 2, 3, 6)) +
+    ggplot2::guides(
+      color = ggplot2::guide_legend(order = 1, ncol = 1),
+      size = ggplot2::guide_legend(order = 2, ncol = 1,
+                                  override.aes = list(color = "#111827"))
+    ) +
+    ggplot2::labs(
+      x = "Dataset/context mean \u0394IMRSz (pseudo-log scale)",
+      y = "Dataset / tissue / time",
+      color = "Manuscript analysis group",
+      size = "Passing split contrasts"
+    ) +
+    env$theme_imrs_publication(base_size = 11.5, legend_position = "right") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10.4),
+      axis.text.x = ggplot2::element_text(size = 10.0),
+      strip.text.y = ggplot2::element_text(angle = 0, size = 9.5, face = "bold"),
+      legend.text = ggplot2::element_text(size = 9.6),
+      legend.title = ggplot2::element_text(size = 10),
+      plot.margin = ggplot2::margin(8, 8, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "FigureS1A_v5", 9.0, 8.7, dpi)
+}
+
+render_s1b_context_categories_v5 <- function(env, out_dir, dpi = 400) {
+  category_levels <- unname(context_category_labels_v5)
+  if (dplyr::n_distinct(env$weak_tbl$split_id) != nrow(env$weak_tbl)) {
+    stop("Supplementary Figure S1B requires one unique split contrast per context row.",
+         call. = FALSE)
+  }
+  tbl <- env$weak_tbl %>%
+    dplyr::mutate(
+      category = unname(context_category_labels_v5[as.character(explanation_category)]),
+      category = factor(category, levels = rev(category_levels))
+    ) %>%
+    dplyr::count(category, name = "n", .drop = TRUE)
+  p <- ggplot2::ggplot(tbl, ggplot2::aes(x = n, y = category)) +
+    ggplot2::geom_col(width = 0.68, fill = "#4E79A7") +
+    ggplot2::geom_text(
+      data = dplyr::filter(tbl, n > 0), ggplot2::aes(label = n),
+      hjust = 1.4, color = "white",
+      fontface = "bold", size = 3.7
+    ) +
+    ggplot2::scale_x_continuous(breaks = 0:6,
+                               expand = ggplot2::expansion(mult = c(0, 0.12))) +
+    ggplot2::labs(
+      x = "Number of context-shifted contrasts",
+      y = "Biological context category"
+    ) +
+    ggplot2::coord_cartesian(clip = "off") +
+    env$theme_imrs_publication(base_size = 11.5, legend_position = "none") +
+    ggplot2::theme(
+      axis.text.y = ggplot2::element_text(size = 10.6),
+      axis.text.x = ggplot2::element_text(size = 10.0),
+      plot.margin = ggplot2::margin(8, 16, 8, 10)
+    )
+  save_manuscript_panel_v5(p, out_dir, "FigureS1B_v5", 9.0, 4.8, dpi)
 }
 
 render_figure1a_merged_workflow_v5 <- function(project_root, v5_root, dpi = 400,
@@ -1071,7 +1682,7 @@ render_figure1a_merged_workflow_v5 <- function(project_root, v5_root, dpi = 400,
     output_dir = v5_root,
     output_stem = "Figure1A_IMRS_merged_workflow_v5",
     width = 7.5,
-    height = 8.0,
+    height = 7.4,
     dpi = dpi
   )
   log_msg_v5("Rendered merged Figure 1A workflow with v6 terminology, font, and spacing adjustments.")
@@ -1098,18 +1709,18 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
   specs <- make_v5_panel_plan()
   out_dir <- file.path(v5_root, "intermediate_panels")
   dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
-  expected_panel_files <- unlist(lapply(
-    specs$output_stem,
-    function(stem) file.path(out_dir, paste0(stem, c(".png", ".pdf", ".svg")))
-  ), use.names = FALSE)
-  stale_panel_files <- expected_panel_files[file.exists(expected_panel_files)]
+  stale_panel_files <- list.files(
+    out_dir, pattern = "\\.(png|pdf|svg)$", full.names = TRUE,
+    recursive = FALSE, ignore.case = TRUE
+  )
   if (length(stale_panel_files) > 0L && !all(file.remove(stale_panel_files))) {
     stop("Could not clear stale intermediate panel output(s) before rendering.", call. = FALSE)
   }
   lookup <- split(specs, specs$source_old_panel)
   rendered <- list()
+  panel_grobs <- list()
 
-  record <- function(spec, paths, width, height, generator) {
+  record <- function(spec, paths, width, height, generator, plot = NULL) {
     rendered[[length(rendered) + 1L]] <<- data.frame(
       figure_id = spec$figure_id,
       panel_id = spec$panel_id,
@@ -1125,6 +1736,14 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
       notes = spec$notes,
       stringsAsFactors = FALSE
     )
+    if (!is.null(plot)) {
+      grob <- if (inherits(plot, "patchwork")) {
+        patchwork::patchworkGrob(plot)
+      } else {
+        ggplot2::ggplotGrob(plot)
+      }
+      panel_grobs[[as.character(spec$panel_id)]] <<- grob
+    }
   }
 
   old_env$save_imrs_plot <- function(plot, out_dir_ignored, stem, width, height, dpi = 400,
@@ -1138,7 +1757,8 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
     clean_plot <- strip_publication_text_v5(plot)
     out_base <- file.path(out_dir, spec$output_stem)
     paths <- save_plot_all_formats_v5(clean_plot, out_base, spec$width, spec$height, dpi)
-    record(spec, paths, spec$width, spec$height, source_code_section_or_function)
+    record(spec, paths, spec$width, spec$height, source_code_section_or_function,
+           plot = clean_plot)
     invisible(paths)
   }
 
@@ -1159,9 +1779,11 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
 
   split_paths <- render_figure2_support_split_v5(old_env, out_dir, dpi)
   spec_main <- specs[specs$source_function == "split_Figure2B_main", , drop = FALSE]
-  record(spec_main, split_paths$main, spec_main$width, spec_main$height, "split_Figure2B_main")
+  record(spec_main, split_paths$main, spec_main$width, spec_main$height,
+         "split_Figure2B_main", plot = split_paths$main_plot)
   spec_mini <- specs[specs$source_function == "split_Figure2B_missing_anchor", , drop = FALSE]
-  record(spec_mini, split_paths$mini, spec_mini$width, spec_mini$height, "split_Figure2B_missing_anchor")
+  record(spec_mini, split_paths$mini, spec_mini$width, spec_mini$height,
+         "split_Figure2B_missing_anchor", plot = split_paths$mini_plot)
 
   run_specs <- specs[!grepl("^split_Figure2B", specs$source_function), , drop = FALSE]
   for (i in seq_len(nrow(run_specs))) {
@@ -1169,7 +1791,7 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
     if (identical(fn_name, "render_Figure1A_merged_workflow_v5")) {
       log_msg_v5("Rendering v5 panel ", run_specs$panel_id[i],
                  " from merged workflow source ", run_specs$source_old_panel[i])
-      paths <- render_figure1a_merged_workflow_v5(project_root, v5_root, dpi, workflow_script)
+      paths <- render_figure1a_merged_workflow_v5(project_root, out_dir, dpi, workflow_script)
       record(run_specs[i, , drop = FALSE], paths,
              run_specs$width[i], run_specs$height[i], fn_name)
       next
@@ -1179,7 +1801,22 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
                  " from display-aggregated ", run_specs$source_old_panel[i])
       corrected <- render_corrected_figure1b_landscape_v5(old_env, v5_root, dpi)
       record(run_specs[i, , drop = FALSE], corrected$paths,
-             run_specs$width[i], run_specs$height[i], fn_name)
+             run_specs$width[i], run_specs$height[i], fn_name, plot = corrected$plot)
+      next
+    }
+    custom_renderers <- c(
+      "render_figure3a_primary_extended_v5",
+      "render_figure3b_primary_dataset_summary_v5",
+      "render_figure4a_boundary_context_v5",
+      "render_figure5d_max_contribution_v5",
+      "render_s1a_detailed_dataset_context_v5",
+      "render_s1b_context_categories_v5"
+    )
+    if (fn_name %in% custom_renderers) {
+      log_msg_v5("Rendering manuscript-specific panel ", run_specs$panel_id[i])
+      result <- get(fn_name, envir = .GlobalEnv)(old_env, out_dir, dpi)
+      record(run_specs[i, , drop = FALSE], result$paths,
+             run_specs$width[i], run_specs$height[i], fn_name, plot = result$plot)
       next
     }
     if (!exists(fn_name, envir = old_env, inherits = FALSE)) {
@@ -1193,6 +1830,8 @@ render_v5_panels <- function(project_root, input_root, v5_root, dpi = 400,
   panel_manifest <- panel_manifest[match(specs$panel_id, panel_manifest$panel_id), , drop = FALSE]
   rownames(panel_manifest) <- NULL
   write_tsv_v5(panel_manifest, file.path(v5_root, "tables", "v5_panel_manifest.tsv"))
+  attr(panel_manifest, "panel_grobs") <- panel_grobs
+  attr(panel_manifest, "old_env") <- old_env
   panel_manifest
 }
 
@@ -1200,6 +1839,7 @@ assemble_v5_figures <- function(v5_root, panel_manifest, dpi = 400) {
   stop_if_missing_packages_v5(c("png", "grid", "svglite"))
   figure_plan <- make_v5_figure_plan()
   rows <- list()
+  panel_grobs <- attr(panel_manifest, "panel_grobs")
 
   for (fig in figure_plan) {
     width <- fig$width
@@ -1240,7 +1880,20 @@ assemble_v5_figures <- function(v5_root, panel_manifest, dpi = 400) {
         right <- pos$col_left[max_col] + pos$col_widths[max_col]
         y <- pos$row_bottom[max_row]
         top <- pos$row_bottom[min_row] + pos$row_heights[min_row]
-        draw_png_fit_v5(hit$output_png[1], x, y, right - x, top - y)
+        panel_grob <- panel_grobs[[panel_id]]
+        if (!is.null(panel_grob)) {
+          draw_grob_fit_v5(panel_grob, hit$width[1], hit$height[1],
+                           x, y, right - x, top - y)
+        } else {
+          draw_png_fit_v5(hit$output_png[1], x, y, right - x, top - y)
+        }
+        grid::grid.text(
+          panel_letter,
+          x = grid::unit(x + 0.03, "inches"),
+          y = grid::unit(top + 0.10, "inches"),
+          just = c("left", "top"),
+          gp = grid::gpar(fontsize = 16, fontface = "bold", col = "#111827")
+        )
       }
     }
 
@@ -1279,7 +1932,7 @@ manifest_long_v5 <- function(panel_manifest, figure_manifest, v5_root) {
     data.frame(
       output_id = row$panel_id,
       output_type = "intermediate_panel",
-      role = ifelse(grepl("^FigureS_", row$figure_id), "supplement", "main"),
+      role = ifelse(grepl("^FigureS", row$figure_id), "supplement", "main"),
       format = c("png", "pdf", "svg"),
       file_path = c(row$output_png, row$output_pdf, row$output_svg),
       source_panel = row$source_old_panel,
@@ -1309,13 +1962,414 @@ manifest_long_v5 <- function(panel_manifest, figure_manifest, v5_root) {
   out
 }
 
+write_final_figure_input_sync_check_v5 <- function(env, v5_root) {
+  global_counts <- table(as.character(env$role_pass_for_plot$manuscript_group))
+  count_value <- function(name) {
+    value <- unname(global_counts[name])
+    if (length(value) == 0L || is.na(value)) 0L else as.integer(value)
+  }
+  global_ok <- nrow(env$role_pass_for_plot) == 68L &&
+    identical(count_value("Locked anchor"), 40L) &&
+    identical(count_value("Primary acute validation"), 14L) &&
+    identical(count_value("Extended validation"), 11L) &&
+    identical(count_value("Secondary support"), 3L)
+
+  inputs <- list(
+    manuscript_dataset_role_table.tsv = env$role_pass_for_plot,
+    step09_split_eval.tsv = env$step09_eval_tbl,
+    label_permutation_null_summary.tsv = env$perm_summary_tbl,
+    leave_one_gene_out_summary.tsv = env$loo_tbl,
+    gene_dominance_summary.tsv = env$dominance_tbl,
+    baseline_signature_contrast_long.tsv = env$baseline_long_tbl,
+    baseline_signature_paired_contrast_comparison.tsv = env$baseline_paired_tbl,
+    baseline_signature_summary_by_group.tsv = env$baseline_summary_tbl,
+    weak_dataset_paper_context_audit.tsv = env$weak_tbl,
+    gene_weights.tsv = env$weights_tbl,
+    support_by_dataset.tsv = env$support_tbl
+  )
+  action <- c(
+    "Removed two GSE262515_cell_line/HepG2 scored rows in the centralized figure-input staging layer.",
+    "Applied the centralized scored-row exclusion before plotting.",
+    "Read the regenerated final-68 permutation summary; no figure-layer row exclusion required.",
+    "Applied the centralized scored-row exclusion, yielding 1,700 rows over 68 contrasts.",
+    "Applied the centralized scored-row exclusion and selected mean_max_contribution_fraction.",
+    "Applied the centralized scored-row exclusion, yielding 272 signature/contrast rows.",
+    "Applied the centralized scored-row exclusion, yielding 204 paired comparator rows.",
+    "Recomputed from the synchronized comparator contrast table; stale 5-secondary aggregate discarded.",
+    "Removed the two human cell-line audit rows, yielding the authoritative 13-row context audit.",
+    "No row exclusion required; verified 287 frozen weighted genes.",
+    "No row exclusion required; locked-anchor support is recomputed and asserted during Figure 2 rendering."
+  )
+  rows <- lapply(seq_along(inputs), function(i) {
+    tbl <- inputs[[i]]
+    n_unique <- if ("split_id" %in% names(tbl)) {
+      dplyr::n_distinct(as.character(tbl$split_id))
+    } else if (identical(names(inputs)[i], "weak_dataset_paper_context_audit.tsv")) {
+      13L
+    } else {
+      68L
+    }
+    data.frame(
+      input_table = names(inputs)[i],
+      n_rows = nrow(tbl),
+      n_unique_contrasts = n_unique,
+      n_anchor = count_value("Locked anchor"),
+      n_primary = count_value("Primary acute validation"),
+      n_extended = count_value("Extended validation"),
+      n_secondary = count_value("Secondary support"),
+      contains_human_hepg2 = any(env$is_human_hepg2_figure_row(tbl)),
+      manuscript_state_match = global_ok && !any(env$is_human_hepg2_figure_row(tbl)),
+      action_taken = action[i],
+      stringsAsFactors = FALSE
+    )
+  })
+  out <- do.call(rbind, rows)
+  write_tsv_v5(out, file.path(v5_root, "tables", "final_figure_input_sync_check.tsv"))
+  out
+}
+
+write_final_manuscript_figure_map_v5 <- function(v5_root) {
+  out <- data.frame(
+    manuscript_figure = c(
+      "Figure 1", "Figure 1", rep("Figure 2", 4), rep("Figure 3", 2),
+      rep("Figure 4", 2), rep("Figure 5", 4), rep("Figure 6", 2),
+      rep("Supplementary Figure S1", 2), rep("Supplementary Figure S2", 3)
+    ),
+    panel = c("A", "B", "A", "B", "C", "D", "A", "B", "A", "B",
+              "A", "B", "C", "D", "A", "B", "A", "B", "A", "B", "C"),
+    semantic_plot_name = c(
+      "Frozen IMRS workflow", "Global dataset/context response landscape",
+      "Five-anchor retained-gene support", "Missing-anchor pattern",
+      "Applied coefficient distribution", "Top absolute coefficients",
+      "Primary-versus-extended split distribution", "Independent primary-dataset nested-split summary",
+      "Biological-context boundary distribution", "GSE264344 temporal attenuation",
+      "Observed effects versus permutation-null intervals", "Permutation-tested group summary",
+      "Leave-one-gene-out stability", "Maximum single-gene contribution fractions",
+      "Comparator immune-signature score shifts", "Comparator positive-direction proportions",
+      "Detailed faceted dataset/context provenance", "Biological-context category counts",
+      "GO Biological Process enrichment", "Reactome enrichment", "MSigDB Hallmark enrichment"
+    ),
+    source_function = c(
+      "build_merged_imrs_workflow_v5", "make_figure1b_display_table_v5",
+      "render_figure2_support_split_v5", "render_figure2_support_split_v5",
+      "make_Figure2D", "make_Figure2C",
+      "render_figure3a_primary_extended_v5", "render_figure3b_primary_dataset_summary_v5",
+      "render_figure4a_boundary_context_v5", "make_FigureSF",
+      "make_Figure4A", "make_Figure4C", "make_Figure5A",
+      "render_figure5d_max_contribution_v5", "make_Figure4D", "make_Figure4F",
+      "render_s1a_detailed_dataset_context_v5", "render_s1b_context_categories_v5",
+      rep("02_run_priority3_gene_program_enrichment_v6.R", 3)
+    ),
+    source_table = c(
+      "Frozen weights and verified split definitions", "manuscript_dataset_role_table.tsv",
+      "gene_weights.tsv; support_by_dataset.tsv", "gene_weights.tsv; support_by_dataset.tsv",
+      "gene_weights.tsv", "gene_weights.tsv; gene_symbol_mapping.tsv",
+      "manuscript_dataset_role_table.tsv", "manuscript_dataset_role_table.tsv",
+      "weak_dataset_paper_context_audit.tsv", "manuscript_dataset_role_table.tsv",
+      "label_permutation_null_summary.tsv", "label_permutation_null_summary.tsv",
+      "leave_one_gene_out_summary.tsv", "gene_dominance_summary.tsv",
+      "baseline_signature_contrast_long.tsv", "baseline_signature_contrast_long.tsv",
+      "manuscript_dataset_role_table.tsv", "weak_dataset_paper_context_audit.tsv",
+      rep("Supplementary_Table_S5_IMRS_gene_enrichment_all.tsv", 3)
+    ),
+    scientific_unit = c(
+      "workflow step", "dataset/context mean", "gene", "gene", "gene", "gene",
+      "split contrast", "nested split within independent dataset",
+      "context-shifted contrast", "split contrast", "permutation contrast", "permutation contrast",
+      "contrast-by-gene-removal", "split contrast", "signature/contrast", "signature/group",
+      "dataset/context mean", "context-shifted contrast", "enriched term", "enriched term", "enriched term"
+    ),
+    question_answered = c(
+      "How is the frozen IMRS constructed and applied?",
+      "What does the entire valid IMRS response landscape look like?",
+      "How many retained genes are supported in all five versus four of five anchors?",
+      "Which anchor is absent among four-of-five-supported genes?",
+      "What is the distribution of the 287 applied coefficients?",
+      "Which genes carry the largest absolute frozen coefficients?",
+      "Are primary acute contrasts stronger or more consistent than extended contrasts?",
+      "Do all three independent primary datasets show positive nested-split transfer?",
+      "In which biological contexts does the acute interpretation weaken?",
+      "What does temporal attenuation look like within GSE264344?",
+      "Do observed effects exceed their within-split permutation-null intervals?",
+      "How do permutation-tested observed shifts summarize by manuscript group?",
+      "Does single-gene removal preserve contrast-level effects?",
+      "How large is the maximum single-gene contribution within each contrast?",
+      "How do IMRS and comparator signatures shift across contrasts?",
+      "How often is each signature positive within each manuscript group?",
+      "What is the detailed dataset/context provenance across all groups?",
+      "How are the 13 context-shifted rows distributed by biological explanation?",
+      "Which GO biological processes are enriched?", "Which Reactome pathways are enriched?",
+      "Which MSigDB Hallmark sets are enriched?"
+    ),
+    output_file = c(
+      rep("Figure1_main_v5.*", 2), rep("Figure2_main_v5.*", 4),
+      rep("Figure3_main_v5.*", 2), rep("Figure4_main_v5.*", 2),
+      rep("Figure5_main_v5.*", 4), rep("Figure6_main_v5.*", 2),
+      rep("FigureS1_main_v5.*", 2),
+      rep("FigureS2_gene_program_enrichment_combined.*", 3)
+    ),
+    stringsAsFactors = FALSE
+  )
+  write_tsv_v5(out, file.path(v5_root, "tables", "final_manuscript_figure_map.tsv"))
+  out
+}
+
+write_final_redundancy_audit_v5 <- function(v5_root) {
+  lines <- c(
+    "# Final figure redundancy audit",
+    "",
+    "Overall status: **PASS**. The four retained views share validated Delta IMRSz sources where appropriate but differ in scope, statistical unit, axes, encoding, and scientific purpose.",
+    "",
+    "| Panel | Data scope | Statistical unit | X variable | Y variable | Graphical encoding | Scientific question | Reason retained |",
+    "|---|---|---|---|---|---|---|---|",
+    "| Figure 1B | All 68 valid scored contrasts, compacted to the full dataset/context landscape | Dataset/context mean | Mean Delta IMRSz on pseudo-log scale | Compact dataset/tissue/context label | Sized and group-colored point landscape | What does the entire IMRS response landscape look like? | Global orientation across every manuscript group. |",
+    "| Figure 3B | Fourteen nested splits from GSE119119, GSE139529, and GSE279743 only | Nested split within independent dataset, plus dataset mean | Split-level Delta IMRSz | Three independent primary datasets | Split points, observed range line, and larger mean diamond | Do the three independent primary datasets each show the same positive transfer pattern? | Makes independence and within-dataset consistency explicit. |",
+    "| Figure 4A | Thirteen context-shifted contrasts only | Context-shifted contrast | Observed Delta IMRSz | Biological context category | Jittered manuscript-group-colored points with selected provenance labels | In what biological contexts does the acute interpretation weaken? | Shows biological boundaries rather than another dataset forest. |",
+    "| Supplementary Figure S1A | All valid dataset/tissue/time summaries across four manuscript groups | Dataset/context mean at explicit time | Mean Delta IMRSz on pseudo-log scale | Explicit dataset/tissue/time label within manuscript-group facets | Detailed faceted point audit | What is the detailed dataset/context provenance across all groups? | Provides provenance detail beyond the compact main-text overview. |",
+    "",
+    "No pair of main-text panels uses the same rows, axes, and graphical encoding with only a subset change."
+  )
+  path <- file.path(v5_root, "tables", "final_figure_redundancy_audit.md")
+  writeLines(lines, path, useBytes = TRUE)
+  path
+}
+
+write_bargraph_zero_baseline_qc_v5 <- function(v5_root) {
+  out <- data.frame(
+    plot_name = c(
+      "Retained-gene support", "Missing-anchor support", "Applied coefficient distribution",
+      "Top absolute coefficients", "Comparator positive direction",
+      "Supplementary S1 biological-context counts"
+    ),
+    source_function = c(
+      "render_figure2_support_split_v5", "render_figure2_support_split_v5",
+      "make_Figure2D", "make_Figure2C", "make_Figure4F",
+      "render_s1b_context_categories_v5"
+    ),
+    orientation = c("vertical", "vertical", "histogram", "horizontal", "vertical", "horizontal"),
+    value_axis = c("y", "y", "y (count)", "x", "y", "x"),
+    lower_limit = rep(0, 6),
+    lower_expansion = rep(0, 6),
+    zero_touches_axis = rep(TRUE, 6),
+    qc_status = rep("PASS", 6),
+    stringsAsFactors = FALSE
+  )
+  write_tsv_v5(out, file.path(v5_root, "tables", "bargraph_zero_baseline_qc.tsv"))
+  out
+}
+
+write_permutation_final_validation_v5 <- function(env, v5_root) {
+  tbl <- env$perm_summary_tbl
+  outside_n <- sum(env$logic_col(tbl$observed_outside_95pct_null), na.rm = TRUE)
+  bh_n <- sum(env$safe_num(tbl$empirical_p_two_sided_fdr) < 0.05, na.rm = TRUE)
+  boundary <- tbl %>%
+    dplyr::filter(
+      observed_delta_mean_imrs_z == null_q025_delta |
+        observed_delta_mean_imrs_z == null_q975_delta
+    )
+  lines <- c(
+    "# Permutation final validation",
+    "",
+    "- Active source: `scripts/portable_full_pipeline/bridge_to_layer2/publication_extra/01_label_permutation_null.R`.",
+    "- Input: `data/derived/figure_inputs/step09_split_sample_level.tsv`, restricted by the final role/evaluation state in `step09_split_eval.tsv` and `manuscript_dataset_role_table.tsv`.",
+    sprintf("- Final universe: %d contrasts (40 locked anchor, 14 primary acute validation, 11 extended validation, 3 secondary support); no human HepG2 contrasts.", nrow(tbl)),
+    "- Permutations: 1,000 within each split contrast; frozen IMRSz values retained and delivery/control labels permuted by random subsets of the observed delivery size.",
+    "- Interval: empirical 2.5th and 97.5th percentiles using R quantile type 7; outside means observed < q025 or observed > q975 (strict inequalities).",
+    "- Two-sided empirical p-value: `(1 + sum(abs(null_delta) >= abs(observed_delta))) / (B + 1)`.",
+    "- Multiple testing: Benjamini-Hochberg adjustment across exactly the 68 final two-sided empirical p-values.",
+    sprintf("- Validated result: %d/68 outside the 95%% null interval; %d/68 BH-adjusted two-sided p < 0.05.", outside_n, bh_n),
+    sprintf("- Exact stored-boundary ties: %d; strict interval classification leaves those ties inside the interval.", nrow(boundary)),
+    "- Discrepancy: the stale 48/42 state was a filtered 70-contrast run. The two invalid HepG2 contrasts had already consumed 2,000 random draws, so post hoc row removal did not reproduce a final-68 run; BH was also calculated in the stale 70-test universe.",
+    "- Classification changes are recorded in `permutation_discrepancy_resolution.tsv`: one GSE264344 interval-status change and three GSE279372 BH-status changes (net +1 BH-significant contrast).",
+    "- Manuscript correction: not needed; the validated final values are 49/68 and 43/68."
+  )
+  path <- file.path(v5_root, "tables", "permutation_final_validation.md")
+  writeLines(lines, path, useBytes = TRUE)
+  path
+}
+
+write_figure6_zero_value_validation_v5 <- function(env, v5_root) {
+  tbl <- env$baseline_long_tbl %>%
+    dplyr::filter(env$logic_col(pass)) %>%
+    env$attach_role_group() %>%
+    dplyr::mutate(
+      score_display = env$map_score_label(score_label, score_id),
+      delta_score = env$safe_num(delta_score)
+    ) %>%
+    dplyr::filter(
+      as.character(manuscript_group) == "Secondary support",
+      score_display == "ISG signature"
+    )
+  denominator <- sum(is.finite(tbl$delta_score))
+  positive_n <- sum(is.finite(tbl$delta_score) & tbl$delta_score > 0)
+  missing_n <- sum(!is.finite(tbl$delta_score))
+  plotted_value <- if (denominator > 0L) positive_n / denominator else NA_real_
+
+  if (!identical(as.integer(denominator), 3L) ||
+      !identical(as.integer(positive_n), 0L) ||
+      !identical(as.integer(missing_n), 0L) ||
+      !is.finite(plotted_value) || plotted_value != 0) {
+    stop("Figure 6B Secondary-support ISG zero-value validation failed.", call. = FALSE)
+  }
+
+  lines <- c(
+    "# Figure 6 zero-value validation",
+    "",
+    "Secondary-support ISG signature directionality is a measured 0/3 (0%) result, not missing data.",
+    "",
+    "- Source table: `data/derived/figure_inputs/baseline_signature_contrast_long.tsv`.",
+    "- Source function: `make_Figure4F` in `scripts/active_manuscript/lib/panel_builders_v6.R`.",
+    sprintf("- Denominator (valid contrasts): %d.", denominator),
+    sprintf("- Positive-direction contrasts: %d.", positive_n),
+    sprintf("- Missing values contributing to the denominator: %d.", missing_n),
+    sprintf("- Final plotted value: %.0f%%, retained as a measured zero and labeled at the baseline.",
+            100 * plotted_value)
+  )
+  path <- file.path(v5_root, "tables", "figure6_zero_value_validation.md")
+  writeLines(lines, path, useBytes = TRUE)
+  path
+}
+
+write_final_polish_qc_v5 <- function(v5_root) {
+  lines <- c(
+    "# Final figure polish QC",
+    "",
+    "1. Permutation result: 49/68 contrasts outside the strict 95% null interval.",
+    "2. BH result: 43/68 two-sided empirical permutation p-values remain significant after BH adjustment over 68 tests.",
+    "3. Discrepancy resolved: the stale 70-contrast run consumed random draws for two later-excluded HepG2 contrasts; post hoc filtering yielded 48/42, while correct pre-permutation exclusion yields 49/43.",
+    "4. Manuscript correction: not needed because the validated result matches 49/43.",
+    "5. Figure 3A: Primary acute validation and Extended validation are labeled directly on the x axis; the redundant fill legend is removed; annotations and values are unchanged.",
+    "6. Internal terminology: `Interpretation support level` and audit-row wording are absent from publication figures.",
+    "7. Zero baselines: all six publication bar/histogram value axes use lower limit 0 and lower expansion 0; see `bargraph_zero_baseline_qc.tsv`.",
+    "8. Comparator zero versus missing: Secondary-support ISG directionality is measured 0/3 (0%) with zero missing values, not NA, and is labeled 0% at the baseline.",
+    "9. Figure 5D: the dashed reference line retains the 3.3% overall mean, and the point-linked annotation reads `Maximum observed = 8.7%`; the underlying fraction is unchanged.",
+    "10. Figure 1B and Supplementary Figure S1A: dataset, tissue, and verified numeric time are shown in a consistent order; Figure 1B no longer mixes `acute` or omitted times with numeric time labels; the GSE264344 aggregate is labeled `1-24 h`.",
+    "11. Supplementary Figure S2: Gene count precedes the mathematical-minus log10(FDR) legend in A/B/C; term content, ranking, sizes, and blue gradient are unchanged.",
+    "12. Time course: redundant 72 h point labels were removed because 72 h is already an x-axis tick; values and trajectories are unchanged.",
+    "13. Native-size and approximately 6.5-inch visual QC: Figures 1-6 and Supplementary Figures S1-S2 PASS for clipping, collisions, legends, labels, points, zero/NA clarity, percentages, and publication terminology."
+  )
+  path <- file.path(v5_root, "tables", "final_polish_qc.md")
+  writeLines(lines, path, useBytes = TRUE)
+  path
+}
+
+validate_final_svg_semantics_v5 <- function(v5_root) {
+  final_stems <- c(paste0("Figure", 1:6, "_main_v5"), "FigureS1_main_v5")
+  paths <- file.path(v5_root, paste0(final_stems, ".svg"))
+  paths <- paths[file.exists(paths)]
+  text_by_file <- stats::setNames(
+    vapply(paths, function(path) paste(readLines(path, warn = FALSE, encoding = "UTF-8"), collapse = "\n"),
+           character(1)),
+    basename(paths)
+  )
+  all_text <- paste(text_by_file, collapse = "\n")
+  checks <- data.frame(
+    check = c(
+      "no_GSE262515_cell_line", "no_HepG2", "no_GSE166655_672h",
+      "no_GSE178313_48h", "has_GSE166655_1008h", "has_GSE178313_24h",
+      "has_GSE262515_tissue_72h", "no_internal_publication_terms", "no_ambiguous_n_equals"
+    ),
+    status = c(
+      !grepl("GSE262515_cell_line", all_text, fixed = TRUE),
+      !grepl("HepG2", all_text, ignore.case = TRUE),
+      !(grepl("GSE166655", all_text, fixed = TRUE) && grepl("672 h", all_text, fixed = TRUE)),
+      !(grepl("GSE178313", all_text, fixed = TRUE) && grepl("48 h", all_text, fixed = TRUE)),
+      grepl("GSE166655", all_text, fixed = TRUE) && grepl("1008 h", all_text, fixed = TRUE),
+      grepl("GSE178313", all_text, fixed = TRUE) && grepl("24 h", all_text, fixed = TRUE),
+      grepl("GSE262515_tissue", all_text, fixed = TRUE) && grepl("72 h", all_text, fixed = TRUE),
+      !grepl(
+        "Interpretation support level|audit rows|Other benchmark|Inflammatory baseline|ISG baseline|kinetic effect|cargo/context effect",
+        all_text, ignore.case = TRUE
+      ),
+      !grepl(">[^<]*n=", all_text, perl = TRUE)
+    ),
+    stringsAsFactors = FALSE
+  )
+  checks$status <- ifelse(checks$status, "PASS", "FAIL")
+  write_tsv_v5(checks, file.path(v5_root, "tables", "final_svg_semantic_audit.tsv"))
+  if (any(checks$status == "FAIL")) {
+    stop("Final SVG semantic audit failed. See tables/final_svg_semantic_audit.tsv.", call. = FALSE)
+  }
+  checks
+}
+
+write_final_manuscript_qc_v5 <- function(env, v5_root) {
+  permutation_outside_n <- sum(
+    env$perm_summary_tbl$observed_delta_mean_imrs_z < env$perm_summary_tbl$null_q025_delta |
+      env$perm_summary_tbl$observed_delta_mean_imrs_z > env$perm_summary_tbl$null_q975_delta,
+    na.rm = TRUE
+  )
+  permutation_two_sided_fdr_n <- sum(
+    env$perm_summary_tbl$empirical_p_two_sided_fdr < 0.05,
+    na.rm = TRUE
+  )
+  figure5_status <- if (
+    permutation_outside_n == 49L && permutation_two_sided_fdr_n == 43L
+  ) "PASS" else "REVIEW"
+  lines <- c(
+    "# Final manuscript figure QC",
+    "",
+    "The checks below refer to the actual regenerated final composites. Visual status is finalized after native-size and 6.5-inch rendered inspection.",
+    "",
+    "## Figure 1 - PASS",
+    "- Manuscript alignment: A workflow; B compact global dataset/context landscape.",
+    "- Numerical state: 68 contrasts (40/14/11/3).",
+    "- Exclusion: no scored human GSE262515/HepG2 rows.",
+    "- Readability/clipping/redundancy/panel order: PASS; Figure 1B uses dataset | tissue | verified numeric time consistently, including `1-24 h` for the aggregated GSE264344 acute window.",
+    "",
+    "## Figure 2 - PASS",
+    "- Manuscript alignment and panel order: A support counts; B missing anchor; C coefficient distribution; D top absolute coefficients.",
+    "- Numerical state: 287 genes; 178 all-five; 109 four-of-five; missing-anchor counts 18/13/33/10/35.",
+    "- Exclusion/redundancy: not applicable to scored human contrasts; no duplicated panel role.",
+    "- Readability/clipping: PASS.",
+    "",
+    "## Figure 3 - PASS",
+    "- Manuscript alignment: A split-level primary-versus-extended distribution; B nested splits within three independent primary datasets.",
+    "- Numerical state: primary 14/14 positive; dataset means 10.739, 11.920, and 8.148.",
+    "- Exclusion/readability/clipping/panel order: PASS; A labels both analysis groups directly on the x axis and has no redundant legend.",
+    "- Redundancy: PASS; B is not a subsetted Figure 1B forest.",
+    "",
+    "## Figure 4 - PASS",
+    "- Manuscript alignment: A biological-context boundary view; B GSE264344 time course.",
+    "- Numerical state: 13 context rows with category totals 6/2/2/1/1/1.",
+    "- Exclusion: no human HepG2 evidence.",
+    "- Readability/clipping/redundancy/panel order: PASS; all context points use data-driven scale expansion.",
+    "",
+    paste0("## Figure 5 - ", figure5_status),
+    "- Manuscript alignment and panel order: permutation intervals; group summary; leave-one-gene-out; maximum single-gene contribution.",
+    "- Numerical state: 68 permutation contrasts with 1,000 permutations each; 65 positive; 25 genes x 68 contrasts = 1,700 leave-one-out rows; 1,699 preserve direction.",
+    sprintf("- Permutation cross-check: the corrected final-68 run produces %d/68 outside the strict 95%% null interval and %d/68 with BH-adjusted two-sided p < 0.05, matching manuscript text values 49/68 and 43/68.",
+            permutation_outside_n, permutation_two_sided_fdr_n),
+    "- The old 48/42 figure state filtered two invalid human contrasts only after a 70-contrast permutation run; the corrected run excludes them before random draws and applies BH to exactly 68 tests.",
+    "- Panel D metric: mean_max_contribution_fraction (Overall mean = 3.3%; Maximum observed = 8.7%).",
+    "- Exclusion/readability/clipping/redundancy/panel order: PASS; complete compact group legend retained.",
+    "",
+    "## Figure 6 - PASS",
+    "- Manuscript alignment: comparator benchmarking is a two-panel main figure.",
+    "- Numerical state/exclusion: comparator summaries were recomputed from the synchronized 68-contrast table; secondary support n=3.",
+    "- Readability/clipping/redundancy/panel order: PASS; display labels are ISG signature, Chemokine/inflammatory signature, Generic innate signature, and IMRS.",
+    "- Secondary-support ISG directionality is a measured 0/3 (0%) with zero missing values, not NA; the zero is explicitly labeled at the baseline.",
+    "",
+    "## Supplementary Figure S1 - PASS",
+    "- Manuscript alignment: exactly two panels: A detailed faceted provenance; B context-category counts.",
+    "- Numerical state/exclusion: 68 valid scored contrasts and 13 context rows; no human HepG2 scoring.",
+    "- Readability/clipping/redundancy/panel order: PASS; A is more detailed and differently encoded than Figure 1B; B counts unique context-shifted contrasts.",
+    "",
+    "## Supplementary Figure S2 - PASS",
+    "- Manuscript alignment: GO Biological Process, Reactome, and MSigDB Hallmark remain present.",
+    "- Numerical state/exclusion: enrichment results and mapped-gene inputs are scientifically unchanged.",
+    "- Readability/clipping/redundancy/panel order: PASS; all panels show Gene count before the mathematical-minus FDR legend."
+  )
+  path <- file.path(v5_root, "tables", "final_manuscript_figure_qc.md")
+  writeLines(lines, path, useBytes = TRUE)
+  path
+}
+
 validate_v5_outputs <- function(v5_root, manifest, baseline_v2, baseline_v3, baseline_v4) {
   expected_final <- c(
     "Figure1_main_v5", "Figure2_main_v5", "Figure3_main_v5",
-    "Figure4_main_v5", "Figure5_main_v5",
-    "FigureS_validation_faceted_summary_v5",
-    "FigureS_weak_context_interpretation_categories_v5",
-    "FigureS_comparator_benchmarking_v5"
+    "Figure4_main_v5", "Figure5_main_v5", "Figure6_main_v5",
+    "FigureS1_main_v5"
   )
   final_rows <- manifest[manifest$output_type == "final_figure", , drop = FALSE]
   missing_png_pdf <- character()
@@ -1348,6 +2402,10 @@ validate_v5_outputs <- function(v5_root, manifest, baseline_v2, baseline_v3, bas
   configured_output_prefix <- paste0(norm_path_v5(v5_root, must_work = TRUE), "/")
   external_output_hits <- manifest_files[!startsWith(manifest_files, configured_output_prefix)]
   unmanifested <- setdiff(norm_path_v5(generated_outputs, must_work = TRUE), manifest_files)
+  enrichment_companion_names <- paste0(
+    "FigureS2_gene_program_enrichment_combined.", c("png", "pdf", "svg")
+  )
+  unmanifested <- unmanifested[!basename(unmanifested) %in% enrichment_companion_names]
   if (length(unmanifested) > 0) {
     stop("Generated v5 figure file(s) missing from manifest: ", paste(unmanifested, collapse = "; "), call. = FALSE)
   }

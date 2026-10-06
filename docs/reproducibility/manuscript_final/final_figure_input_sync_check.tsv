@@ -1,0 +1,12 @@
+input_table	n_rows	n_unique_contrasts	n_anchor	n_primary	n_extended	n_secondary	contains_human_hepg2	manuscript_state_match	action_taken
+manuscript_dataset_role_table.tsv	68	68	40	14	11	3	FALSE	TRUE	Removed two GSE262515_cell_line/HepG2 scored rows in the centralized figure-input staging layer.
+step09_split_eval.tsv	68	68	40	14	11	3	FALSE	TRUE	Applied the centralized scored-row exclusion before plotting.
+label_permutation_null_summary.tsv	68	68	40	14	11	3	FALSE	TRUE	Read the regenerated final-68 permutation summary; no figure-layer row exclusion required.
+leave_one_gene_out_summary.tsv	1700	68	40	14	11	3	FALSE	TRUE	Applied the centralized scored-row exclusion, yielding 1,700 rows over 68 contrasts.
+gene_dominance_summary.tsv	68	68	40	14	11	3	FALSE	TRUE	Applied the centralized scored-row exclusion and selected mean_max_contribution_fraction.
+baseline_signature_contrast_long.tsv	272	68	40	14	11	3	FALSE	TRUE	Applied the centralized scored-row exclusion, yielding 272 signature/contrast rows.
+baseline_signature_paired_contrast_comparison.tsv	204	68	40	14	11	3	FALSE	TRUE	Applied the centralized scored-row exclusion, yielding 204 paired comparator rows.
+baseline_signature_summary_by_group.tsv	16	68	40	14	11	3	FALSE	TRUE	Recomputed from the synchronized comparator contrast table; stale 5-secondary aggregate discarded.
+weak_dataset_paper_context_audit.tsv	13	13	40	14	11	3	FALSE	TRUE	Removed the two human cell-line audit rows, yielding the authoritative 13-row context audit.
+gene_weights.tsv	287	68	40	14	11	3	FALSE	TRUE	No row exclusion required; verified 287 frozen weighted genes.
+support_by_dataset.tsv	132287	68	40	14	11	3	FALSE	TRUE	No row exclusion required; locked-anchor support is recomputed and asserted during Figure 2 rendering.

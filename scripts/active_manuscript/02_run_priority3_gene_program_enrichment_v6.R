@@ -634,16 +634,19 @@ log_msg("Significant GO BP terms (FDR <= 0.05): ", go_n)
 log_msg("Significant Reactome terms (FDR <= 0.05): ", reactome_n)
 log_msg("Significant MSigDB Hallmark terms (FDR <= 0.05): ", hallmark_n)
 
-theme_imrs_enrichment <- function(base_size = 10) {
+theme_imrs_enrichment <- function(base_size = 12) {
   ggplot2::theme_minimal(base_size = base_size) +
     ggplot2::theme(
-      plot.title = ggplot2::element_text(face = "bold", color = "#111827", margin = ggplot2::margin(b = 8)),
-      axis.title = ggplot2::element_text(face = "bold", color = "#111827"),
-      axis.text = ggplot2::element_text(color = "#1F2937"),
+      plot.title = ggplot2::element_text(face = "bold", color = "#111827", size = 12.5, margin = ggplot2::margin(b = 8)),
+      axis.title = ggplot2::element_text(face = "bold", color = "#111827", size = 11.5),
+      axis.text.x = ggplot2::element_text(color = "#1F2937", size = 10.5),
+      axis.text.y = ggplot2::element_text(color = "#1F2937", size = 11),
       panel.grid.major.y = ggplot2::element_blank(),
       panel.grid.minor = ggplot2::element_blank(),
       legend.position = "right",
-      plot.margin = ggplot2::margin(10, 16, 10, 10)
+      legend.text = ggplot2::element_text(size = 10.5),
+      legend.title = ggplot2::element_text(size = 11),
+      plot.margin = ggplot2::margin(10, 12, 10, 10)
     )
 }
 
@@ -686,8 +689,13 @@ plot_enrichment <- function(tbl, database_label, title, placeholder_label) {
   }
   ggplot(plot_tbl, aes(x = .data$gene_count, y = .data$term_wrapped)) +
     geom_point(aes(size = .data$gene_count, color = .data$neg_log10_fdr), alpha = 0.92) +
-    scale_color_gradient(low = "#7AA6C2", high = "#123B5D", name = "-log10(FDR)") +
+    scale_color_gradient(low = "#7AA6C2", high = "#123B5D",
+                         name = expression(-log[10](FDR))) +
     scale_size_continuous(name = "Gene count", range = c(2.5, 7)) +
+    guides(
+      size = guide_legend(order = 1),
+      color = guide_colorbar(order = 2)
+    ) +
     labs(title = title, x = "Gene count", y = NULL) +
     theme_imrs_enrichment()
 }
@@ -725,14 +733,29 @@ plot_hallmark <- plot_enrichment(
   "No terms passed FDR threshold for MSigDB Hallmark."
 )
 
-paths_go <- save_plot_all_formats(plot_go, "FigureS2A_GO_BP_enrichment", 7.5, 5.4)
-paths_reactome <- save_plot_all_formats(plot_reactome, "FigureS2B_Reactome_enrichment", 7.5, 5.4)
-paths_hallmark <- save_plot_all_formats(plot_hallmark, "FigureS2C_MSigDB_Hallmark_enrichment", 7.5, 5.4)
+paths_go <- save_plot_all_formats(plot_go, "FigureS2A_GO_BP_enrichment", 7.8, 5.8)
+paths_reactome <- save_plot_all_formats(plot_reactome, "FigureS2B_Reactome_enrichment", 7.8, 5.8)
+paths_hallmark <- save_plot_all_formats(plot_hallmark, "FigureS2C_MSigDB_Hallmark_enrichment", 7.8, 5.8)
 combined_plot <- (plot_go / plot_reactome / plot_hallmark) +
   patchwork::plot_layout(heights = c(1, 1, 1)) +
   patchwork::plot_annotation(tag_levels = "A")
-paths_combined <- save_plot_all_formats(combined_plot, "FigureS2_gene_program_enrichment_combined", 8.8, 14.8)
-log_msg("Wrote Figure S2 panel and combined figure outputs.")
+paths_combined <- save_plot_all_formats(combined_plot, "FigureS2_gene_program_enrichment_combined", 8.8, 17.4)
+
+main_figures_dir <- file.path(v6_root, "figures")
+dir.create(main_figures_dir, recursive = TRUE, showWarnings = FALSE)
+combined_main_paths <- file.path(main_figures_dir, basename(paths_combined))
+copy_ok <- vapply(seq_along(paths_combined), function(i) {
+  source_path <- paths_combined[[i]]
+  destination_path <- combined_main_paths[[i]]
+  already_current <- file.exists(destination_path) &&
+    identical(unname(tools::md5sum(source_path)), unname(tools::md5sum(destination_path)))
+  if (already_current) return(TRUE)
+  file.copy(source_path, destination_path, overwrite = TRUE, copy.mode = TRUE)
+}, logical(1))
+if (!all(copy_ok)) {
+  fail_with_log("Could not copy the final combined Figure S2 outputs into the main figures directory.")
+}
+log_msg("Wrote Figure S2 panel and combined figure outputs; copied only the final combined PNG/PDF/SVG to ", main_figures_dir, ".")
 
 caption_text <- paste0(
   "Supplementary Figure S2. Gene-program enrichment of retained frozen IMRS genes supports an acute delivery-associated innate transcriptional program. ",

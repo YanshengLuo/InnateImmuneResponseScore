@@ -122,6 +122,7 @@ stop_if_missing_packages_v5()
 dir.create(v5_root, recursive = TRUE, showWarnings = FALSE)
 dir.create(file.path(v5_root, "tables"), recursive = TRUE, showWarnings = FALSE)
 dir.create(file.path(v5_root, "intermediate_panels"), recursive = TRUE, showWarnings = FALSE)
+clear_superseded_root_figures_v5(v5_root)
 
 baseline_inputs <- newest_file_snapshot_v5(input_root)
 
@@ -138,6 +139,8 @@ panel_manifest <- render_v5_panels(
   panel_builder_script = panel_builder,
   workflow_script = workflow_script
 )
+figure_env <- attr(panel_manifest, "old_env")
+input_sync_check <- write_final_figure_input_sync_check_v5(figure_env, v5_root)
 
 figure_manifest <- assemble_v5_figures(
   v5_root = v5_root,
@@ -149,6 +152,14 @@ manifest <- manifest_long_v5(panel_manifest, figure_manifest, v5_root)
 wording_audit <- wording_audit_rows_v5()
 write_tsv_v5(wording_audit, file.path(v5_root, "tables", "v5_wording_audit.tsv"))
 checks <- validate_v5_outputs(v5_root, manifest, baseline_inputs, baseline_inputs, baseline_inputs)
+semantic_checks <- validate_final_svg_semantics_v5(v5_root)
+figure_map <- write_final_manuscript_figure_map_v5(v5_root)
+redundancy_audit_path <- write_final_redundancy_audit_v5(v5_root)
+bargraph_qc <- write_bargraph_zero_baseline_qc_v5(v5_root)
+permutation_validation_path <- write_permutation_final_validation_v5(figure_env, v5_root)
+figure6_zero_validation_path <- write_figure6_zero_value_validation_v5(figure_env, v5_root)
+final_qc_path <- write_final_manuscript_qc_v5(figure_env, v5_root)
+final_polish_qc_path <- write_final_polish_qc_v5(v5_root)
 log_path <- write_generation_log_v5(v5_root, manifest$file_path, checks)
 
 cat("\nIMRS v6 generation complete\n")
@@ -162,4 +173,12 @@ cat("Warnings: ", ifelse(length(v5_warnings) == 0, "none", paste(v5_warnings, co
 cat("Confirmation: released derived input tables were read without modification; outputs were written to the configured repository results folder.\n")
 cat("Manifest: ", file.path(v5_root, "figure_v5_manifest.tsv"), "\n", sep = "")
 cat("Wording audit: ", file.path(v5_root, "tables", "v5_wording_audit.tsv"), "\n", sep = "")
+cat("Input synchronization audit: ", file.path(v5_root, "tables", "final_figure_input_sync_check.tsv"), "\n", sep = "")
+cat("Final manuscript figure map: ", file.path(v5_root, "tables", "final_manuscript_figure_map.tsv"), "\n", sep = "")
+cat("Final redundancy audit: ", redundancy_audit_path, "\n", sep = "")
+cat("Bargraph zero-baseline QC: ", file.path(v5_root, "tables", "bargraph_zero_baseline_qc.tsv"), "\n", sep = "")
+cat("Permutation validation: ", permutation_validation_path, "\n", sep = "")
+cat("Figure 6 zero-value validation: ", figure6_zero_validation_path, "\n", sep = "")
+cat("Final figure QC: ", final_qc_path, "\n", sep = "")
+cat("Final polish QC: ", final_polish_qc_path, "\n", sep = "")
 cat("Log: ", log_path, "\n", sep = "")

@@ -1,0 +1,7 @@
+plot_name	source_function	orientation	value_axis	lower_limit	lower_expansion	zero_touches_axis	qc_status
+Retained-gene support	render_figure2_support_split_v5	vertical	y	0	0	TRUE	PASS
+Missing-anchor support	render_figure2_support_split_v5	vertical	y	0	0	TRUE	PASS
+Applied coefficient distribution	make_Figure2D	histogram	y (count)	0	0	TRUE	PASS
+Top absolute coefficients	make_Figure2C	horizontal	x	0	0	TRUE	PASS
+Comparator positive direction	make_Figure4F	vertical	y	0	0	TRUE	PASS
+Supplementary S1 biological-context counts	render_s1b_context_categories_v5	horizontal	x	0	0	TRUE	PASS

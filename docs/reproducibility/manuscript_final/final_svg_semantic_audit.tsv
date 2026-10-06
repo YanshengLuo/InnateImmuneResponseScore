@@ -1,0 +1,10 @@
+check	status
+no_GSE262515_cell_line	PASS
+no_HepG2	PASS
+no_GSE166655_672h	PASS
+no_GSE178313_48h	PASS
+has_GSE166655_1008h	PASS
+has_GSE178313_24h	PASS
+has_GSE262515_tissue_72h	PASS
+no_internal_publication_terms	PASS
+no_ambiguous_n_equals	PASS

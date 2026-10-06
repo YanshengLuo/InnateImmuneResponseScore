@@ -1,0 +1,2 @@
+background_source_file	background_definition	n_background_original	n_background_mapped_entrez	n_query_original	n_query_mapped_entrez	n_query_unmapped	notes
+data/derived/gene_power.tsv	All anchor-phase genes present in gene_power.tsv after anchor meta-analysis/power evaluation; used as the project-specific anchor-eligible background.	40347	22304	287	252	35	Query genes in mapped background: 252. Enrichment universe uses mapped background Entrez IDs. No IMRS scoring or retained-gene definitions were changed.

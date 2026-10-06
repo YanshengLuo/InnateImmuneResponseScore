@@ -1,0 +1,18 @@
+dataset_id	tissue	display_time_h	delivery_platform_clean	manuscript_group	time_window_label	label	mean_delta	n_contrasts
+GSE264344	Blood	72	adenoviral vector	Extended validation	72 h	GSE264344 | Blood | 72 h	0.176745634167338	2
+GSE264344	dLN	72	adenoviral vector	Extended validation	72 h	GSE264344 | dLN | 72 h	0.422009103420656	2
+GSE262515_tissue	tissue	72	optimized therapeutic lipid nanoparticle	Secondary support	72 h	GSE262515_tissue | tissue | 72 h	0.786867855766336	3
+GSE166655	Tibialis anterior	1008	AAV9 gene therapy	Extended validation	1008 h	GSE166655 | Tibialis anterior | 1008 h	1.04573467074428	2
+GSE314070	small intestine	336	mRNA lipid nanoparticle vaccine	Extended validation	336 h	GSE314070 | small intestine | 336 h	1.20330889745532	2
+GSE264344	Muscle	72	adenoviral vector	Extended validation	72 h	GSE264344 | Muscle | 72 h	1.24812327765574	2
+GSE264344	Blood		adenoviral vector	Locked anchor	1-24 h	GSE264344 | Blood | 1-24 h	2.46429683499283	10
+GSE264344	Muscle		adenoviral vector	Locked anchor	1-24 h	GSE264344 | Muscle | 1-24 h	3.06458807004116	10
+GSE264344	dLN		adenoviral vector	Locked anchor	1-24 h	GSE264344 | dLN | 1-24 h	3.62851230853627	10
+GSE178313	Liver	24	lipid nanoparticle	Extended validation	24 h	GSE178313 | Liver | 24 h	6.74327560135526	1
+GSE279743	Lymph Node	6	mRNA lipid nanoparticle vaccine	Primary acute validation	6 h	GSE279743 | Lymph Node | 6 h	8.14822376931177	2
+GSE167521	skin	24	lipid nanoparticle	Locked anchor	24 h	GSE167521 | skin | 24 h	8.69030669695774	1
+GSE119119	whole liver	4	adenoviral vector / virus-antibody perturbation	Primary acute validation	4 h	GSE119119 | whole liver | 4 h	10.7386736449782	6
+GSE139529	blood	24	adenoviral / MVA vaccine vector	Primary acute validation	24 h	GSE139529 | blood | 24 h	11.9199436891613	6
+GSE279372	draining lymph nodes	24	vaccine formulation / LNP or alum/VLP depending split	Locked anchor	24 h	GSE279372 | draining lymph nodes | 24 h	13.6760718142067	6
+GSE39129	liver	4	lentiviral vector	Locked anchor	4 h	GSE39129 | liver | 4 h	34.722530908039	1
+GSE279744	lymph node	6	mRNA lipid nanoparticle vaccine	Locked anchor	6 h	GSE279744 | lymph node | 6 h	35.1477789350338	2
